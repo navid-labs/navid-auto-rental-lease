@@ -114,6 +114,48 @@ describe('createVehicle', () => {
     expect(mockPrisma.vehicle.create).not.toHaveBeenCalled()
   })
 
+  it('sets approvalStatus to APPROVED when admin creates vehicle', async () => {
+    mockGetCurrentUser.mockResolvedValue({
+      id: 'admin-1',
+      role: 'ADMIN',
+      email: 'admin@test.com',
+      name: 'Admin',
+    })
+    mockPrisma.vehicle.create.mockResolvedValue({ id: 'vehicle-4' })
+
+    await createVehicle(validFormData)
+
+    expect(mockPrisma.vehicle.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        approvalStatus: 'APPROVED',
+        approvedBy: 'admin-1',
+      }),
+    })
+    // approvedAt should be a Date
+    const callData = mockPrisma.vehicle.create.mock.calls[0][0].data
+    expect(callData.approvedAt).toBeInstanceOf(Date)
+  })
+
+  it('sets approvalStatus to PENDING when dealer creates vehicle', async () => {
+    mockGetCurrentUser.mockResolvedValue({
+      id: 'dealer-1',
+      role: 'DEALER',
+      email: 'dealer@test.com',
+      name: 'Test Dealer',
+    })
+    mockPrisma.vehicle.create.mockResolvedValue({ id: 'vehicle-5' })
+
+    await createVehicle(validFormData)
+
+    expect(mockPrisma.vehicle.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        approvalStatus: 'PENDING',
+        approvedBy: null,
+        approvedAt: null,
+      }),
+    })
+  })
+
   it('rejects invalid form data', async () => {
     mockGetCurrentUser.mockResolvedValue({
       id: 'dealer-1',

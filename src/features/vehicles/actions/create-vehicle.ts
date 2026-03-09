@@ -32,6 +32,8 @@ export async function createVehicle(
   const dealerId =
     user.role === 'ADMIN' && dealerIdOverride ? dealerIdOverride : user.id
 
+  const isAdmin = user.role === 'ADMIN'
+
   const vehicle = await prisma.vehicle.create({
     data: {
       trimId,
@@ -44,6 +46,9 @@ export async function createVehicle(
       monthlyRental: monthlyRental ?? null,
       monthlyLease: monthlyLease ?? null,
       description: description ?? null,
+      approvalStatus: isAdmin ? 'APPROVED' : 'PENDING',
+      approvedBy: isAdmin ? user.id : null,
+      approvedAt: isAdmin ? new Date() : null,
     },
   })
 

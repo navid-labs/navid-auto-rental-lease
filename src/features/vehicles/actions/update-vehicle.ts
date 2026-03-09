@@ -20,7 +20,7 @@ export async function updateVehicle(
 
   const vehicle = await prisma.vehicle.findUnique({
     where: { id: vehicleId },
-    select: { id: true, dealerId: true },
+    select: { id: true, dealerId: true, approvalStatus: true },
   })
 
   if (!vehicle) return { error: '차량을 찾을 수 없습니다.' }
@@ -30,10 +30,39 @@ export async function updateVehicle(
     return { error: '이 차량을 수정할 권한이 없습니다.' }
   }
 
-  await prisma.vehicle.update({
-    where: { id: vehicleId },
-    data,
-  })
+  // Reset approval when dealer edits an approved vehicle
+  const shouldResetApproval =
+    user.role === 'DEALER' && vehicle.approvalStatus === 'APPROVED'
+
+  if (shouldResetApproval) {
+    await prisma.$transaction(async (tx) => {
+      await tx.vehicle.update({
+        where: { id: vehicleId },
+        data: {
+          ...data,
+          approvalStatus: 'PENDING',
+          approvedBy: null,
+          approvedAt: null,
+          rejectionReason: null,
+        },
+      })
+
+      await tx.vehicleApprovalLog.create({
+        data: {
+          vehicleId,
+          fromStatus: 'APPROVED',
+          toStatus: 'PENDING',
+          reason: '딜러 수정으로 인한 재승인 필요',
+          changedBy: user.id,
+        },
+      })
+    })
+  } else {
+    await prisma.vehicle.update({
+      where: { id: vehicleId },
+      data,
+    })
+  }
 
   return { success: true }
 }

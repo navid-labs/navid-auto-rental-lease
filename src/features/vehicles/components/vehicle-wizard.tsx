@@ -5,16 +5,17 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StepPlateLookup } from './step-plate-lookup'
 import { StepDetails } from './step-details'
+import { StepPhotos } from './step-photos'
 import { createVehicle } from '@/features/vehicles/actions/create-vehicle'
 import { updateVehicle } from '@/features/vehicles/actions/update-vehicle'
-import type { VehicleFormData } from '@/features/vehicles/types'
+import type { VehicleFormData, ImageItem } from '@/features/vehicles/types'
 import type { VehicleStep2Data } from '@/features/vehicles/schemas/vehicle'
 import { cn } from '@/lib/utils'
 
 type VehicleWizardProps = {
   mode: 'create' | 'edit'
   userRole: 'DEALER' | 'ADMIN'
-  initialData?: Partial<VehicleFormData> & { id?: string }
+  initialData?: Partial<VehicleFormData> & { id?: string; images?: ImageItem[] }
 }
 
 const STEPS = [
@@ -28,7 +29,10 @@ export function VehicleWizard({ mode, userRole, initialData }: VehicleWizardProp
   const [isPending, startTransition] = useTransition()
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState<Partial<VehicleFormData>>(initialData ?? {})
+  const [vehicleId, setVehicleId] = useState<string | null>(initialData?.id ?? null)
   const [error, setError] = useState('')
+
+  const redirectPath = userRole === 'ADMIN' ? '/admin/vehicles' : '/dealer/vehicles'
 
   const handleFieldChange = useCallback((field: string, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -47,28 +51,31 @@ export function VehicleWizard({ mode, userRole, initialData }: VehicleWizardProp
     startTransition(async () => {
       setError('')
 
-      if (mode === 'edit' && initialData?.id) {
-        const result = await updateVehicle(initialData.id, merged)
+      if (mode === 'edit' && vehicleId) {
+        const result = await updateVehicle(vehicleId, merged)
         if ('error' in result) {
           setError(result.error)
           return
         }
+        // In edit mode, vehicleId is already set; go to photos
+        setCurrentStep(3)
       } else {
         const result = await createVehicle(merged)
         if ('error' in result) {
           setError(result.error)
           return
         }
+        // Store vehicleId from creation, then go to photos
+        setVehicleId(result.vehicleId)
+        setCurrentStep(3)
       }
-
-      // Redirect to vehicle list
-      const basePath = userRole === 'ADMIN' ? '/admin/vehicles' : '/dealer/vehicles'
-      router.push(basePath)
-      router.refresh()
     })
   }
 
-  const redirectPath = userRole === 'ADMIN' ? '/admin/vehicles' : '/dealer/vehicles'
+  const handleComplete = () => {
+    router.push(redirectPath)
+    router.refresh()
+  }
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -131,30 +138,18 @@ export function VehicleWizard({ mode, userRole, initialData }: VehicleWizardProp
               onSubmit={handleStep2Submit}
               onBack={() => setCurrentStep(1)}
               isSubmitting={isPending}
-              submitLabel={mode === 'create' ? '등록하기' : '수정하기'}
+              submitLabel="다음"
             />
           )}
 
-          {currentStep === 3 && (
-            <div className="space-y-4 text-center text-muted-foreground">
-              <p>사진 등록은 다음 업데이트에서 지원됩니다.</p>
-              <div className="flex justify-between">
-                <button
-                  type="button"
-                  onClick={() => setCurrentStep(2)}
-                  className="text-sm underline underline-offset-4"
-                >
-                  이전
-                </button>
-                <button
-                  type="button"
-                  onClick={() => router.push(redirectPath)}
-                  className="text-sm underline underline-offset-4"
-                >
-                  차량 목록으로
-                </button>
-              </div>
-            </div>
+          {currentStep === 3 && vehicleId && (
+            <StepPhotos
+              vehicleId={vehicleId}
+              initialImages={initialData?.images}
+              onBack={() => setCurrentStep(2)}
+              onComplete={handleComplete}
+              mode={mode}
+            />
           )}
         </CardContent>
       </Card>

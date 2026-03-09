@@ -1,5 +1,6 @@
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 
 export default function PublicLayout({
   children,
@@ -7,10 +8,12 @@ export default function PublicLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="flex-1">{children}</main>
-      <Footer />
-    </div>
+    <NuqsAdapter>
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex-1">{children}</main>
+        <Footer />
+      </div>
+    </NuqsAdapter>
   )
 }

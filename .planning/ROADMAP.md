@@ -36,6 +36,10 @@
 - [ ] Phase 11: Quote Generation Engine
   - **Goal:** 선택한 차량들로 렌탈/리스 견적서를 생성하고 PDF 출력
   - **Requirements:** REQ-V11-05, REQ-V11-06, REQ-V11-07
+  - **Plans:** 2 plans
+  - Plans:
+    - [ ] 11-01-PLAN.md — Quote types, calculation server action, builder UI with result cards
+    - [ ] 11-02-PLAN.md — Quote PDF component, API route, download button wiring
 - [ ] Phase 12: Settings Management & Polish
   - **Goal:** 프로모션율, 보조금, 잔존가율 등 설정 CRUD 및 전체 마무리
   - **Requirements:** REQ-V11-08, REQ-V11-09, REQ-V11-10
@@ -54,5 +58,5 @@
 | 8. Contract Completion & My Page | v1.0 | 2/2 | Complete | 2026-03-09 |
 | 9. Admin Dashboard & Demo Readiness | v1.0 | 3/3 | Complete | 2026-03-10 |
 | 10. Inventory Data & Table UI | v1.1 | 0/2 | Planning | - |
-| 11. Quote Generation Engine | v1.1 | 0/0 | Planned | - |
+| 11. Quote Generation Engine | v1.1 | 0/2 | Planned | - |
 | 12. Settings Management & Polish | v1.1 | 0/0 | Planned | - |

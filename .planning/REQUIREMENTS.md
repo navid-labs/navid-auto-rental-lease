@@ -51,7 +51,7 @@ Requirements for demo/investor-ready release. Each maps to roadmap phases.
 
 ### Dealer Portal
 
-- [ ] **DEAL-01**: Dealer dashboard (my vehicles, contract requests, approval status)
+- [x] **DEAL-01**: Dealer dashboard (my vehicles, contract requests, approval status)
 
 ### Admin
 
@@ -135,7 +135,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONT-05 | Phase 7 | Pending |
 | CONT-06 | Phase 7 | Pending |
 | CONT-07 | Phase 7 | Pending |
-| DEAL-01 | Phase 4 | Pending |
+| DEAL-01 | Phase 4 | Complete |
 | ADMN-01 | Phase 9 | Pending |
 | ADMN-02 | Phase 9 | Pending |
 | ADMN-03 | Phase 9 | Pending |

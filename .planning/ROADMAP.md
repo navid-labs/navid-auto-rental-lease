@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Project scaffolding, database schema with RLS, Supabase client setup, responsive layout shell (completed 2026-03-09)
 - [x] **Phase 2: Authentication & User Management** - Signup/login/logout, role-based access, profile management, route protection (completed 2026-03-09)
 - [x] **Phase 3: Vehicle Data & Storage** - Vehicle CRUD for dealers and admins, image upload, license plate API, vehicle status management (completed 2026-03-09)
-- [ ] **Phase 4: Dealer Portal & Approval Workflow** - Dealer dashboard, admin vehicle approval queue
+- [x] **Phase 4: Dealer Portal & Approval Workflow** - Dealer dashboard, admin vehicle approval queue (completed 2026-03-09)
 - [ ] **Phase 5: Public Search & Discovery** - Vehicle search/filter/sort, detail pages with gallery, URL state persistence, landing page
 - [ ] **Phase 6: Pricing & Calculation** - Monthly payment calculator, residual value estimation, rental vs lease comparison
 - [ ] **Phase 7: Contract Engine** - Contract state machine, multi-step application form, mock eKYC flow, realtime status updates
@@ -179,7 +179,7 @@ Phases execute in order: 1 → 2 → 3 → {4, 5 parallel} → 6 → 7 → 8 →
 | 1. Foundation | 2/2 | Complete   | 2026-03-09 |
 | 2. Authentication & User Management | 2/2 | Complete   | 2026-03-09 |
 | 3. Vehicle Data & Storage | 3/3 | Complete   | 2026-03-09 |
-| 4. Dealer Portal & Approval Workflow | 1/2 | In Progress|  |
+| 4. Dealer Portal & Approval Workflow | 2/2 | Complete   | 2026-03-09 |
 | 5. Public Search & Discovery | 0/2 | Not started | - |
 | 6. Pricing & Calculation | 0/2 | Not started | - |
 | 7. Contract Engine | 0/3 | Not started | - |

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-03-09T14:03:49.000Z"
-last_activity: 2026-03-09 -- Plan 04-01 completed. Approval data layer with server actions and ApprovalBadge.
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-03-09T14:21:31Z"
+last_activity: 2026-03-09 -- Plan 04-02 completed. Dealer dashboard with stats sidebar and admin approval queue with batch actions.
 progress:
   total_phases: 9
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 9
-  completed_plans: 8
-  percent: 89
+  completed_plans: 9
+  percent: 100
 ---
 
 # Project State
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** 고객이 중고차를 온라인에서 검색하고, 비교하고, 비대면으로 렌탈/리스 계약까지 완료할 수 있는 원스톱 경험
-**Current focus:** Phase 4 in progress. Approval data layer complete, dashboard UI next.
+**Current focus:** Phase 4 complete. Dealer portal with approval workflow done. Ready for Phase 5.
 
 ## Current Position
 
-Phase: 4 of 9 (Dealer Portal & Approval Workflow) -- IN PROGRESS
-Plan: 1 of 2 in current phase (04-01 done)
-Status: Plan 04-01 Complete
-Last activity: 2026-03-09 -- Plan 04-01 completed. Approval data layer with server actions and ApprovalBadge.
+Phase: 4 of 9 (Dealer Portal & Approval Workflow) -- COMPLETE
+Plan: 2 of 2 in current phase (all done)
+Status: Phase 04 Complete
+Last activity: 2026-03-09 -- Plan 04-02 completed. Dealer dashboard with stats sidebar and admin approval queue.
 
-Progress: [█████████-] 89%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 7.5min
-- Total execution time: 0.73 hours
+- Total plans completed: 9
+- Average duration: 7min
+- Total execution time: 1.05 hours
 
 **By Phase:**
 
@@ -46,10 +46,10 @@ Progress: [█████████-] 89%
 | 1-Foundation | 2 | 24min | 12min |
 | 2-Auth | 2 | 10min | 5min |
 | 3-Vehicle | 3/3 (done) | 16min | 5.3min |
-| 4-Dealer Portal | 1/2 | 5min | 5min |
+| 4-Dealer Portal | 2/2 (done) | 13min | 6.5min |
 
 **Recent Trend:**
-- Last 5 plans: 02-02 (4min), 03-01 (5min), 03-02 (6min), 03-03 (5min), 04-01 (5min)
+- Last 5 plans: 03-01 (5min), 03-02 (6min), 03-03 (5min), 04-01 (5min), 04-02 (8min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -89,6 +89,9 @@ Recent decisions affecting current work:
 - [04-01]: ApprovalStatus kept as separate enum from VehicleStatus (independent concerns)
 - [04-01]: base-ui Tooltip (not Radix) -- shadcn v4 uses base-ui, no asChild prop
 - [04-01]: Dealer resubmit also allowed for ADMIN role for operational flexibility
+- [04-02]: Dealer layout split into server + client components for notification dot prop passing
+- [04-02]: Dealer /vehicles redirects to /dealer/dashboard -- dashboard IS the vehicles page
+- [04-02]: Admin approval queue uses searchParams tab state (tab=approval-queue)
 
 ### Pending Todos
 
@@ -102,6 +105,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T14:03:49.000Z
-Stopped at: Completed 04-01-PLAN.md
-Resume file: .planning/phases/04-dealer-portal-approval-workflow/04-02-PLAN.md
+Last session: 2026-03-09T14:21:31Z
+Stopped at: Completed 04-02-PLAN.md (Phase 4 complete)
+Resume file: Phase 5 planning needed

@@ -35,11 +35,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Responsive layout shell renders correctly on desktop and mobile viewports
   5. Tailwind CSS v4 + shadcn/ui components render without errors
   6. Korean locale utilities configured (formatKRW, formatDate, formatDistance helpers)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md -- Scaffold Next.js 15 project with Supabase clients, Prisma schema with RLS, Tailwind v4 + shadcn/ui, Korean locale utilities, and test framework
+- [ ] 01-02-PLAN.md -- Build responsive layout shell with public header/footer, admin sidebar, and dealer sidebar
 
 ### Phase 2: Authentication & User Management
 **Goal**: Users can create accounts, log in, and access role-appropriate areas of the platform

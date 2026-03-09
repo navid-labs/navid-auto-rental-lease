@@ -30,7 +30,7 @@
 
 ### Active
 
-(None — v1 scope complete)
+(None — next milestone not yet defined. Use `/gsd:new-milestone` to start.)
 
 ### Out of Scope
 
@@ -84,5 +84,13 @@
 | 계약 데이터 | 13건 (7개 상태 전부 커버) |
 | 총 개발 시간 | ~1.05시간 (Plan 실행 기준) |
 
+## Current State
+
+**v1.0 Demo MVP shipped 2026-03-10.**
+- 9 phases, 22 plans, 213 source files, 18,276 LOC TypeScript
+- 264 tests across 30 files
+- Demo seed: 9 accounts, 13 contracts, 50+ vehicles
+- Tech debt: 10 items tracked in `.planning/milestones/v1.0-MILESTONE-AUDIT.md`
+
 ---
-*Last updated: 2026-03-10 — v1 demo complete*
+*Last updated: 2026-03-10 after v1.0 milestone*

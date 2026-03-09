@@ -1,12 +1,13 @@
 'use client'
 
-import { useTransition, useState } from 'react'
+import { useTransition, useState, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Resolver } from 'react-hook-form'
 import { LEASE_PERIOD_OPTIONS } from '@/lib/finance'
 import { quoteParamsSchema } from '../schemas/quote-schema'
 import type { QuoteParams, InventoryVehicleForQuote, QuoteGenerationResult } from '../types/quote'
+import type { QuotePDFData } from './quote-pdf'
 import { generateQuote } from '../actions/generate-quote'
 import { QuoteResultCard } from './quote-result-card'
 
@@ -19,6 +20,67 @@ export function QuoteBuilder({ selectedVehicles, onClose }: Props) {
   const [isPending, startTransition] = useTransition()
   const [results, setResults] = useState<QuoteGenerationResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isDownloading, setIsDownloading] = useState(false)
+
+  const downloadQuotePDF = useCallback(async (quoteResult: QuoteGenerationResult) => {
+    setIsDownloading(true)
+    try {
+      const pdfData: QuotePDFData = {
+        params: {
+          leasePeriodMonths: quoteResult.params.leasePeriodMonths,
+          residualRate: quoteResult.params.residualRate,
+          depositRate: quoteResult.params.depositRate,
+          creditGroup: quoteResult.params.creditGroup,
+        },
+        vehicles: quoteResult.vehicles.map((vr) => ({
+          vehicleName: vr.vehicle.vehicleName,
+          vehiclePrice: vr.vehicle.vehiclePrice,
+          brand: vr.vehicle.brand,
+          year: vr.vehicle.year,
+          exteriorColor: vr.vehicle.exteriorColor,
+          options: vr.vehicle.options,
+          effectivePrice: vr.effectivePrice,
+          promotionRate: vr.vehicle.promotionRate,
+          subsidyAmount: vr.vehicle.subsidyAmount,
+          leaseMonthly: vr.leaseResult.monthlyPayment,
+          leaseTotalPayment: vr.leaseResult.totalPayment,
+          leaseDeposit: vr.leaseResult.depositAmount,
+          leaseResidualValue: vr.leaseResult.residualValue,
+          leaseAnnualRate: vr.leaseResult.annualRate,
+          leaseAcquisitionTax: vr.leaseResult.acquisitionTax,
+          rentalMonthly: vr.rentalEstimate.monthlyPayment,
+          rentalTotalPayment: vr.rentalEstimate.totalPayment,
+        })),
+        generatedAt: quoteResult.generatedAt.toISOString(),
+      }
+
+      const res = await fetch('/api/admin/inventory/quote-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pdfData),
+      })
+
+      if (!res.ok) {
+        throw new Error('PDF 생성에 실패했습니다')
+      }
+
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '')
+      a.download = `navid-quote-${timestamp}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (e) {
+      console.error('PDF download error:', e)
+      alert(e instanceof Error ? e.message : 'PDF 다운로드 중 오류가 발생했습니다')
+    } finally {
+      setIsDownloading(false)
+    }
+  }, [])
 
   const {
     register,
@@ -201,11 +263,12 @@ export function QuoteBuilder({ selectedVehicles, onClose }: Props) {
               {results && (
                 <button
                   type="button"
-                  disabled
+                  disabled={isDownloading}
                   data-testid="quote-pdf-download"
-                  className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-400 cursor-not-allowed"
+                  onClick={() => downloadQuotePDF(results)}
+                  className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  PDF 다운로드
+                  {isDownloading ? 'PDF 생성 중...' : '견적서 PDF 다운로드'}
                 </button>
               )}
             </div>

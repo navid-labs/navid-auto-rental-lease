@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { ContractStatus } from '@prisma/client'
 import type { RealtimeChannel } from '@supabase/supabase-js'
@@ -16,9 +16,6 @@ export function useContractRealtime(
   contractType: 'RENTAL' | 'LEASE',
   onUpdate: (newStatus: ContractStatus) => void
 ) {
-  const onUpdateRef = useRef(onUpdate)
-  onUpdateRef.current = onUpdate
-
   useEffect(() => {
     const supabase = createClient()
     const table = contractType === 'RENTAL' ? 'rental_contracts' : 'lease_contracts'
@@ -36,7 +33,7 @@ export function useContractRealtime(
         (payload) => {
           const newStatus = (payload.new as { status: ContractStatus }).status
           if (newStatus) {
-            onUpdateRef.current(newStatus)
+            onUpdate(newStatus)
           }
         }
       )
@@ -49,5 +46,5 @@ export function useContractRealtime(
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [contractId, contractType])
+  }, [contractId, contractType, onUpdate])
 }

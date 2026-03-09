@@ -16,7 +16,7 @@ export async function approveContract(
   contractId: string,
   contractType: ContractType | 'RENTAL' | 'LEASE',
   action: 'APPROVED' | 'CANCELED',
-  reason?: string
+  _reason?: string
 ): Promise<ApproveContractResult> {
   const user = await getCurrentUser()
   if (!user) return { error: '로그인이 필요합니다.' }

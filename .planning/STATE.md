@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: completed
-stopped_at: All 9 phases complete. Ecosystem updated. Project demo-ready.
-last_updated: "2026-03-09T20:10:52.197Z"
-last_activity: 2026-03-10 -- All phases verified. PostgREST schema permissions fix applied.
+milestone: v1.1
+milestone_name: Inventory Admin
+status: executing
+stopped_at: Completed 10-01-PLAN.md
+last_updated: "2026-03-09T20:41:00.000Z"
+last_activity: 2026-03-10 -- Completed 10-01 inventory data model and JSON adapter
 progress:
-  total_phases: 9
-  completed_phases: 9
-  total_plans: 22
-  completed_plans: 22
+  total_phases: 3
+  completed_phases: 0
+  total_plans: 7
+  completed_plans: 1
   percent: 100
 ---
 
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** 고객이 중고차를 온라인에서 검색하고, 비교하고, 비대면으로 렌탈/리스 계약까지 완료할 수 있는 원스톱 경험
-**Current focus:** v1.0 milestone shipped. Planning next milestone.
+**Current focus:** v1.1 Inventory Admin — 외부 재고 조회, 견적 생성, 설정 관리
 
 ## Current Position
 
-Phase: 9 of 9 (Admin Dashboard & Demo Readiness)
-Plan: 3 of 3 in current phase (verified complete)
-Status: complete
-Last activity: 2026-03-10 -- All phases verified. PostgREST schema permissions fix applied.
+Phase: 10 of 12 (Inventory Data & Table UI)
+Plan: 1 of 2 in current phase (executing)
+Status: executing
+Last activity: 2026-03-10 -- Completed 10-01 inventory data model and JSON adapter
 
-Progress: [██████████] 100%
+Progress: [█░░░░░░░░░] 14%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 22
-- Average duration: ~4.5min per plan
-- Total execution time: ~1.05 hours
+- Total plans completed: 23
+- Average duration: ~4.4min per plan
+- Total execution time: ~1.08 hours
 
 **By Phase (Final):**
 
@@ -79,6 +79,7 @@ Progress: [██████████] 100%
 | 09-01 | 4min | 2 tasks | 15 files |
 | 09-02 | 4min | 2 tasks | 8 files |
 | 09-03 | 7min | 2 tasks | 14 files |
+| 10-01 | 4min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -147,6 +148,9 @@ Recent decisions affecting current work:
 - [09-03]: Seed gracefully falls back to fixed UUIDs when SUPABASE_SERVICE_ROLE_KEY missing
 - [09-03]: Public route group is (public) not (marketing) -- loading.tsx placed accordingly
 - [09-03]: toLocaleDateString replaced with formatDate utility for consistent Korean dates
+- [10-01]: Extended vitest include to cover tests/ directory alongside src/
+- [10-01]: deleteMany + createMany for clean reload of wholesale inventory data
+- [10-01]: Brand extracted from representModel first word for filtering
 
 ### Pending Todos
 
@@ -172,6 +176,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T04:56:00Z
-Stopped at: All 9 phases complete. Ecosystem updated. Project demo-ready.
+Last session: 2026-03-09T20:41:00Z
+Stopped at: Completed 10-01-PLAN.md
 Resume file: None

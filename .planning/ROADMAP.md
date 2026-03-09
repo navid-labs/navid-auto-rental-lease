@@ -83,10 +83,11 @@ Plans:
   1. Dealer dashboard shows their vehicles, incoming contract requests, and approval status at a glance
   2. Dealer-registered vehicles are not publicly visible until admin approves them
   3. Admin can approve or reject dealer vehicles with a reason, and dealer sees the decision
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: TBD
+- [ ] 04-01-PLAN.md -- ApprovalStatus schema migration, approval server actions (approve/reject/batch/resubmit), modified create/update actions, ApprovalBadge component
+- [ ] 04-02-PLAN.md -- Dealer dashboard with stats sidebar, admin approval queue tab with batch actions, rejection dialog with Korean presets
 
 ### Phase 5: Public Search & Discovery
 **Goal**: Any visitor can find, browse, and examine vehicles through a polished public storefront
@@ -178,7 +179,7 @@ Phases execute in order: 1 → 2 → 3 → {4, 5 parallel} → 6 → 7 → 8 →
 | 1. Foundation | 2/2 | Complete   | 2026-03-09 |
 | 2. Authentication & User Management | 2/2 | Complete   | 2026-03-09 |
 | 3. Vehicle Data & Storage | 3/3 | Complete   | 2026-03-09 |
-| 4. Dealer Portal & Approval Workflow | 0/1 | Not started | - |
+| 4. Dealer Portal & Approval Workflow | 0/2 | Not started | - |
 | 5. Public Search & Discovery | 0/2 | Not started | - |
 | 6. Pricing & Calculation | 0/2 | Not started | - |
 | 7. Contract Engine | 0/3 | Not started | - |

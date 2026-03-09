@@ -20,8 +20,15 @@ function getRoleDashboard(role: string): string {
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
-  // Skip auth refresh if Supabase is not configured (local dev without env vars)
+  // If Supabase is not configured, protect routes by redirecting to /login
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    const pathname = request.nextUrl.pathname
+    const isProtected = Object.keys(PROTECTED_ROUTES).some((prefix) => pathname.startsWith(prefix))
+    if (isProtected) {
+      const loginUrl = new URL('/login', request.url)
+      loginUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
     return supabaseResponse
   }
 

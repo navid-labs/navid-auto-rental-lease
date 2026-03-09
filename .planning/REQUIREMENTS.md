@@ -62,7 +62,7 @@ Requirements for demo/investor-ready release. Each maps to roadmap phases.
 
 ### UI & Experience
 
-- [ ] **UIEX-01**: Responsive web design (desktop + mobile simultaneous design)
+- [x] **UIEX-01**: Responsive web design (desktop + mobile simultaneous design)
 - [ ] **UIEX-02**: Landing page with featured vehicles and quick search
 - [ ] **UIEX-03**: My page with contract list and PDF download
 
@@ -140,7 +140,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ADMN-02 | Phase 9 | Pending |
 | ADMN-03 | Phase 9 | Pending |
 | ADMN-04 | Phase 9 | Pending |
-| UIEX-01 | Phase 1 | Pending |
+| UIEX-01 | Phase 1 | Complete |
 | UIEX-02 | Phase 5 | Pending |
 | UIEX-03 | Phase 8 | Pending |
 

@@ -68,12 +68,12 @@ Plans:
   4. Admin can register, edit, and delete vehicles for self-operated inventory
   5. Vehicle status transitions (available, reserved, rented, maintenance) update in real time and are enforced
   6. License plate auto-lookup populates vehicle details via API, with manual input as fallback
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
-- [ ] 03-03: TBD
+- [ ] 03-01-PLAN.md -- Vehicle foundation: install deps, VehicleStatusLog schema, Zod schemas, status machine, plate adapter, image compression utility, status badge
+- [ ] 03-02-PLAN.md -- Vehicle CRUD Server Actions with ownership enforcement, multi-step wizard UI, vehicle list/management pages for dealer and admin
+- [ ] 03-03-PLAN.md -- Image upload system (Supabase Storage, drag-and-drop, compression, sortable reorder), vehicle detail pages with photo gallery
 
 ### Phase 4: Dealer Portal & Approval Workflow
 **Goal**: Dealers have a dedicated dashboard to manage their business, and admins control which dealer vehicles appear on the platform

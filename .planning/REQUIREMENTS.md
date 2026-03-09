@@ -41,7 +41,7 @@ Requirements for demo/investor-ready release. Each maps to roadmap phases.
 
 ### Contract
 
-- [ ] **CONT-01**: Multi-step contract application form (vehicle → terms → eKYC → review → submit)
+- [x] **CONT-01**: Multi-step contract application form (vehicle → terms → eKYC → review → submit)
 - [x] **CONT-02**: Mock eKYC flow with ID verification UI (real API integration in v2)
 - [ ] **CONT-03**: Contract PDF auto-generation with all contract details
 - [ ] **CONT-04**: Contract status tracking on customer my page
@@ -128,7 +128,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SRCH-05 | Phase 5 | Complete |
 | PRIC-01 | Phase 6 | Complete |
 | PRIC-02 | Phase 6 | Complete |
-| CONT-01 | Phase 7 | Pending |
+| CONT-01 | Phase 7 | Complete |
 | CONT-02 | Phase 7 | Complete |
 | CONT-03 | Phase 8 | Pending |
 | CONT-04 | Phase 8 | Pending |

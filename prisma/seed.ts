@@ -1,6 +1,53 @@
 import { PrismaClient } from '@prisma/client'
+import { createClient } from '@supabase/supabase-js'
 
 const prisma = new PrismaClient()
+
+// ─── Supabase Admin Client (optional, for demo auth accounts) ───
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+const supabaseAdmin = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    })
+  : null
+
+/**
+ * Idempotent auth user creation.
+ * Creates a Supabase Auth user or fetches the existing one by email.
+ * Returns the user ID (UUID).
+ */
+async function ensureAuthUser(
+  email: string,
+  password: string,
+  metadata: { role: string; name: string }
+): Promise<string | null> {
+  if (!supabaseAdmin) return null
+
+  // Try to create the user
+  const { data, error } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: metadata,
+  })
+
+  if (data?.user) {
+    return data.user.id
+  }
+
+  // If user already exists, fetch by email
+  if (error && (error.message.includes('already') || error.message.includes('exists'))) {
+    const { data: listData } = await supabaseAdmin.auth.admin.listUsers()
+    const existing = listData?.users?.find((u) => u.email === email)
+    if (existing) return existing.id
+  }
+
+  console.warn(`  ! Could not create/fetch auth user ${email}: ${error?.message}`)
+  return null
+}
 
 // ─── Seed Data ──────────────────────────────────────────────
 
@@ -267,32 +314,100 @@ function mileageForYear(year: number): number {
   return base + randomInt(-3000, 5000)
 }
 
+// ─── Demo Account Definitions ───
+
+const DEMO_PASSWORD = 'navid1234!'
+
+const DEMO_ACCOUNTS = {
+  admin: { email: 'admin@navid.kr', name: '관리자', role: 'ADMIN' as const },
+  dealers: [
+    { email: 'dealer1@navid.kr', name: '서울모터스', phone: '02-1234-5678', role: 'DEALER' as const },
+    { email: 'dealer2@navid.kr', name: '강남오토', phone: '02-9876-5432', role: 'DEALER' as const },
+    { email: 'dealer3@navid.kr', name: '부산카센터', phone: '051-555-1234', role: 'DEALER' as const },
+  ],
+  customers: [
+    { email: 'customer1@navid.kr', name: '김민수', phone: '010-1111-1111', role: 'CUSTOMER' as const },
+    { email: 'customer2@navid.kr', name: '이영희', phone: '010-2222-2222', role: 'CUSTOMER' as const },
+    { email: 'customer3@navid.kr', name: '박정훈', phone: '010-3333-3333', role: 'CUSTOMER' as const },
+    { email: 'customer4@navid.kr', name: '최수진', phone: '010-4444-4444', role: 'CUSTOMER' as const },
+    { email: 'customer5@navid.kr', name: '정대한', phone: '010-5555-5555', role: 'CUSTOMER' as const },
+  ],
+}
+
+// Fixed UUIDs for fallback (when Supabase Auth is not available)
+const FALLBACK_IDS = {
+  admin: '00000000-0000-0000-0000-000000000001',
+  dealers: [
+    '00000000-0000-0000-0000-000000000002',
+    '00000000-0000-0000-0000-000000000003',
+    '00000000-0000-0000-0000-000000000004',
+  ],
+  customers: [
+    '00000000-0000-0000-0000-000000000011',
+    '00000000-0000-0000-0000-000000000012',
+    '00000000-0000-0000-0000-000000000013',
+    '00000000-0000-0000-0000-000000000014',
+    '00000000-0000-0000-0000-000000000015',
+  ],
+}
+
 async function main() {
-  console.log('🌱 Starting comprehensive seed...\n')
+  console.log('Starting comprehensive seed...\n')
 
-  // 1. Profiles (딜러 + 어드민) — Supabase Auth 없이 직접 생성
-  console.log('👤 Creating profiles...')
-  const adminId = '00000000-0000-0000-0000-000000000001'
-  const dealer1Id = '00000000-0000-0000-0000-000000000002'
-  const dealer2Id = '00000000-0000-0000-0000-000000000003'
-
-  const profiles = [
-    { id: adminId, email: 'admin@navid-auto.kr', name: '관리자', role: 'ADMIN' as const },
-    { id: dealer1Id, email: 'dealer1@navid-auto.kr', name: '서울모터스', phone: '02-1234-5678', role: 'DEALER' as const },
-    { id: dealer2Id, email: 'dealer2@navid-auto.kr', name: '강남오토', phone: '02-9876-5432', role: 'DEALER' as const },
-  ]
-
-  for (const p of profiles) {
-    await prisma.profile.upsert({
-      where: { id: p.id },
-      create: p,
-      update: { name: p.name, role: p.role },
-    })
+  // ─── 1. Profiles with optional Supabase Auth ───
+  if (supabaseAdmin) {
+    console.log('[Auth] Supabase Admin client available -- creating auth users')
+  } else {
+    console.log('[Auth] SUPABASE_SERVICE_ROLE_KEY not set -- using fixed UUIDs (no login support)')
   }
-  console.log(`  ✓ ${profiles.length} profiles created`)
 
-  // 2. Brands → CarModels → Generations → Trims
-  console.log('\n🚗 Creating brand/model/trim hierarchy...')
+  // Admin
+  const adminAuthId = await ensureAuthUser(
+    DEMO_ACCOUNTS.admin.email,
+    DEMO_PASSWORD,
+    { role: 'ADMIN', name: DEMO_ACCOUNTS.admin.name }
+  )
+  const adminId = adminAuthId ?? FALLBACK_IDS.admin
+  await prisma.profile.upsert({
+    where: { id: adminId },
+    create: { id: adminId, email: DEMO_ACCOUNTS.admin.email, name: DEMO_ACCOUNTS.admin.name, role: 'ADMIN' },
+    update: { name: DEMO_ACCOUNTS.admin.name, role: 'ADMIN', email: DEMO_ACCOUNTS.admin.email },
+  })
+  console.log(`  [OK] Admin: ${DEMO_ACCOUNTS.admin.email} (${adminId.slice(0, 8)}...)`)
+
+  // Dealers
+  const dealerIds: string[] = []
+  for (let i = 0; i < DEMO_ACCOUNTS.dealers.length; i++) {
+    const d = DEMO_ACCOUNTS.dealers[i]
+    const authId = await ensureAuthUser(d.email, DEMO_PASSWORD, { role: 'DEALER', name: d.name })
+    const id = authId ?? FALLBACK_IDS.dealers[i]
+    await prisma.profile.upsert({
+      where: { id },
+      create: { id, email: d.email, name: d.name, phone: d.phone, role: 'DEALER' },
+      update: { name: d.name, role: 'DEALER', phone: d.phone, email: d.email },
+    })
+    dealerIds.push(id)
+    console.log(`  [OK] Dealer: ${d.email} (${id.slice(0, 8)}...)`)
+  }
+
+  // Customers
+  const customerIds: string[] = []
+  for (let i = 0; i < DEMO_ACCOUNTS.customers.length; i++) {
+    const c = DEMO_ACCOUNTS.customers[i]
+    const authId = await ensureAuthUser(c.email, DEMO_PASSWORD, { role: 'CUSTOMER', name: c.name })
+    const id = authId ?? FALLBACK_IDS.customers[i]
+    await prisma.profile.upsert({
+      where: { id },
+      create: { id, email: c.email, name: c.name, phone: c.phone, role: 'CUSTOMER' },
+      update: { name: c.name, role: 'CUSTOMER', phone: c.phone, email: c.email },
+    })
+    customerIds.push(id)
+    console.log(`  [OK] Customer: ${c.email} (${id.slice(0, 8)}...)`)
+  }
+  console.log(`  Total: ${1 + dealerIds.length + customerIds.length} profiles`)
+
+  // ─── 2. Brands -> CarModels -> Generations -> Trims ───
+  console.log('\nCreating brand/model/trim hierarchy...')
   const trimIds: { trimId: string; brandName: string; modelName: string; trimName: string }[] = []
 
   for (const brandData of brands) {
@@ -348,14 +463,13 @@ async function main() {
         })
       }
     }
-    console.log(`  ✓ ${brandData.nameKo} (${brandData.name}): ${brandData.models.length}모델`)
+    console.log(`  [OK] ${brandData.nameKo} (${brandData.name}): ${brandData.models.length} models`)
   }
 
-  // 3. Vehicles (각 트림에서 1~2대 중고차 생성)
-  console.log('\n🏷️  Creating vehicles...')
+  // ─── 3. Vehicles ───
+  console.log('\nCreating vehicles...')
   let vehicleCount = 0
   let imageCount = 0
-  const dealers = [dealer1Id, dealer2Id]
 
   for (const t of trimIds) {
     const numVehicles = randomInt(1, 2)
@@ -365,7 +479,7 @@ async function main() {
       const year = randomPick(YEARS)
       const price = depreciatedPrice(basePriceMW, year)
       const mileage = mileageForYear(year)
-      const dealerId = randomPick(dealers)
+      const dealerId = randomPick(dealerIds)
 
       const vehicle = await prisma.vehicle.create({
         data: {
@@ -399,10 +513,10 @@ async function main() {
       vehicleCount++
     }
   }
-  console.log(`  ✓ ${vehicleCount}대 차량, ${imageCount}장 이미지 생성`)
+  console.log(`  [OK] ${vehicleCount} vehicles, ${imageCount} images`)
 
-  // 4. Residual Value Rates
-  console.log('\n📊 Seeding residual value rates...')
+  // ─── 4. Residual Value Rates ───
+  console.log('\nSeeding residual value rates...')
   const sampleRates = [
     { brand: 'Hyundai', model: 'Sonata', year: 2024, rate: 0.42 },
     { brand: 'Hyundai', model: 'Sonata', year: 2023, rate: 0.38 },
@@ -454,9 +568,143 @@ async function main() {
     })
     rateSeeded++
   }
-  console.log(`  ✓ ${rateSeeded} residual value rates seeded`)
+  console.log(`  [OK] ${rateSeeded} residual value rates`)
 
-  // Summary
+  // ─── 5. Demo Contracts in All Statuses ───
+  console.log('\nCreating demo contracts...')
+
+  // Get some vehicles for contracts
+  const vehicles = await prisma.vehicle.findMany({
+    take: 20,
+    include: {
+      trim: {
+        include: {
+          generation: {
+            include: { carModel: { include: { brand: true } } },
+          },
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  })
+
+  if (vehicles.length < 13) {
+    console.warn('  ! Not enough vehicles for contract demo data')
+  }
+
+  const now = new Date()
+  const monthsAgo = (m: number) => new Date(now.getFullYear(), now.getMonth() - m, now.getDate())
+  const monthsFromNow = (m: number) => new Date(now.getFullYear(), now.getMonth() + m, now.getDate())
+
+  type ContractSpec = {
+    type: 'RENTAL' | 'LEASE'
+    status: 'DRAFT' | 'PENDING_EKYC' | 'PENDING_APPROVAL' | 'APPROVED' | 'ACTIVE' | 'COMPLETED' | 'CANCELED'
+    monthly: number
+    deposit: number
+    startDate?: Date
+    endDate?: Date
+    residualRate?: number
+  }
+
+  const contractSpecs: ContractSpec[] = [
+    // DRAFT (2)
+    { type: 'RENTAL', status: 'DRAFT', monthly: 450000, deposit: 3000000 },
+    { type: 'LEASE', status: 'DRAFT', monthly: 550000, deposit: 5000000, residualRate: 0.42 },
+    // PENDING_EKYC (1)
+    { type: 'RENTAL', status: 'PENDING_EKYC', monthly: 380000, deposit: 3000000 },
+    // PENDING_APPROVAL (2)
+    { type: 'RENTAL', status: 'PENDING_APPROVAL', monthly: 420000, deposit: 4000000 },
+    { type: 'LEASE', status: 'PENDING_APPROVAL', monthly: 680000, deposit: 8000000, residualRate: 0.45 },
+    // APPROVED (2)
+    { type: 'RENTAL', status: 'APPROVED', monthly: 350000, deposit: 3000000 },
+    { type: 'LEASE', status: 'APPROVED', monthly: 520000, deposit: 6000000, residualRate: 0.40 },
+    // ACTIVE (3)
+    { type: 'RENTAL', status: 'ACTIVE', monthly: 480000, deposit: 5000000, startDate: monthsAgo(3), endDate: monthsFromNow(9) },
+    { type: 'RENTAL', status: 'ACTIVE', monthly: 320000, deposit: 3000000, startDate: monthsAgo(6), endDate: monthsFromNow(6) },
+    { type: 'LEASE', status: 'ACTIVE', monthly: 750000, deposit: 10000000, startDate: monthsAgo(2), endDate: monthsFromNow(22), residualRate: 0.48 },
+    // COMPLETED (2)
+    { type: 'RENTAL', status: 'COMPLETED', monthly: 400000, deposit: 4000000, startDate: monthsAgo(14), endDate: monthsAgo(2) },
+    { type: 'LEASE', status: 'COMPLETED', monthly: 600000, deposit: 7000000, startDate: monthsAgo(26), endDate: monthsAgo(2), residualRate: 0.44 },
+    // CANCELED (1)
+    { type: 'LEASE', status: 'CANCELED', monthly: 500000, deposit: 5000000, residualRate: 0.38 },
+  ]
+
+  let rentalCount = 0
+  let leaseCount = 0
+
+  for (let i = 0; i < contractSpecs.length; i++) {
+    const spec = contractSpecs[i]
+    const vehicle = vehicles[i % vehicles.length]
+    const customerId = customerIds[i % customerIds.length]
+    const dealerId = vehicle.dealerId
+    const duration = spec.startDate && spec.endDate
+      ? Math.round((spec.endDate.getTime() - spec.startDate.getTime()) / (1000 * 60 * 60 * 24 * 30))
+      : 12
+    const totalAmount = spec.monthly * duration + spec.deposit
+
+    if (spec.type === 'RENTAL') {
+      await prisma.rentalContract.create({
+        data: {
+          vehicleId: vehicle.id,
+          customerId,
+          dealerId,
+          status: spec.status,
+          startDate: spec.startDate ?? null,
+          endDate: spec.endDate ?? null,
+          monthlyPayment: spec.monthly,
+          deposit: spec.deposit,
+          totalAmount,
+        },
+      })
+      rentalCount++
+    } else {
+      const residualValue = spec.residualRate
+        ? Math.round(vehicle.price * spec.residualRate)
+        : null
+      await prisma.leaseContract.create({
+        data: {
+          vehicleId: vehicle.id,
+          customerId,
+          dealerId,
+          status: spec.status,
+          startDate: spec.startDate ?? null,
+          endDate: spec.endDate ?? null,
+          monthlyPayment: spec.monthly,
+          deposit: spec.deposit,
+          residualValue,
+          residualRate: spec.residualRate ?? null,
+          totalAmount,
+        },
+      })
+      leaseCount++
+    }
+
+    // Create EkycVerification for contracts past PENDING_EKYC
+    const pastEkyc = ['PENDING_APPROVAL', 'APPROVED', 'ACTIVE', 'COMPLETED'].includes(spec.status)
+    if (pastEkyc) {
+      const customer = DEMO_ACCOUNTS.customers[i % DEMO_ACCOUNTS.customers.length]
+      await prisma.ekycVerification.create({
+        data: {
+          profileId: customerId,
+          contractType: spec.type,
+          name: customer.name,
+          phone: customer.phone,
+          carrier: randomPick(['SKT', 'KT', 'LG U+']),
+          birthDate: `19${randomInt(85, 99)}${String(randomInt(1, 12)).padStart(2, '0')}${String(randomInt(1, 28)).padStart(2, '0')}`,
+          gender: randomPick(['M', 'F']),
+          verified: true,
+          verifiedAt: new Date(),
+        },
+      })
+    }
+  }
+
+  console.log(`  [OK] ${rentalCount} rental contracts, ${leaseCount} lease contracts`)
+  console.log(`  Contract status distribution:`)
+  console.log(`    DRAFT: 2, PENDING_EKYC: 1, PENDING_APPROVAL: 2`)
+  console.log(`    APPROVED: 2, ACTIVE: 3, COMPLETED: 2, CANCELED: 1`)
+
+  // ─── Summary ───
   const counts = await Promise.all([
     prisma.brand.count(),
     prisma.carModel.count(),
@@ -464,16 +712,24 @@ async function main() {
     prisma.vehicle.count(),
     prisma.vehicleImage.count(),
     prisma.residualValueRate.count(),
+    prisma.profile.count(),
+    prisma.rentalContract.count(),
+    prisma.leaseContract.count(),
+    prisma.ekycVerification.count(),
   ])
-  console.log('\n═══════════════════════════════════')
-  console.log(`  브랜드: ${counts[0]}개`)
-  console.log(`  모델:   ${counts[1]}개`)
-  console.log(`  트림:   ${counts[2]}개`)
-  console.log(`  차량:   ${counts[3]}대`)
-  console.log(`  이미지: ${counts[4]}장`)
-  console.log(`  잔존가치율: ${counts[5]}개`)
-  console.log('═══════════════════════════════════')
-  console.log('🌱 Seed complete!')
+  console.log('\n===================================')
+  console.log(`  Brands:          ${counts[0]}`)
+  console.log(`  Models:          ${counts[1]}`)
+  console.log(`  Trims:           ${counts[2]}`)
+  console.log(`  Vehicles:        ${counts[3]}`)
+  console.log(`  Images:          ${counts[4]}`)
+  console.log(`  Residual Rates:  ${counts[5]}`)
+  console.log(`  Profiles:        ${counts[6]}`)
+  console.log(`  Rental Contracts:${counts[7]}`)
+  console.log(`  Lease Contracts: ${counts[8]}`)
+  console.log(`  eKYC Records:    ${counts[9]}`)
+  console.log('===================================')
+  console.log('Seed complete!')
 }
 
 main()

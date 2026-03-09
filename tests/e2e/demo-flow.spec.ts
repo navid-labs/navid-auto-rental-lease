@@ -65,6 +65,6 @@ test.describe('Demo Flow - Admin Pages', () => {
     const content = page.locator('table, [class*="table"], [class*="card"]').first()
     await expect(content).toBeVisible({ timeout: 10000 })
     // Page title
-    await expect(page.getByText('차량 관리')).toBeVisible()
+    await expect(page.getByRole('heading', { name: '차량 관리' })).toBeVisible()
   })
 })

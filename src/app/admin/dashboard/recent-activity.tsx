@@ -25,30 +25,30 @@ function getRelativeTime(dateStr: string): string {
 function statusColor(status: string): string {
   switch (status) {
     case 'ACTIVE':
-      return 'bg-green-100 text-green-800'
+      return 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200'
     case 'APPROVED':
-      return 'bg-blue-100 text-blue-800'
+      return 'bg-blue-100 text-blue-800 ring-1 ring-blue-200'
     case 'PENDING_APPROVAL':
     case 'PENDING_EKYC':
-      return 'bg-yellow-100 text-yellow-800'
+      return 'bg-amber-100 text-amber-800 ring-1 ring-amber-200'
     case 'COMPLETED':
-      return 'bg-gray-100 text-gray-800'
+      return 'bg-slate-100 text-slate-700 ring-1 ring-slate-200'
     case 'CANCELED':
-      return 'bg-red-100 text-red-800'
+      return 'bg-red-100 text-red-800 ring-1 ring-red-200'
     default:
-      return 'bg-muted text-muted-foreground'
+      return 'bg-muted text-muted-foreground ring-1 ring-muted'
   }
 }
 
 export function RecentActivity({ activities }: RecentActivityProps) {
   if (activities.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">최근 활동</CardTitle>
+      <Card className="shadow-sm">
+        <CardHeader className="border-b pb-3">
+          <CardTitle className="text-sm font-semibold text-foreground">최근 활동</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="py-4 text-center text-sm text-muted-foreground">
+          <p className="py-8 text-center text-sm text-muted-foreground">
             최근 활동이 없습니다.
           </p>
         </CardContent>
@@ -57,24 +57,28 @@ export function RecentActivity({ activities }: RecentActivityProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">최근 활동</CardTitle>
+    <Card className="shadow-sm">
+      <CardHeader className="border-b pb-3">
+        <CardTitle className="text-sm font-semibold text-foreground">최근 활동</CardTitle>
+        <p className="text-xs text-muted-foreground">최근 계약 및 처리 현황</p>
       </CardHeader>
       <CardContent className="p-0">
-        <ul className="divide-y">
-          {activities.map((item) => (
-            <li key={`${item.contractType}-${item.id}`}>
+        <ul>
+          {activities.map((item, index) => (
+            <li
+              key={`${item.contractType}-${item.id}`}
+              className={index % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}
+            >
               <Link
                 href="/admin/contracts"
-                className="flex items-center gap-3 px-6 py-3 transition-colors hover:bg-muted/30"
+                className="flex items-center gap-3 px-6 py-3.5 transition-colors hover:bg-blue-50/40"
               >
                 {/* Contract type badge */}
                 <span
-                  className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                  className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold ring-1 ${
                     item.contractType === 'RENTAL'
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-purple-100 text-purple-800'
+                      ? 'bg-blue-100 text-blue-800 ring-blue-200'
+                      : 'bg-violet-100 text-violet-800 ring-violet-200'
                   }`}
                 >
                   {item.contractType === 'RENTAL' ? '렌탈' : '리스'}
@@ -82,19 +86,19 @@ export function RecentActivity({ activities }: RecentActivityProps) {
 
                 {/* Vehicle & customer */}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{item.vehicleName}</p>
+                  <p className="truncate text-sm font-medium text-foreground">{item.vehicleName}</p>
                   <p className="text-xs text-muted-foreground">{item.customerName}</p>
                 </div>
 
                 {/* Status badge */}
                 <span
-                  className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${statusColor(item.status)}`}
+                  className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${statusColor(item.status)}`}
                 >
                   {CONTRACT_STATUS_LABELS[item.status as ContractStatus] ?? item.status}
                 </span>
 
                 {/* Relative time */}
-                <span className="shrink-0 text-xs text-muted-foreground">
+                <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
                   {getRelativeTime(item.createdAt)}
                 </span>
               </Link>

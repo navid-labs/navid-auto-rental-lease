@@ -17,6 +17,40 @@ import {
 import { Users } from 'lucide-react'
 import { formatDate } from '@/lib/utils/format'
 
+type UserRole = 'ADMIN' | 'DEALER' | 'CUSTOMER'
+
+const ROLE_BADGE: Record<UserRole, { label: string; className: string }> = {
+  ADMIN: { label: '관리자', className: 'bg-blue-100 text-blue-700' },
+  DEALER: { label: '딜러', className: 'bg-green-100 text-green-700' },
+  CUSTOMER: { label: '고객', className: 'bg-slate-100 text-slate-600' },
+}
+
+const AVATAR_COLOR: Record<UserRole, string> = {
+  ADMIN: 'bg-blue-100 text-blue-700',
+  DEALER: 'bg-green-100 text-green-700',
+  CUSTOMER: 'bg-slate-100 text-slate-600',
+}
+
+function UserAvatar({ name, role }: { name: string | null; role: UserRole }) {
+  const initial = (name ?? '?').charAt(0).toUpperCase()
+  return (
+    <div
+      className={`flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${AVATAR_COLOR[role]}`}
+    >
+      {initial}
+    </div>
+  )
+}
+
+function RoleBadge({ role }: { role: UserRole }) {
+  const { label, className } = ROLE_BADGE[role]
+  return (
+    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${className}`}>
+      {label}
+    </span>
+  )
+}
+
 export const metadata = {
   title: '사용자 관리 | 관리자',
 }
@@ -92,32 +126,41 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
       ) : (
         <>
           {/* Desktop table */}
-          <div className="hidden rounded-md border md:block">
+          <div className="hidden overflow-hidden rounded-lg border shadow-sm md:block">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>이름</TableHead>
-                  <TableHead>이메일</TableHead>
-                  <TableHead>전화번호</TableHead>
-                  <TableHead>역할</TableHead>
-                  <TableHead>가입일</TableHead>
-                  <TableHead className="text-right">관리</TableHead>
+              <TableHeader className="bg-slate-50">
+                <TableRow className="hover:bg-slate-50">
+                  <TableHead className="text-xs font-medium uppercase tracking-wide text-slate-500">이름</TableHead>
+                  <TableHead className="text-xs font-medium uppercase tracking-wide text-slate-500">이메일</TableHead>
+                  <TableHead className="text-xs font-medium uppercase tracking-wide text-slate-500">전화번호</TableHead>
+                  <TableHead className="text-xs font-medium uppercase tracking-wide text-slate-500">역할</TableHead>
+                  <TableHead className="text-xs font-medium uppercase tracking-wide text-slate-500">가입일</TableHead>
+                  <TableHead className="text-right text-xs font-medium uppercase tracking-wide text-slate-500">관리</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredUsers.map((u) => {
                   const isDeactivated = u.name?.includes('(비활성)') ?? false
                   return (
-                    <TableRow key={u.id} className={isDeactivated ? 'opacity-50' : ''}>
-                      <TableCell className="font-medium">
-                        {u.name || '-'}
-                      </TableCell>
-                      <TableCell>{u.email}</TableCell>
-                      <TableCell>{u.phone || '-'}</TableCell>
+                    <TableRow
+                      key={u.id}
+                      className={`hover:bg-slate-50 ${isDeactivated ? 'opacity-50' : ''}`}
+                    >
                       <TableCell>
-                        <RoleSelect userId={u.id} currentRole={u.role} />
+                        <div className="flex items-center gap-2.5">
+                          <UserAvatar name={u.name} role={u.role as UserRole} />
+                          <span className="font-medium">{u.name || '-'}</span>
+                        </div>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="text-slate-600">{u.email}</TableCell>
+                      <TableCell className="text-slate-600">{u.phone || '-'}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <RoleBadge role={u.role as UserRole} />
+                          <RoleSelect userId={u.id} currentRole={u.role as UserRole} />
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-slate-500">
                         {formatDate(u.createdAt, { short: true })}
                       </TableCell>
                       <TableCell className="text-right">
@@ -137,14 +180,20 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
               return (
                 <div
                   key={u.id}
-                  className={`rounded-lg border p-4 space-y-3 ${isDeactivated ? 'opacity-50' : ''}`}
+                  className={`rounded-lg border shadow-sm p-4 space-y-3 ${isDeactivated ? 'opacity-50' : ''}`}
                 >
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">{u.name || '-'}</p>
-                      <p className="text-xs text-muted-foreground">{u.email}</p>
+                    <div className="flex items-center gap-2.5">
+                      <UserAvatar name={u.name} role={u.role as UserRole} />
+                      <div>
+                        <p className="font-medium">{u.name || '-'}</p>
+                        <p className="text-xs text-muted-foreground">{u.email}</p>
+                      </div>
                     </div>
-                    <RoleSelect userId={u.id} currentRole={u.role} />
+                    <div className="flex items-center gap-2">
+                      <RoleBadge role={u.role as UserRole} />
+                      <RoleSelect userId={u.id} currentRole={u.role as UserRole} />
+                    </div>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">

@@ -64,15 +64,40 @@ export function PricingCalculator({ vehicle, residualRate }: PricingCalculatorPr
       <CardContent className="space-y-6">
         {/* Manual Price Input (standalone mode) */}
         {!vehicle && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <label className="text-sm font-medium text-foreground">
               차량 가격 (만원)
             </label>
+            {/* Preset buttons */}
+            <div className="flex flex-wrap gap-2">
+              {[
+                { label: '2,000만원', value: '2000' },
+                { label: '3,000만원', value: '3000' },
+                { label: '5,000만원', value: '5000' },
+                { label: '8,000만원', value: '8000' },
+              ].map(({ label, value }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => {
+                    setManualPrice(value)
+                    setDeposit(0)
+                  }}
+                  className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors ${
+                    manualPrice === value
+                      ? 'border-accent bg-accent text-white'
+                      : 'border-border bg-white text-foreground hover:border-accent/60 hover:bg-accent/5'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
             <div className="flex items-center gap-2">
               <input
                 type="number"
                 inputMode="numeric"
-                placeholder="예: 3000"
+                placeholder="직접 입력 (예: 3000)"
                 value={manualPrice}
                 onChange={(e) => {
                   setManualPrice(e.target.value)
@@ -83,7 +108,7 @@ export function PricingCalculator({ vehicle, residualRate }: PricingCalculatorPr
               <span className="shrink-0 text-sm text-muted-foreground">만원</span>
             </div>
             {effectivePrice > 0 && (
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs font-medium text-accent">
                 = {formatKRW(effectivePrice)}
               </p>
             )}

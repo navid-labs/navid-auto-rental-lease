@@ -62,7 +62,11 @@ export function LoginForm() {
         <p className="text-sm text-red-500 text-center">{form.formState.errors.root.message}</p>
       )}
 
-      <Button type="submit" className="w-full" disabled={isPending}>
+      <Button
+        type="submit"
+        className="w-full bg-gradient-to-r from-[#0f1e3c] to-blue-600 text-white hover:from-[#152849] hover:to-blue-500 shadow-md shadow-blue-900/20 transition-all"
+        disabled={isPending}
+      >
         {isPending ? '로그인 중...' : '로그인'}
       </Button>
 

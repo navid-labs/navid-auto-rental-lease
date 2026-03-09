@@ -18,7 +18,9 @@ export function DeactivateButton({ userId, isDeactivated }: DeactivateButtonProp
 
   if (isDeactivated) {
     return (
-      <span className="text-xs text-muted-foreground">비활성</span>
+      <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
+        비활성
+      </span>
     )
   }
 
@@ -42,7 +44,7 @@ export function DeactivateButton({ userId, isDeactivated }: DeactivateButtonProp
       size="xs"
       onClick={handleDeactivate}
       disabled={isPending}
-      className="text-destructive hover:text-destructive"
+      className="border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
     >
       {isPending ? (
         <Loader2 className="size-3 animate-spin" />

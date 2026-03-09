@@ -108,13 +108,47 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (To be filled by roadmapper) | | |
+| AUTH-01 | Phase 2 | Pending |
+| AUTH-02 | Phase 2 | Pending |
+| AUTH-03 | Phase 2 | Pending |
+| AUTH-04 | Phase 2 | Pending |
+| AUTH-05 | Phase 2 | Pending |
+| AUTH-06 | Phase 2 | Pending |
+| VEHI-01 | Phase 3 | Pending |
+| VEHI-02 | Phase 3 | Pending |
+| VEHI-03 | Phase 3 | Pending |
+| VEHI-04 | Phase 3 | Pending |
+| VEHI-05 | Phase 3 | Pending |
+| VEHI-06 | Phase 3 | Pending |
+| VEHI-07 | Phase 4 | Pending |
+| SRCH-01 | Phase 5 | Pending |
+| SRCH-02 | Phase 5 | Pending |
+| SRCH-03 | Phase 5 | Pending |
+| SRCH-04 | Phase 6 | Pending |
+| SRCH-05 | Phase 5 | Pending |
+| PRIC-01 | Phase 6 | Pending |
+| PRIC-02 | Phase 6 | Pending |
+| CONT-01 | Phase 7 | Pending |
+| CONT-02 | Phase 7 | Pending |
+| CONT-03 | Phase 8 | Pending |
+| CONT-04 | Phase 8 | Pending |
+| CONT-05 | Phase 7 | Pending |
+| CONT-06 | Phase 7 | Pending |
+| CONT-07 | Phase 7 | Pending |
+| DEAL-01 | Phase 4 | Pending |
+| ADMN-01 | Phase 9 | Pending |
+| ADMN-02 | Phase 9 | Pending |
+| ADMN-03 | Phase 9 | Pending |
+| ADMN-04 | Phase 9 | Pending |
+| UIEX-01 | Phase 1 | Pending |
+| UIEX-02 | Phase 5 | Pending |
+| UIEX-03 | Phase 8 | Pending |
 
 **Coverage:**
-- v1 requirements: 33 total
-- Mapped to phases: 0
-- Unmapped: 33 ⚠️
+- v1 requirements: 35 total
+- Mapped to phases: 35
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-09*
-*Last updated: 2026-03-09 after initial definition*
+*Last updated: 2026-03-09 after roadmap creation*

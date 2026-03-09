@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Authentication & User Management** - Signup/login/logout, role-based access, profile management, route protection (completed 2026-03-09)
 - [x] **Phase 3: Vehicle Data & Storage** - Vehicle CRUD for dealers and admins, image upload, license plate API, vehicle status management (completed 2026-03-09)
 - [x] **Phase 4: Dealer Portal & Approval Workflow** - Dealer dashboard, admin vehicle approval queue (completed 2026-03-09)
-- [ ] **Phase 5: Public Search & Discovery** - Vehicle search/filter/sort, detail pages with gallery, URL state persistence, landing page
+- [x] **Phase 5: Public Search & Discovery** - Vehicle search/filter/sort, detail pages with gallery, URL state persistence, landing page (completed 2026-03-09)
 - [ ] **Phase 6: Pricing & Calculation** - Monthly payment calculator, residual value estimation, rental vs lease comparison
 - [ ] **Phase 7: Contract Engine** - Contract state machine, multi-step application form, mock eKYC flow, realtime status updates
 - [ ] **Phase 8: Contract Completion & My Page** - Contract PDF generation, my page with contract tracking and download
@@ -180,7 +180,7 @@ Phases execute in order: 1 → 2 → 3 → {4, 5 parallel} → 6 → 7 → 8 →
 | 2. Authentication & User Management | 2/2 | Complete   | 2026-03-09 |
 | 3. Vehicle Data & Storage | 3/3 | Complete   | 2026-03-09 |
 | 4. Dealer Portal & Approval Workflow | 2/2 | Complete   | 2026-03-09 |
-| 5. Public Search & Discovery | 0/2 | Not started | - |
+| 5. Public Search & Discovery | 2/2 | Complete   | 2026-03-09 |
 | 6. Pricing & Calculation | 0/2 | Not started | - |
 | 7. Contract Engine | 0/3 | Not started | - |
 | 8. Contract Completion & My Page | 0/1 | Not started | - |

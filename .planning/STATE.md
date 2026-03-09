@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-03-09T15:02:11.194Z"
-last_activity: 2026-03-09 -- Plan 05-02 completed. Landing page with hero search, featured vehicles, brand shortcuts, how-it-works, trust metrics.
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-03-10T00:05:22Z"
+last_activity: 2026-03-10 -- Plan 05-01 completed. Vehicle search page with filters, sort, pagination and detail page with inquiry form.
 progress:
   total_phases: 9
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 11
-  completed_plans: 10
-  percent: 91
+  completed_plans: 11
+  percent: 100
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** 고객이 중고차를 온라인에서 검색하고, 비교하고, 비대면으로 렌탈/리스 계약까지 완료할 수 있는 원스톱 경험
-**Current focus:** Phase 5 in progress. Landing page complete. Search page (Plan 01) may be running in parallel.
+**Current focus:** Phase 5 complete. Search page and landing page both done. Ready for Phase 6.
 
 ## Current Position
 
-Phase: 5 of 9 (Public Search & Discovery)
-Plan: 2 of 2 in current phase
-Status: Plan 05-02 Complete
-Last activity: 2026-03-09 -- Plan 05-02 completed. Landing page with hero search, featured vehicles, brand shortcuts, how-it-works, trust metrics.
+Phase: 5 of 9 (Public Search & Discovery) -- COMPLETE
+Plan: 2 of 2 in current phase (all done)
+Status: Phase 05 Complete
+Last activity: 2026-03-10 -- Plan 05-01 completed. Vehicle search page with filters, sort, pagination and detail page with inquiry form.
 
-Progress: [█████████░] 91%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Progress: [█████████░] 91%
 
 *Updated after each plan completion*
 | Phase 05 P02 | 3min | 2 tasks | 6 files |
+| Phase 05 P01 | 7min | 2 tasks | 19 files |
 
 ## Accumulated Context
 
@@ -94,6 +95,9 @@ Recent decisions affecting current work:
 - [04-02]: Dealer /vehicles redirects to /dealer/dashboard -- dashboard IS the vehicles page
 - [04-02]: Admin approval queue uses searchParams tab state (tab=approval-queue)
 - [Phase 05-02]: Inline VehicleCardMini in featured-vehicles for parallel plan execution independence
+- [05-01]: nuqs for type-safe URL state with shallow:false to trigger Server Component re-renders
+- [05-01]: Slider onValueChange uses Array.isArray guard for base-ui type compatibility
+- [05-01]: visibleModels/visibleGenerations derived from filter state to avoid setState-in-effect lint errors
 
 ### Pending Todos
 
@@ -107,6 +111,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T15:02:11.192Z
-Stopped at: Completed 05-02-PLAN.md
+Last session: 2026-03-10T00:05:22Z
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None

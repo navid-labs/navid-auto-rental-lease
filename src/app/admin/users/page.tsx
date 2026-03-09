@@ -15,6 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Users } from 'lucide-react'
+import { formatDate } from '@/lib/utils/format'
 
 export const metadata = {
   title: '사용자 관리 | 관리자',
@@ -117,7 +118,7 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
                         <RoleSelect userId={u.id} currentRole={u.role} />
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {u.createdAt.toLocaleDateString('ko-KR')}
+                        {formatDate(u.createdAt, { short: true })}
                       </TableCell>
                       <TableCell className="text-right">
                         <DeactivateButton userId={u.id} isDeactivated={isDeactivated} />
@@ -147,7 +148,7 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">
-                      {u.phone || '전화번호 없음'} | {u.createdAt.toLocaleDateString('ko-KR')}
+                      {u.phone || '전화번호 없음'} | {formatDate(u.createdAt, { short: true })}
                     </span>
                     <DeactivateButton userId={u.id} isDeactivated={isDeactivated} />
                   </div>

@@ -19,6 +19,7 @@ import { batchApproveVehicles } from '@/features/vehicles/actions/approve-vehicl
 import type { VehicleWithDetails } from '@/features/vehicles/types'
 import Image from 'next/image'
 import { Car, CheckCircle } from 'lucide-react'
+import { formatDate } from '@/lib/utils/format'
 
 type ApprovalQueueTableProps = {
   vehicles: VehicleWithDetails[]
@@ -188,7 +189,7 @@ export function ApprovalQueueTable({ vehicles }: ApprovalQueueTableProps) {
                 </TableCell>
                 <TableCell>
                   <span className="text-xs text-muted-foreground">
-                    {new Date(vehicle.createdAt).toLocaleDateString('ko-KR')}
+                    {formatDate(vehicle.createdAt, { short: true })}
                   </span>
                 </TableCell>
                 <TableCell>

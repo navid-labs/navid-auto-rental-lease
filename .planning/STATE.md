@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Phase 4 context gathered
-last_updated: "2026-03-09T13:36:40.208Z"
-last_activity: 2026-03-09 -- Plan 03-03 human-verified and approved. Phase 3 done.
+status: in_progress
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-03-09T14:03:49.000Z"
+last_activity: 2026-03-09 -- Plan 04-01 completed. Approval data layer with server actions and ApprovalBadge.
 progress:
   total_phases: 9
   completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 9
+  completed_plans: 8
   percent: 89
 ---
 
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** 고객이 중고차를 온라인에서 검색하고, 비교하고, 비대면으로 렌탈/리스 계약까지 완료할 수 있는 원스톱 경험
-**Current focus:** Phase 3 complete. Ready for Phase 4.
+**Current focus:** Phase 4 in progress. Approval data layer complete, dashboard UI next.
 
 ## Current Position
 
-Phase: 3 of 9 (Vehicle Data & Storage) -- COMPLETE
-Plan: 3 of 3 in current phase (all done)
-Status: Phase 3 Complete
-Last activity: 2026-03-09 -- Plan 03-03 human-verified and approved. Phase 3 done.
+Phase: 4 of 9 (Dealer Portal & Approval Workflow) -- IN PROGRESS
+Plan: 1 of 2 in current phase (04-01 done)
+Status: Plan 04-01 Complete
+Last activity: 2026-03-09 -- Plan 04-01 completed. Approval data layer with server actions and ApprovalBadge.
 
 Progress: [█████████-] 89%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 8min
-- Total execution time: 0.65 hours
+- Total plans completed: 6
+- Average duration: 7.5min
+- Total execution time: 0.73 hours
 
 **By Phase:**
 
@@ -46,9 +46,10 @@ Progress: [█████████-] 89%
 | 1-Foundation | 2 | 24min | 12min |
 | 2-Auth | 2 | 10min | 5min |
 | 3-Vehicle | 3/3 (done) | 16min | 5.3min |
+| 4-Dealer Portal | 1/2 | 5min | 5min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (6min), 02-02 (4min), 03-01 (5min), 03-02 (6min), 03-03 (5min)
+- Last 5 plans: 02-02 (4min), 03-01 (5min), 03-02 (6min), 03-03 (5min), 04-01 (5min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -85,6 +86,9 @@ Recent decisions affecting current work:
 - [03-03]: Vehicle wizard creates vehicle at step 2, passes vehicleId to step 3 for photo uploads
 - [03-03]: HTML5 native drag events for file upload, dnd-kit only for thumbnail reorder
 - [03-03]: Optimistic UI for reorder/delete with Server Action persistence in useTransition
+- [04-01]: ApprovalStatus kept as separate enum from VehicleStatus (independent concerns)
+- [04-01]: base-ui Tooltip (not Radix) -- shadcn v4 uses base-ui, no asChild prop
+- [04-01]: Dealer resubmit also allowed for ADMIN role for operational flexibility
 
 ### Pending Todos
 
@@ -98,6 +102,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T13:36:40.204Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-dealer-portal-approval-workflow/04-CONTEXT.md
+Last session: 2026-03-09T14:03:49.000Z
+Stopped at: Completed 04-01-PLAN.md
+Resume file: .planning/phases/04-dealer-portal-approval-workflow/04-02-PLAN.md

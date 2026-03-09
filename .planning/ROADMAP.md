@@ -51,11 +51,11 @@ Plans:
   3. User can log out from any page and is redirected appropriately
   4. Admin can assign roles (customer/dealer/admin) to users and role change takes effect immediately
   5. Protected routes reject unauthorized users and redirect based on role (customer vs dealer vs admin areas)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md -- Auth core: Zod schemas, Server Actions (signup/login/logout), auth form pages, middleware route protection with role-based access
+- [ ] 02-02-PLAN.md -- Profile management: user profile edit on my page, admin user list with role assignment, authenticated header state
 
 ### Phase 3: Vehicle Data & Storage
 **Goal**: Dealers and admins can register vehicles with full details and images, and vehicle status transitions are tracked

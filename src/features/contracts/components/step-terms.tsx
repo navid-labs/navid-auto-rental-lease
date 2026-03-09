@@ -1,6 +1,6 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { termsSchema, type TermsData } from '@/features/contracts/schemas/contract'
 import { calculateRental, calculateLease } from '@/lib/finance/calculate'
@@ -35,10 +35,10 @@ export function StepTerms({
     },
   })
 
-  const { watch, setValue } = form
-  const contractType = watch('contractType')
-  const periodMonths = watch('periodMonths')
-  const deposit = watch('deposit')
+  const { setValue } = form
+  const contractType = useWatch({ control: form.control, name: 'contractType' })
+  const periodMonths = useWatch({ control: form.control, name: 'periodMonths' })
+  const deposit = useWatch({ control: form.control, name: 'deposit' })
 
   // Live calculation
   const calc =

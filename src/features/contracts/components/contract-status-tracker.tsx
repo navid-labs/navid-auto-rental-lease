@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useContractRealtime } from '@/features/contracts/hooks/use-contract-realtime'
 import { ContractStatusBadge } from '@/features/contracts/components/contract-status-badge'
@@ -170,11 +171,12 @@ export function ContractStatusTracker({ contract, contractType }: ContractStatus
         <h3 className="mb-4 text-sm font-semibold text-muted-foreground">차량 정보</h3>
         <div className="flex gap-4">
           {contract.vehicleImageUrl && (
-            <div className="size-20 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
-              <img
+            <div className="relative size-20 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
+              <Image
                 src={contract.vehicleImageUrl}
                 alt={contract.vehicleName}
-                className="size-full object-cover"
+                fill
+                className="object-cover"
               />
             </div>
           )}

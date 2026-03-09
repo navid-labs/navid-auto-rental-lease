@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ekycSchema, type EkycData } from '@/features/contracts/schemas/contract'
 import { sendVerificationCode } from '@/features/contracts/actions/send-verification-code'
@@ -33,8 +33,7 @@ export function StepEkyc({ onSubmit, onBack, isSubmitting }: StepEkycProps) {
     },
   })
 
-  const { watch } = form
-  const phone = watch('phone')
+  const phone = useWatch({ control: form.control, name: 'phone' })
 
   // Countdown timer
   useEffect(() => {

@@ -37,7 +37,7 @@ describe('approveVehicle', () => {
       vehicle: { update: vi.fn() },
       vehicleApprovalLog: { create: vi.fn() },
     }
-    mockPrisma.$transaction.mockImplementation(async (fn: Function) => fn(txMock))
+    mockPrisma.$transaction.mockImplementation(async (fn: (tx: typeof txMock) => unknown) => fn(txMock))
 
     const result = await approveVehicle('vehicle-1', 'APPROVED')
 
@@ -55,7 +55,7 @@ describe('approveVehicle', () => {
       vehicle: { update: vi.fn() },
       vehicleApprovalLog: { create: vi.fn() },
     }
-    mockPrisma.$transaction.mockImplementation(async (fn: Function) => fn(txMock))
+    mockPrisma.$transaction.mockImplementation(async (fn: (tx: typeof txMock) => unknown) => fn(txMock))
 
     const result = await approveVehicle('vehicle-1', 'REJECTED', '사진 품질 불량')
 
@@ -100,7 +100,7 @@ describe('approveVehicle', () => {
       vehicle: { update: vi.fn() },
       vehicleApprovalLog: { create: vi.fn() },
     }
-    mockPrisma.$transaction.mockImplementation(async (fn: Function) => fn(txMock))
+    mockPrisma.$transaction.mockImplementation(async (fn: (tx: typeof txMock) => unknown) => fn(txMock))
 
     await approveVehicle('vehicle-1', 'APPROVED')
 
@@ -142,7 +142,7 @@ describe('batchApproveVehicles', () => {
       },
       vehicleApprovalLog: { createMany: vi.fn() },
     }
-    mockPrisma.$transaction.mockImplementation(async (fn: Function) => fn(txMock))
+    mockPrisma.$transaction.mockImplementation(async (fn: (tx: typeof txMock) => unknown) => fn(txMock))
 
     const result = await batchApproveVehicles(['v1', 'v2', 'v3'])
 
@@ -188,7 +188,7 @@ describe('resubmitVehicle', () => {
       vehicle: { update: vi.fn() },
       vehicleApprovalLog: { create: vi.fn() },
     }
-    mockPrisma.$transaction.mockImplementation(async (fn: Function) => fn(txMock))
+    mockPrisma.$transaction.mockImplementation(async (fn: (tx: typeof txMock) => unknown) => fn(txMock))
 
     const result = await resubmitVehicle('vehicle-1')
 

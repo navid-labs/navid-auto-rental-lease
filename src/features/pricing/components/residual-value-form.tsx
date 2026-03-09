@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useTransition, useEffect } from 'react'
+import { useState, useTransition, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { upsertResidualRate } from '../actions/residual-rate'
@@ -46,7 +46,7 @@ export function ResidualValueForm({ brands }: ResidualValueFormProps) {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     reset,
     setValue,
     formState: { errors },
@@ -61,20 +61,26 @@ export function ResidualValueForm({ brands }: ResidualValueFormProps) {
     },
   })
 
-  const selectedBrandId = watch('brandId')
+  const selectedBrandId = useWatch({ control, name: 'brandId' })
 
-  // Load models when brand changes
-  useEffect(() => {
-    if (!selectedBrandId) {
-      setModels([])
-      return
-    }
-    setLoadingModels(true)
-    setValue('carModelId', '')
-    getModelsByBrand(selectedBrandId)
-      .then(setModels)
-      .finally(() => setLoadingModels(false))
-  }, [selectedBrandId, setValue])
+  // Load models when brand changes — triggered by select onChange
+  const handleBrandChange = useCallback(
+    async (brandId: string) => {
+      setValue('carModelId', '')
+      if (!brandId) {
+        setModels([])
+        return
+      }
+      setLoadingModels(true)
+      try {
+        const result = await getModelsByBrand(brandId)
+        setModels(result)
+      } finally {
+        setLoadingModels(false)
+      }
+    },
+    [setValue]
+  )
 
   function onSubmit(data: FormValues) {
     startTransition(async () => {
@@ -106,7 +112,9 @@ export function ResidualValueForm({ brands }: ResidualValueFormProps) {
             <Label htmlFor="rv-brand">브랜드</Label>
             <select
               id="rv-brand"
-              {...register('brandId')}
+              {...register('brandId', {
+                onChange: (e: React.ChangeEvent<HTMLSelectElement>) => handleBrandChange(e.target.value),
+              })}
               className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             >
               <option value="">선택</option>

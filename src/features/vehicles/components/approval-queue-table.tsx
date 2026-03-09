@@ -17,7 +17,7 @@ import { ApprovalDialog } from './approval-dialog'
 import { batchApproveVehicles } from '@/features/vehicles/actions/approve-vehicle'
 import type { VehicleWithDetails } from '@/features/vehicles/types'
 import Image from 'next/image'
-import { Car, CheckCircle, XCircle } from 'lucide-react'
+import { Car, CheckCircle } from 'lucide-react'
 
 type ApprovalQueueTableProps = {
   vehicles: VehicleWithDetails[]

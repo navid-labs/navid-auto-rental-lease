@@ -1,8 +1,6 @@
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
 } from '@/components/ui/card'
 import { Clock, CheckCircle, XCircle, Car, CalendarCheck, FileText } from 'lucide-react'
 

@@ -97,7 +97,7 @@ describe('updateVehicle', () => {
       vehicle: { update: vi.fn() },
       vehicleApprovalLog: { create: vi.fn() },
     }
-    mockPrisma.$transaction.mockImplementation(async (fn: Function) => fn(txMock))
+    mockPrisma.$transaction.mockImplementation(async (fn: (tx: typeof txMock) => unknown) => fn(txMock))
 
     const result = await updateVehicle('vehicle-1', { color: '검정색' })
 

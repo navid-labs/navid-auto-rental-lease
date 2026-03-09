@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
@@ -26,24 +26,18 @@ type DealerSidebarProps = {
 
 export function DealerSidebar({ latestApprovalChange }: DealerSidebarProps) {
   const pathname = usePathname()
-  const [showDot, setShowDot] = useState(false)
+  const isDashboardActive = pathname.startsWith('/dealer/dashboard')
 
-  useEffect(() => {
-    if (!latestApprovalChange) return
-
-    const lastVisit = localStorage.getItem(LAST_VISIT_KEY)
-    if (!lastVisit || new Date(latestApprovalChange) > new Date(lastVisit)) {
-      setShowDot(true)
-    }
-  }, [latestApprovalChange])
-
-  // When dashboard is active, update last visit timestamp and hide dot
-  useEffect(() => {
-    if (pathname.startsWith('/dealer/dashboard')) {
+  const showDot = useMemo(() => {
+    if (typeof window === 'undefined') return false
+    if (!latestApprovalChange) return false
+    if (isDashboardActive) {
       localStorage.setItem(LAST_VISIT_KEY, new Date().toISOString())
-      setShowDot(false)
+      return false
     }
-  }, [pathname])
+    const lastVisit = localStorage.getItem(LAST_VISIT_KEY)
+    return !lastVisit || new Date(latestApprovalChange) > new Date(lastVisit)
+  }, [latestApprovalChange, isDashboardActive])
 
   return (
     <aside className="flex h-full w-64 flex-col bg-sidebar-background text-sidebar-foreground">

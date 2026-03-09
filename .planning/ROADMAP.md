@@ -131,12 +131,13 @@ Plans:
   4. Real-time status updates reflect vehicle and contract changes without page refresh (via Supabase Realtime)
   5. Admin approval step gates contract activation after submission
   6. Concurrent contract applications for the same vehicle are prevented at the database level (no double-booking)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
-- [ ] 07-03: TBD
+- [ ] 07-01-PLAN.md -- Contract state machine, Zod schemas, mock eKYC provider, EkycVerification schema
+- [ ] 07-02-PLAN.md -- Multi-step contract wizard UI (4 steps), server actions, vehicle detail CTA
+- [ ] 07-03-PLAN.md -- Admin contract approval queue, Supabase Realtime status tracking, status tracker page
+
 
 ### Phase 8: Contract Completion & My Page
 **Goal**: Customers can track their contracts and download official documents from a personal dashboard
@@ -183,6 +184,6 @@ Phases execute in order: 1 → 2 → 3 → {4, 5 parallel} → 6 → 7 → 8 →
 | 4. Dealer Portal & Approval Workflow | 2/2 | Complete   | 2026-03-09 |
 | 5. Public Search & Discovery | 2/2 | Complete   | 2026-03-09 |
 | 6. Pricing & Calculation | 3/3 | Complete   | 2026-03-09 |
-| 7. Contract Engine | 0/3 | Not started | - |
+| 7. Contract Engine | 0/3 | Planning complete | - |
 | 8. Contract Completion & My Page | 0/1 | Not started | - |
 | 9. Admin Dashboard & Demo Readiness | 0/2 | Not started | - |

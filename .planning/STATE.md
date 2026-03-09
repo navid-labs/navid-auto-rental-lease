@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 01-02-PLAN.md (Phase 1 complete)
-last_updated: "2026-03-09T11:08:52.659Z"
-last_activity: 2026-03-09 -- Plan 01-02 executed
+status: in-progress
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-03-09T11:49:00Z"
+last_activity: 2026-03-09 -- Plan 02-01 executed
 progress:
   total_phases: 9
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
-  percent: 100
+  total_plans: 4
+  completed_plans: 3
+  percent: 75
 ---
 
 # Project State
@@ -21,33 +21,34 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** 고객이 중고차를 온라인에서 검색하고, 비교하고, 비대면으로 렌탈/리스 계약까지 완료할 수 있는 원스톱 경험
-**Current focus:** Phase 1: Foundation (COMPLETE)
+**Current focus:** Phase 2: Auth & User Management (IN PROGRESS)
 
 ## Current Position
 
-Phase: 1 of 9 (Foundation) -- COMPLETE
-Plan: 2 of 2 in current phase
-Status: Phase Complete
-Last activity: 2026-03-09 -- Plan 01-02 executed
+Phase: 2 of 9 (Auth & User Management)
+Plan: 1 of 2 in current phase
+Status: In Progress
+Last activity: 2026-03-09 -- Plan 02-01 executed
 
-Progress: [██████████] 100%
+Progress: [███████░░░] 75%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 12min
-- Total execution time: 0.40 hours
+- Total plans completed: 3
+- Average duration: 10min
+- Total execution time: 0.50 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1-Foundation | 2 | 24min | 12min |
+| 2-Auth | 1 | 6min | 6min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (9min), 01-02 (15min)
-- Trend: stable
+- Last 5 plans: 01-01 (9min), 01-02 (15min), 02-01 (6min)
+- Trend: accelerating
 
 *Updated after each plan completion*
 
@@ -66,6 +67,9 @@ Recent decisions affecting current work:
 - [01-01]: Used happy-dom instead of jsdom for ESM compatibility in tests
 - [01-02]: Accent palette changed from gold to blue per DESIGN-SPEC.md
 - [01-02]: Middleware guards Supabase env vars to prevent build/runtime errors
+- [02-01]: Used vi.hoisted() for Vitest mock factories to resolve hoisting issues
+- [02-01]: Zod 3.x chosen over 4.x for @hookform/resolvers compatibility
+- [02-01]: shadcn card/label/input added for auth forms
 
 ### Pending Todos
 
@@ -73,12 +77,12 @@ None yet.
 
 ### Blockers/Concerns
 
-- Zod v4 + @hookform/resolvers compatibility -- verify before Phase 7 form work
+- Zod v4 + @hookform/resolvers compatibility -- RESOLVED: using Zod 3.x for compatibility
 - PDF generation on Vercel serverless timeout (10s hobby) -- test early in Phase 8
 - License plate API provider selection (data.go.kr vs commercial) -- resolve in Phase 3 planning
 
 ## Session Continuity
 
-Last session: 2026-03-09T11:03:34Z
-Stopped at: Completed 01-02-PLAN.md (Phase 1 complete)
-Resume file: Phase 2 planning needed
+Last session: 2026-03-09T11:49:00Z
+Stopped at: Completed 02-01-PLAN.md
+Resume file: .planning/phases/02-auth-user-mgmt/02-02-PLAN.md

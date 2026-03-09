@@ -9,12 +9,12 @@ Requirements for demo/investor-ready release. Each maps to roadmap phases.
 
 ### Authentication & User
 
-- [ ] **AUTH-01**: User can sign up with email and password
-- [ ] **AUTH-02**: User can log in and stay logged in across browser sessions
-- [ ] **AUTH-03**: User can log out from any page
+- [x] **AUTH-01**: User can sign up with email and password
+- [x] **AUTH-02**: User can log in and stay logged in across browser sessions
+- [x] **AUTH-03**: User can log out from any page
 - [ ] **AUTH-04**: User profile with role assignment (customer/dealer/admin)
 - [ ] **AUTH-05**: User can edit own profile information
-- [ ] **AUTH-06**: Routes protected by user role (middleware-based)
+- [x] **AUTH-06**: Routes protected by user role (middleware-based)
 
 ### Vehicle Management
 
@@ -108,12 +108,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 2 | Pending |
-| AUTH-02 | Phase 2 | Pending |
-| AUTH-03 | Phase 2 | Pending |
+| AUTH-01 | Phase 2 | Complete |
+| AUTH-02 | Phase 2 | Complete |
+| AUTH-03 | Phase 2 | Complete |
 | AUTH-04 | Phase 2 | Pending |
 | AUTH-05 | Phase 2 | Pending |
-| AUTH-06 | Phase 2 | Pending |
+| AUTH-06 | Phase 2 | Complete |
 | VEHI-01 | Phase 3 | Pending |
 | VEHI-02 | Phase 3 | Pending |
 | VEHI-03 | Phase 3 | Pending |

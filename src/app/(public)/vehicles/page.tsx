@@ -7,8 +7,9 @@ import { SearchSort } from '@/features/vehicles/components/search-sort'
 import { PopularSearches } from '@/features/vehicles/components/popular-searches'
 import { VehicleGrid } from '@/features/vehicles/components/vehicle-grid'
 import { Pagination } from '@/features/vehicles/components/pagination'
+import { VehicleSearchBar } from '@/features/vehicles/components/vehicle-search-bar'
 import type { Metadata } from 'next'
-import type { VehicleWithDetails } from '@/features/vehicles/types'
+import type { VehicleWithDetails } from '@/features/vehicles/types/index'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,28 +59,44 @@ export default async function VehiclesPage({
   ])
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold">차량 검색</h1>
+    <div className="min-h-screen bg-white">
+      {/* Search bar section */}
+      <VehicleSearchBar />
 
-      <div className="flex gap-8">
-        {/* Filters - desktop sidebar + mobile sheet */}
+      {/* Sort bar */}
+      <div className="border-b border-[#E4E4E7] bg-white px-4 py-3 lg:px-[120px]">
         <Suspense fallback={null}>
-          <SearchFilters />
+          <SearchSort totalCount={totalCount} />
         </Suspense>
+      </div>
 
-        {/* Main content */}
-        <div className="min-w-0 flex-1">
+      {/* Main content: sidebar + grid */}
+      <div className="px-4 py-6 lg:px-[120px]">
+        <div className="flex gap-6">
+          {/* Filter sidebar */}
           <Suspense fallback={null}>
-            <SearchSort totalCount={totalCount} />
+            <SearchFilters />
           </Suspense>
 
-          <PopularSearches />
+          {/* Grid area */}
+          <div className="min-w-0 flex-1">
+            {/* Mobile filter button row */}
+            <div className="mb-4 flex items-center justify-between lg:hidden">
+              <Suspense fallback={null}>
+                <SearchSort totalCount={totalCount} />
+              </Suspense>
+            </div>
 
-          <VehicleGrid vehicles={vehicles as unknown as VehicleWithDetails[]} />
+            <div className="mb-4">
+              <PopularSearches />
+            </div>
 
-          <Suspense fallback={null}>
-            <Pagination totalCount={totalCount} pageSize={PAGE_SIZE} />
-          </Suspense>
+            <VehicleGrid vehicles={vehicles as unknown as VehicleWithDetails[]} />
+
+            <Suspense fallback={null}>
+              <Pagination totalCount={totalCount} pageSize={PAGE_SIZE} />
+            </Suspense>
+          </div>
         </div>
       </div>
     </div>

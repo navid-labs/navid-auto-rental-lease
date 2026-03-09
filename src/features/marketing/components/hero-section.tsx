@@ -3,60 +3,37 @@
 import { useRouter } from 'next/navigation'
 import { useState, useEffect, useTransition } from 'react'
 import { motion, type Variants } from 'framer-motion'
-import { Search, Car, Shield, Sparkles, ChevronRight } from 'lucide-react'
+import { Search, ChevronDown } from 'lucide-react'
 import { getBrands, getModelsByBrand } from '@/features/vehicles/actions/get-cascade-data'
 
 type BrandOption = { id: string; name: string; nameKo: string | null }
 type ModelOption = { id: string; name: string; nameKo: string | null }
 
-const QUICK_FILTERS = ['세단', 'SUV', '수입차', '월 50만원 이하', '전기차'] as const
+type SearchTab = '제조사/모델' | '예산' | '차종'
+const TABS: SearchTab[] = ['제조사/모델', '예산', '차종']
 
-const STATS = [
-  { icon: Car, label: '180+ 차량' },
-  { icon: Sparkles, label: '8개 브랜드' },
-  { icon: Shield, label: '비대면 계약' },
+const BODY_TYPES = ['세단', 'SUV', '해치백', 'MPV', '쿠페', '컨버터블'] as const
+const BUDGET_RANGES = [
+  { label: '30만원 이하', value: '300000' },
+  { label: '40만원 이하', value: '400000' },
+  { label: '50만원 이하', value: '500000' },
+  { label: '70만원 이하', value: '700000' },
+  { label: '100만원 이하', value: '1000000' },
 ] as const
 
 // Animation variants
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.12,
-    },
-  },
-}
-
 const fadeUpVariants: Variants = {
-  hidden: { opacity: 0, y: 28 },
+  hidden: { opacity: 0, y: 24 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
+    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
   },
 }
 
-const floatVariants: Variants = {
-  animate: {
-    y: [0, -14, 0],
-    transition: {
-      duration: 5,
-      repeat: Infinity,
-      ease: 'easeInOut' as const,
-    },
-  },
-}
-
-const floatVariantsSlow: Variants = {
-  animate: {
-    y: [0, 10, 0],
-    x: [0, 6, 0],
-    transition: {
-      duration: 7,
-      repeat: Infinity,
-      ease: 'easeInOut' as const,
-    },
-  },
+const containerVariants: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
 }
 
 export function HeroSection() {
@@ -65,6 +42,9 @@ export function HeroSection() {
   const [models, setModels] = useState<ModelOption[]>([])
   const [selectedBrand, setSelectedBrand] = useState('')
   const [selectedModel, setSelectedModel] = useState('')
+  const [activeTab, setActiveTab] = useState<SearchTab>('제조사/모델')
+  const [selectedBudget, setSelectedBudget] = useState('')
+  const [selectedBodyType, setSelectedBodyType] = useState('')
   const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
@@ -85,8 +65,24 @@ export function HeroSection() {
 
   function handleSearch() {
     const params = new URLSearchParams()
-    if (selectedBrand) params.set('brand', selectedBrand)
-    if (selectedModel) params.set('model', selectedModel)
+    if (activeTab === '제조사/모델') {
+      if (selectedBrand) params.set('brand', selectedBrand)
+      if (selectedModel) params.set('model', selectedModel)
+    } else if (activeTab === '예산') {
+      if (selectedBudget) params.set('maxMonthly', selectedBudget)
+    } else if (activeTab === '차종') {
+      if (selectedBodyType) {
+        const bodyTypeMap: Record<string, string> = {
+          세단: 'SEDAN',
+          SUV: 'SUV',
+          해치백: 'HATCHBACK',
+          MPV: 'MPV',
+          쿠페: 'COUPE',
+          컨버터블: 'CONVERTIBLE',
+        }
+        params.set('bodyType', bodyTypeMap[selectedBodyType] ?? selectedBodyType)
+      }
+    }
     router.push(`/vehicles?${params.toString()}`)
   }
 
@@ -102,230 +98,270 @@ export function HeroSection() {
 
   return (
     <section
-      className="relative flex min-h-[60vh] items-center overflow-hidden md:min-h-[70vh]"
-      style={{
-        background:
-          'linear-gradient(135deg, hsl(220 55% 8%) 0%, hsl(220 50% 12%) 45%, hsl(220 45% 16%) 100%)',
-      }}
+      className="relative flex items-center justify-center overflow-hidden"
+      style={{ minHeight: '480px' }}
     >
-      {/* CSS grid dot pattern overlay */}
+      {/* Background: dramatic dark gradient simulating a night car photo */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(160deg, #0a0f1e 0%, #0d1428 30%, #111827 60%, #0a0d18 100%)',
+        }}
+      />
+
+      {/* Subtle grid texture */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-30"
         style={{
           backgroundImage:
-            'radial-gradient(circle, hsla(217 91% 80% / 0.07) 1px, transparent 1px)',
-          backgroundSize: '28px 28px',
+            'linear-gradient(hsla(220 100% 70% / 0.04) 1px, transparent 1px), linear-gradient(90deg, hsla(220 100% 70% / 0.04) 1px, transparent 1px)',
+          backgroundSize: '60px 60px',
         }}
       />
 
-      {/* Radial accent glow — left-biased */}
+      {/* Radial light bloom — center-bottom, simulating car headlights */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse 55% 60% at 20% 50%, hsla(217 91% 60% / 0.10), transparent)',
+            'radial-gradient(ellipse 80% 40% at 50% 110%, hsla(220 100% 60% / 0.18) 0%, transparent 70%)',
         }}
       />
 
-      {/* Right glow behind decorative shapes */}
+      {/* Left ambient glow */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse 50% 55% at 80% 50%, hsla(217 91% 60% / 0.07), transparent)',
+            'radial-gradient(ellipse 40% 60% at 0% 50%, hsla(220 100% 50% / 0.08) 0%, transparent 70%)',
         }}
       />
 
-      {/* ── Decorative right-side shapes ── */}
-      <div className="pointer-events-none absolute inset-0 hidden lg:block">
-        {/* Large blurred car silhouette (CSS shape) */}
-        <motion.div
-          variants={floatVariantsSlow}
-          animate="animate"
-          className="absolute right-[4%] top-1/2 -translate-y-1/2"
-        >
-          {/* Outer halo ring */}
-          <div
-            className="h-[380px] w-[520px] rounded-[50%] border border-white/5"
-            style={{
-              background:
-                'radial-gradient(ellipse at center, hsla(217 91% 60% / 0.06) 0%, transparent 70%)',
-              filter: 'blur(2px)',
-            }}
-          />
-          {/* Inner shape suggesting car body */}
-          <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-            style={{
-              width: '320px',
-              height: '140px',
-              background:
-                'linear-gradient(180deg, hsla(217 91% 70% / 0.12) 0%, hsla(217 91% 50% / 0.04) 100%)',
-              borderRadius: '50% 50% 35% 35% / 60% 60% 40% 40%',
-              filter: 'blur(18px)',
-            }}
-          />
-        </motion.div>
+      {/* Dark overlay matching spec #000000AA */}
+      <div className="pointer-events-none absolute inset-0" style={{ background: '#000000AA' }} />
 
-        {/* Floating circle top-right */}
-        <motion.div
-          variants={floatVariants}
-          animate="animate"
-          className="absolute right-[18%] top-[15%] h-16 w-16 rounded-full border border-accent/20"
-          style={{
-            background: 'hsla(217 91% 60% / 0.05)',
-            boxShadow: '0 0 32px 0 hsla(217 91% 60% / 0.15)',
-          }}
-        />
-
-        {/* Small circle mid-right */}
-        <motion.div
-          variants={floatVariantsSlow}
-          animate="animate"
-          className="absolute right-[30%] top-[65%] h-8 w-8 rounded-full border border-white/10"
-          style={{ background: 'hsla(217 91% 60% / 0.04)' }}
-        />
-
-        {/* Thin horizontal line accent */}
-        <div
-          className="absolute right-[5%] top-[42%] h-px w-48 opacity-20"
-          style={{
-            background: 'linear-gradient(90deg, transparent, hsl(217 91% 70%), transparent)',
-          }}
-        />
-
-        {/* Diagonal accent line */}
-        <div
-          className="absolute right-[8%] top-[55%] h-px w-32 origin-left rotate-[-35deg] opacity-15"
-          style={{
-            background: 'linear-gradient(90deg, hsl(217 91% 70%), transparent)',
-          }}
-        />
-      </div>
-
-      {/* ── Main content ── */}
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-5 py-20 md:px-8 md:py-28 lg:py-32">
+      {/* Main content */}
+      <div className="relative z-10 mx-auto w-full max-w-5xl px-5 py-16 md:px-8 md:py-20">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="max-w-2xl"
+          className="flex flex-col items-center gap-6 text-center"
         >
-          {/* Badge */}
-          <motion.div variants={fadeUpVariants}>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/15 px-3 py-1 text-xs font-semibold tracking-wide text-accent">
-              <Sparkles className="h-3 w-3" />
-              No.1 중고차 렌탈·리스 플랫폼
-            </span>
-          </motion.div>
-
-          {/* Heading */}
+          {/* Title */}
           <motion.h1
             variants={fadeUpVariants}
-            className="mt-5 text-4xl font-bold leading-[1.15] tracking-tight text-white md:text-5xl lg:text-6xl xl:text-7xl"
+            className="text-[clamp(1.75rem,4vw,2.5rem)] font-bold leading-tight tracking-tight text-white"
           >
-            중고차 렌탈·리스의
-            <br />
-            <span
-              className="text-accent"
-              style={{ textShadow: '0 0 40px hsla(217 91% 60% / 0.35)' }}
-            >
-              새로운 기준
-            </span>
+            당신의 새로운 차, Navid Auto에서 시작하세요
           </motion.h1>
 
           {/* Subtitle */}
           <motion.p
             variants={fadeUpVariants}
-            className="mt-5 max-w-lg text-base leading-relaxed text-white/65 md:text-lg"
+            className="text-[18px] leading-relaxed"
+            style={{ color: 'rgba(255,255,255,0.80)' }}
           >
-            비대면 계약부터 투명한 가격까지.
-            <br className="hidden sm:block" />
-            180개+ 차량, 8개 브랜드를 한 곳에서 비교하고
-            <br className="hidden sm:block" />
-            지금 바로 계약을 완료하세요.
+            검증된 중고차, 투명한 가격, 안심 거래
           </motion.p>
 
-          {/* Search widget */}
+          {/* Tabbed Search Box */}
           <motion.div
             variants={fadeUpVariants}
-            className="mt-8 rounded-2xl border border-white/15 bg-white/8 p-4 shadow-2xl backdrop-blur-md md:mt-10 md:p-5"
-            style={{ boxShadow: '0 8px 40px hsla(220 55% 5% / 0.5), 0 0 0 1px hsla(217 91% 60% / 0.08)' }}
+            className="w-full rounded-2xl bg-white shadow-2xl"
+            style={{ maxWidth: '900px' }}
           >
-            <div className="flex flex-col gap-3 sm:flex-row sm:gap-2">
-              {/* Brand select */}
-              <div className="relative flex-1">
-                <select
-                  value={selectedBrand}
-                  onChange={(e) => handleBrandChange(e.target.value)}
-                  className="w-full appearance-none rounded-xl border border-white/15 bg-white/8 px-4 py-3 pr-8 text-sm text-white outline-none transition focus:border-accent/60 focus:ring-1 focus:ring-accent/50"
-                >
-                  <option value="" className="bg-[hsl(220_55%_10%)] text-white">
-                    브랜드 선택
-                  </option>
-                  {brands.map((b) => (
-                    <option key={b.id} value={b.id} className="bg-[hsl(220_55%_10%)] text-white">
-                      {b.nameKo || b.name}
-                    </option>
-                  ))}
-                </select>
-                <ChevronRight className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 rotate-90 text-white/40" />
-              </div>
-
-              {/* Model select */}
-              <div className="relative flex-1">
-                <select
-                  value={selectedModel}
-                  onChange={(e) => setSelectedModel(e.target.value)}
-                  disabled={!selectedBrand || isPending}
-                  className="w-full appearance-none rounded-xl border border-white/15 bg-white/8 px-4 py-3 pr-8 text-sm text-white outline-none transition focus:border-accent/60 focus:ring-1 focus:ring-accent/50 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <option value="" className="bg-[hsl(220_55%_10%)] text-white">
-                    {isPending ? '로딩 중…' : '모델 선택'}
-                  </option>
-                  {models.map((m) => (
-                    <option key={m.id} value={m.id} className="bg-[hsl(220_55%_10%)] text-white">
-                      {m.nameKo || m.name}
-                    </option>
-                  ))}
-                </select>
-                <ChevronRight className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 rotate-90 text-white/40" />
-              </div>
-
-              {/* CTA button */}
-              <button
-                onClick={handleSearch}
-                className="flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-lg shadow-accent/25 transition-all hover:bg-accent/90 hover:shadow-xl hover:shadow-accent/35 active:scale-[0.98] sm:w-auto"
-              >
-                <Search className="h-4 w-4" />
-                차량 검색
-              </button>
+            {/* Tabs */}
+            <div className="flex border-b border-[#E0E0E0]">
+              {TABS.map((tab) => {
+                const isActive = activeTab === tab
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className="flex-1 px-4 py-3 text-sm font-semibold transition-colors first:rounded-tl-2xl last:rounded-tr-2xl"
+                    style={
+                      isActive
+                        ? { background: '#1A6DFF', color: '#ffffff' }
+                        : { background: '#F4F4F4', color: '#555555' }
+                    }
+                  >
+                    {tab}
+                  </button>
+                )
+              })}
             </div>
 
-            {/* Quick filter chips */}
-            <div className="mt-3 flex flex-wrap gap-2">
-              {QUICK_FILTERS.map((label) => (
-                <button
-                  key={label}
-                  onClick={() => handleQuickFilter(label)}
-                  className="rounded-full border border-white/15 bg-white/6 px-3 py-1 text-xs text-white/60 transition-all hover:border-accent/40 hover:bg-accent/10 hover:text-accent"
-                >
-                  {label}
-                </button>
-              ))}
+            {/* Filter area */}
+            <div className="flex flex-col gap-3 px-6 py-5 sm:flex-row sm:items-center">
+              {/* Tab content */}
+              {activeTab === '제조사/모델' && (
+                <>
+                  {/* Brand select */}
+                  <div className="relative flex-1">
+                    <select
+                      value={selectedBrand}
+                      onChange={(e) => handleBrandChange(e.target.value)}
+                      className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none transition focus:border-[#1A6DFF] focus:ring-1 focus:ring-[#1A6DFF]"
+                      style={{
+                        background: '#F8F8F8',
+                        borderColor: '#E0E0E0',
+                        color: selectedBrand ? '#0D0D0D' : '#999999',
+                        height: '44px',
+                        borderRadius: '8px',
+                      }}
+                    >
+                      <option value="" style={{ color: '#999999' }}>
+                        브랜드 선택
+                      </option>
+                      {brands.map((b) => (
+                        <option key={b.id} value={b.id} style={{ color: '#0D0D0D' }}>
+                          {b.nameKo || b.name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown
+                      className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2"
+                      style={{ color: '#999999' }}
+                    />
+                  </div>
+
+                  {/* Model select */}
+                  <div className="relative flex-1">
+                    <select
+                      value={selectedModel}
+                      onChange={(e) => setSelectedModel(e.target.value)}
+                      disabled={!selectedBrand || isPending}
+                      className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none transition focus:border-[#1A6DFF] focus:ring-1 focus:ring-[#1A6DFF] disabled:cursor-not-allowed disabled:opacity-50"
+                      style={{
+                        background: '#F8F8F8',
+                        borderColor: '#E0E0E0',
+                        color: selectedModel ? '#0D0D0D' : '#999999',
+                        height: '44px',
+                        borderRadius: '8px',
+                      }}
+                    >
+                      <option value="" style={{ color: '#999999' }}>
+                        {isPending ? '로딩 중…' : '모델 선택'}
+                      </option>
+                      {models.map((m) => (
+                        <option key={m.id} value={m.id} style={{ color: '#0D0D0D' }}>
+                          {m.nameKo || m.name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown
+                      className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2"
+                      style={{ color: '#999999' }}
+                    />
+                  </div>
+                </>
+              )}
+
+              {activeTab === '예산' && (
+                <div className="relative flex-1">
+                  <select
+                    value={selectedBudget}
+                    onChange={(e) => setSelectedBudget(e.target.value)}
+                    className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none transition focus:border-[#1A6DFF] focus:ring-1 focus:ring-[#1A6DFF]"
+                    style={{
+                      background: '#F8F8F8',
+                      borderColor: '#E0E0E0',
+                      color: selectedBudget ? '#0D0D0D' : '#999999',
+                      height: '44px',
+                      borderRadius: '8px',
+                    }}
+                  >
+                    <option value="" style={{ color: '#999999' }}>
+                      월 예산 선택
+                    </option>
+                    {BUDGET_RANGES.map((r) => (
+                      <option key={r.value} value={r.value} style={{ color: '#0D0D0D' }}>
+                        {r.label}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown
+                    className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2"
+                    style={{ color: '#999999' }}
+                  />
+                </div>
+              )}
+
+              {activeTab === '차종' && (
+                <div className="relative flex-1">
+                  <select
+                    value={selectedBodyType}
+                    onChange={(e) => setSelectedBodyType(e.target.value)}
+                    className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none transition focus:border-[#1A6DFF] focus:ring-1 focus:ring-[#1A6DFF]"
+                    style={{
+                      background: '#F8F8F8',
+                      borderColor: '#E0E0E0',
+                      color: selectedBodyType ? '#0D0D0D' : '#999999',
+                      height: '44px',
+                      borderRadius: '8px',
+                    }}
+                  >
+                    <option value="" style={{ color: '#999999' }}>
+                      차종 선택
+                    </option>
+                    {BODY_TYPES.map((bt) => (
+                      <option key={bt} value={bt} style={{ color: '#0D0D0D' }}>
+                        {bt}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown
+                    className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2"
+                    style={{ color: '#999999' }}
+                  />
+                </div>
+              )}
+
+              {/* Search button */}
+              <button
+                onClick={handleSearch}
+                className="flex shrink-0 items-center justify-center gap-2 rounded-lg font-semibold text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
+                style={{
+                  background: '#1A6DFF',
+                  width: '140px',
+                  height: '44px',
+                  borderRadius: '8px',
+                  fontSize: '15px',
+                }}
+              >
+                <Search className="h-4 w-4" />
+                검색
+              </button>
             </div>
           </motion.div>
 
-          {/* Stats bar */}
-          <motion.div variants={fadeUpVariants} className="mt-6 flex items-center gap-6">
-            {STATS.map(({ icon: Icon, label }, i) => (
-              <span key={label} className="flex items-center gap-1.5 text-sm text-white/55">
-                <Icon className="h-4 w-4 text-accent/70" />
+          {/* Quick filter chips */}
+          <motion.div variants={fadeUpVariants} className="flex flex-wrap justify-center gap-2">
+            {(['세단', 'SUV', '수입차', '월 50만원 이하', '전기차'] as const).map((label) => (
+              <button
+                key={label}
+                onClick={() => handleQuickFilter(label)}
+                className="rounded-full border px-4 py-1.5 text-xs font-medium transition-all"
+                style={{
+                  borderColor: 'rgba(255,255,255,0.25)',
+                  color: 'rgba(255,255,255,0.70)',
+                  background: 'rgba(255,255,255,0.06)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(26,109,255,0.7)'
+                  e.currentTarget.style.color = '#1A6DFF'
+                  e.currentTarget.style.background = 'rgba(26,109,255,0.12)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'
+                  e.currentTarget.style.color = 'rgba(255,255,255,0.70)'
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
+                }}
+              >
                 {label}
-                {i < STATS.length - 1 && (
-                  <span className="ml-4 text-white/20">|</span>
-                )}
-              </span>
+              </button>
             ))}
           </motion.div>
         </motion.div>

@@ -1,7 +1,6 @@
 'use client'
 
 import { useQueryState, parseAsInteger } from 'nuqs'
-import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 type PaginationProps = {
@@ -28,42 +27,48 @@ export function Pagination({ totalCount, pageSize }: PaginationProps) {
     (_, i) => adjustedStart + i
   )
 
+  const btnBase =
+    'flex size-10 items-center justify-center rounded-lg text-sm font-medium transition-colors'
+  const btnActive = 'bg-[#1A6DFF] text-white'
+  const btnInactive = 'bg-white text-[#0D0D0D] border border-[#E4E4E7] hover:bg-[#F4F4F4]'
+  const btnDisabled = 'bg-white text-[#71717A] border border-[#E4E4E7] cursor-not-allowed opacity-50'
+
   return (
     <nav
-      className="mt-8 flex items-center justify-center gap-1"
+      className="mt-8 flex items-center justify-center gap-1.5"
       aria-label="페이지네이션"
     >
-      <Button
-        variant="ghost"
-        size="icon"
+      <button
+        type="button"
         disabled={page <= 1}
         onClick={() => setPage(page - 1)}
+        className={`${btnBase} ${page <= 1 ? btnDisabled : btnInactive}`}
         aria-label="이전 페이지"
       >
         <ChevronLeft className="size-4" />
-      </Button>
+      </button>
 
       {pages.map((p) => (
-        <Button
+        <button
           key={p}
-          variant={p === page ? 'default' : 'ghost'}
-          size="sm"
+          type="button"
           onClick={() => setPage(p)}
           aria-current={p === page ? 'page' : undefined}
+          className={`${btnBase} ${p === page ? btnActive : btnInactive}`}
         >
           {p}
-        </Button>
+        </button>
       ))}
 
-      <Button
-        variant="ghost"
-        size="icon"
+      <button
+        type="button"
         disabled={page >= totalPages}
         onClick={() => setPage(page + 1)}
+        className={`${btnBase} ${page >= totalPages ? btnDisabled : btnInactive}`}
         aria-label="다음 페이지"
       >
         <ChevronRight className="size-4" />
-      </Button>
+      </button>
     </nav>
   )
 }

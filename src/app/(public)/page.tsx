@@ -1,10 +1,10 @@
 import { Suspense } from 'react'
 import { HeroSection } from '@/features/marketing/components/hero-section'
-import { PromotionBanner } from '@/features/marketing/components/promotion-banner'
+import { QuickMenu } from '@/features/marketing/components/quick-menu'
 import { FeaturedVehicles } from '@/features/marketing/components/featured-vehicles'
-import { BrandShortcuts } from '@/features/marketing/components/brand-shortcuts'
-import { HowItWorks } from '@/features/marketing/components/how-it-works'
-import { TrustMetrics } from '@/features/marketing/components/trust-metrics'
+import { EventBanners } from '@/features/marketing/components/event-banners'
+import { RentSubscription } from '@/features/marketing/components/rent-subscription'
+import { FinancePartners } from '@/features/marketing/components/finance-partners'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,17 +12,15 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <PromotionBanner />
+      <QuickMenu />
       <Suspense fallback={<SectionSkeleton />}>
         <FeaturedVehicles />
       </Suspense>
+      <EventBanners />
       <Suspense fallback={<SectionSkeleton />}>
-        <BrandShortcuts />
+        <RentSubscription />
       </Suspense>
-      <HowItWorks />
-      <Suspense fallback={<SectionSkeleton />}>
-        <TrustMetrics />
-      </Suspense>
+      <FinancePartners />
     </>
   )
 }

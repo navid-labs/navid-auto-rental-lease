@@ -39,8 +39,11 @@ export function MobileNav({ links, user }: MobileNavProps) {
         className="w-[280px] bg-sidebar-background text-sidebar-foreground p-0"
       >
         <SheetHeader className="border-b border-sidebar-border p-4">
-          <SheetTitle className="text-lg font-bold text-sidebar-foreground">
-            Navid <span className="text-sidebar-accent">Auto</span>
+          <SheetTitle className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1A6DFF]">
+              <span className="text-[14px] font-extrabold leading-none text-white">N</span>
+            </div>
+            <span className="text-[18px] font-bold text-[#0D0D0D]">Navid Auto</span>
           </SheetTitle>
         </SheetHeader>
 
@@ -77,7 +80,7 @@ export function MobileNav({ links, user }: MobileNavProps) {
               <Link
                 href="/login"
                 onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-accent transition-colors hover:bg-sidebar-accent/10"
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-[#1A6DFF] transition-colors hover:bg-[#1A6DFF]/10"
               >
                 로그인
               </Link>
@@ -87,6 +90,13 @@ export function MobileNav({ links, user }: MobileNavProps) {
                 className="rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent/10"
               >
                 회원가입
+              </Link>
+              <Link
+                href="/inquiry?type=support"
+                onClick={() => setOpen(false)}
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent/10"
+              >
+                고객센터
               </Link>
             </>
           )}

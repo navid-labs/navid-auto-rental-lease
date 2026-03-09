@@ -4,23 +4,13 @@ import { useState, useEffect, useTransition } from 'react'
 import { useQueryStates } from 'nuqs'
 import { searchParamsParsers } from '../lib/search-params'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Slider } from '@/components/ui/slider'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { SlidersHorizontal } from 'lucide-react'
+import { ChevronDown, SlidersHorizontal } from 'lucide-react'
 import {
   getBrands,
   getModelsByBrand,
@@ -36,9 +26,75 @@ const CURRENT_YEAR = new Date().getFullYear()
 const MIN_YEAR = CURRENT_YEAR - 15
 const MAX_YEAR = CURRENT_YEAR + 1
 const MAX_PRICE = 2_000_000
-const PRICE_STEP = 50_000
 const MAX_MILEAGE = 200_000
-const MILEAGE_STEP = 10_000
+
+const VEHICLE_TYPES = ['전체', '세단', 'SUV', 'MPV', '쿠페', '해치백', '트럭']
+
+/** Collapsible section wrapper */
+function FilterSection({
+  title,
+  children,
+  defaultOpen = true,
+}: {
+  title: string
+  children: React.ReactNode
+  defaultOpen?: boolean
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+
+  return (
+    <div className="border-t border-[#E4E4E7]">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between py-3 text-sm font-medium text-[#0D0D0D]"
+      >
+        {title}
+        <ChevronDown
+          className={`size-4 text-[#71717A] transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+      {open && <div className="pb-4">{children}</div>}
+    </div>
+  )
+}
+
+/** Range input pair */
+function RangeInputs({
+  minValue,
+  maxValue,
+  minPlaceholder,
+  maxPlaceholder,
+  onMinChange,
+  onMaxChange,
+}: {
+  minValue: string
+  maxValue: string
+  minPlaceholder: string
+  maxPlaceholder: string
+  onMinChange: (v: string) => void
+  onMaxChange: (v: string) => void
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <input
+        type="number"
+        value={minValue}
+        onChange={(e) => onMinChange(e.target.value)}
+        placeholder={minPlaceholder}
+        className="h-9 w-full rounded-lg border border-[#E4E4E7] px-3 text-sm text-[#0D0D0D] placeholder:text-[#71717A] focus:border-[#1A6DFF] focus:outline-none"
+      />
+      <span className="shrink-0 text-sm text-[#71717A]">~</span>
+      <input
+        type="number"
+        value={maxValue}
+        onChange={(e) => onMaxChange(e.target.value)}
+        placeholder={maxPlaceholder}
+        className="h-9 w-full rounded-lg border border-[#E4E4E7] px-3 text-sm text-[#0D0D0D] placeholder:text-[#71717A] focus:border-[#1A6DFF] focus:outline-none"
+      />
+    </div>
+  )
+}
 
 function FilterContent() {
   const [isPending, startTransition] = useTransition()
@@ -49,6 +105,14 @@ function FilterContent() {
   const [brands, setBrands] = useState<BrandOption[]>([])
   const [models, setModels] = useState<ModelOption[]>([])
   const [generations, setGenerations] = useState<GenerationOption[]>([])
+
+  // Local state for range inputs (to allow typing without triggering on each keystroke)
+  const [priceMinInput, setPriceMinInput] = useState(filters.priceMin?.toString() ?? '')
+  const [priceMaxInput, setPriceMaxInput] = useState(filters.priceMax?.toString() ?? '')
+  const [yearMinInput, setYearMinInput] = useState(filters.yearMin?.toString() ?? '')
+  const [yearMaxInput, setYearMaxInput] = useState(filters.yearMax?.toString() ?? '')
+  const [mileMinInput, setMileMinInput] = useState(filters.mileMin?.toString() ?? '')
+  const [mileMaxInput, setMileMaxInput] = useState(filters.mileMax?.toString() ?? '')
 
   // Load brands on mount
   useEffect(() => {
@@ -76,35 +140,16 @@ function FilterContent() {
     })
   }, [filters.model])
 
-  // Derive visible options from filter state
   const visibleModels = filters.brand ? models : []
   const visibleGenerations = filters.model ? generations : []
 
-  const handleBrandChange = (value: string | null) => {
-    setFilters({
-      brand: value ?? '',
-      model: '',
-      gen: '',
-      page: 1,
-    })
-  }
-
-  const handleModelChange = (value: string | null) => {
-    setFilters({
-      model: value ?? '',
-      gen: '',
-      page: 1,
-    })
-  }
-
-  const handleGenerationChange = (value: string | null) => {
-    setFilters({
-      gen: value ?? '',
-      page: 1,
-    })
-  }
-
   const handleReset = () => {
+    setPriceMinInput('')
+    setPriceMaxInput('')
+    setYearMinInput('')
+    setYearMaxInput('')
+    setMileMinInput('')
+    setMileMaxInput('')
     setFilters({
       brand: '',
       model: '',
@@ -120,136 +165,208 @@ function FilterContent() {
     })
   }
 
+  const applyRangeFilter = (
+    key: 'priceMin' | 'priceMax' | 'yearMin' | 'yearMax' | 'mileMin' | 'mileMax',
+    value: string
+  ) => {
+    const parsed = parseInt(value, 10)
+    setFilters({ [key]: isNaN(parsed) ? null : parsed, page: 1 })
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Brand */}
-      <div className="space-y-2">
-        <Label>브랜드</Label>
-        <Select value={filters.brand || undefined} onValueChange={handleBrandChange}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder={isPending ? '로딩...' : '전체 브랜드'} />
-          </SelectTrigger>
-          <SelectContent>
-            {brands.map((b) => (
-              <SelectItem key={b.id} value={b.id}>
-                {b.nameKo || b.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+    <div>
+      {/* Header */}
+      <div className="flex items-center justify-between py-3">
+        <span className="font-bold text-[#0D0D0D]">필터</span>
+        <button
+          type="button"
+          onClick={handleReset}
+          className="text-sm text-[#1A6DFF] hover:underline"
+        >
+          초기화
+        </button>
       </div>
 
-      {/* Model */}
-      {filters.brand && (
-        <div className="space-y-2">
-          <Label>모델</Label>
-          <Select value={filters.model || undefined} onValueChange={handleModelChange}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={isPending ? '로딩...' : '전체 모델'} />
-            </SelectTrigger>
-            <SelectContent>
+      {/* 차종 */}
+      <FilterSection title="차종">
+        <div className="flex flex-wrap gap-2">
+          {VEHICLE_TYPES.map((type) => (
+            <button
+              key={type}
+              type="button"
+              className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                type === '전체'
+                  ? 'border-[#1A6DFF] bg-[#1A6DFF] text-white'
+                  : 'border-[#E4E4E7] bg-white text-[#0D0D0D] hover:border-[#1A6DFF] hover:text-[#1A6DFF]'
+              }`}
+            >
+              {type}
+            </button>
+          ))}
+        </div>
+      </FilterSection>
+
+      {/* 제조사/모델 */}
+      <FilterSection title="제조사/모델" defaultOpen={false}>
+        <div className="space-y-3">
+          {/* Brand pills */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setFilters({ brand: '', model: '', gen: '', page: 1 })}
+              className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                !filters.brand
+                  ? 'border-[#1A6DFF] bg-[#1A6DFF] text-white'
+                  : 'border-[#E4E4E7] bg-white text-[#0D0D0D] hover:border-[#1A6DFF] hover:text-[#1A6DFF]'
+              }`}
+            >
+              전체
+            </button>
+            {isPending && brands.length === 0 ? (
+              <span className="text-sm text-[#71717A]">로딩중...</span>
+            ) : (
+              brands.map((b) => (
+                <button
+                  key={b.id}
+                  type="button"
+                  onClick={() => setFilters({ brand: b.id, model: '', gen: '', page: 1 })}
+                  className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                    filters.brand === b.id
+                      ? 'border-[#1A6DFF] bg-[#1A6DFF] text-white'
+                      : 'border-[#E4E4E7] bg-white text-[#0D0D0D] hover:border-[#1A6DFF] hover:text-[#1A6DFF]'
+                  }`}
+                >
+                  {b.nameKo || b.name}
+                </button>
+              ))
+            )}
+          </div>
+
+          {/* Model pills */}
+          {visibleModels.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setFilters({ model: '', gen: '', page: 1 })}
+                className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                  !filters.model
+                    ? 'border-[#1A6DFF] bg-[#1A6DFF] text-white'
+                    : 'border-[#E4E4E7] bg-white text-[#0D0D0D] hover:border-[#1A6DFF] hover:text-[#1A6DFF]'
+                }`}
+              >
+                전체
+              </button>
               {visibleModels.map((m) => (
-                <SelectItem key={m.id} value={m.id}>
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => setFilters({ model: m.id, gen: '', page: 1 })}
+                  className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                    filters.model === m.id
+                      ? 'border-[#1A6DFF] bg-[#1A6DFF] text-white'
+                      : 'border-[#E4E4E7] bg-white text-[#0D0D0D] hover:border-[#1A6DFF] hover:text-[#1A6DFF]'
+                  }`}
+                >
                   {m.nameKo || m.name}
-                </SelectItem>
+                </button>
               ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
+            </div>
+          )}
 
-      {/* Generation */}
-      {filters.model && (
-        <div className="space-y-2">
-          <Label>세대</Label>
-          <Select value={filters.gen || undefined} onValueChange={handleGenerationChange}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={isPending ? '로딩...' : '전체 세대'} />
-            </SelectTrigger>
-            <SelectContent>
+          {/* Generation pills */}
+          {visibleGenerations.length > 0 && (
+            <div className="flex flex-wrap gap-2">
               {visibleGenerations.map((g) => (
-                <SelectItem key={g.id} value={g.id}>
+                <button
+                  key={g.id}
+                  type="button"
+                  onClick={() => setFilters({ gen: g.id, page: 1 })}
+                  className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                    filters.gen === g.id
+                      ? 'border-[#1A6DFF] bg-[#1A6DFF] text-white'
+                      : 'border-[#E4E4E7] bg-white text-[#0D0D0D] hover:border-[#1A6DFF] hover:text-[#1A6DFF]'
+                  }`}
+                >
                   {g.name} ({g.startYear}~{g.endYear ?? '현재'})
-                </SelectItem>
+                </button>
               ))}
-            </SelectContent>
-          </Select>
+            </div>
+          )}
         </div>
-      )}
+      </FilterSection>
 
-      {/* Price Range */}
-      <div className="space-y-3">
-        <Label>월 렌탈료</Label>
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>{formatKRW(filters.priceMin ?? 0)}</span>
-          <span>{formatKRW(filters.priceMax ?? MAX_PRICE)}</span>
-        </div>
-        <Slider
-          min={0}
-          max={MAX_PRICE}
-          step={PRICE_STEP}
-          value={[filters.priceMin ?? 0, filters.priceMax ?? MAX_PRICE]}
-          onValueChange={(value) => {
-            const v = Array.isArray(value) ? value : [value]
-            setFilters({
-              priceMin: v[0] === 0 ? null : v[0],
-              priceMax: v[1] === MAX_PRICE ? null : v[1],
-              page: 1,
-            })
+      {/* 가격 */}
+      <FilterSection title="가격" defaultOpen={false}>
+        <RangeInputs
+          minValue={priceMinInput}
+          maxValue={priceMaxInput}
+          minPlaceholder="최소"
+          maxPlaceholder="최대"
+          onMinChange={(v) => {
+            setPriceMinInput(v)
+            applyRangeFilter('priceMin', v)
+          }}
+          onMaxChange={(v) => {
+            setPriceMaxInput(v)
+            applyRangeFilter('priceMax', v)
           }}
         />
-      </div>
+        {(filters.priceMin || filters.priceMax) && (
+          <p className="mt-2 text-xs text-[#71717A]">
+            {formatKRW(filters.priceMin ?? 0)} ~{' '}
+            {filters.priceMax ? formatKRW(filters.priceMax) : `${formatKRW(MAX_PRICE)} 이상`}
+          </p>
+        )}
+      </FilterSection>
 
-      {/* Year Range */}
-      <div className="space-y-3">
-        <Label>연식</Label>
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>{filters.yearMin ?? MIN_YEAR}년</span>
-          <span>{filters.yearMax ?? MAX_YEAR}년</span>
-        </div>
-        <Slider
-          min={MIN_YEAR}
-          max={MAX_YEAR}
-          step={1}
-          value={[filters.yearMin ?? MIN_YEAR, filters.yearMax ?? MAX_YEAR]}
-          onValueChange={(value) => {
-            const v = Array.isArray(value) ? value : [value]
-            setFilters({
-              yearMin: v[0] === MIN_YEAR ? null : v[0],
-              yearMax: v[1] === MAX_YEAR ? null : v[1],
-              page: 1,
-            })
+      {/* 연식 */}
+      <FilterSection title="연식" defaultOpen={false}>
+        <RangeInputs
+          minValue={yearMinInput}
+          maxValue={yearMaxInput}
+          minPlaceholder={`${MIN_YEAR}`}
+          maxPlaceholder={`${MAX_YEAR}`}
+          onMinChange={(v) => {
+            setYearMinInput(v)
+            applyRangeFilter('yearMin', v)
+          }}
+          onMaxChange={(v) => {
+            setYearMaxInput(v)
+            applyRangeFilter('yearMax', v)
           }}
         />
-      </div>
+        {(filters.yearMin || filters.yearMax) && (
+          <p className="mt-2 text-xs text-[#71717A]">
+            {filters.yearMin ?? MIN_YEAR}년 ~ {filters.yearMax ?? MAX_YEAR}년
+          </p>
+        )}
+      </FilterSection>
 
-      {/* Mileage Range */}
-      <div className="space-y-3">
-        <Label>주행거리</Label>
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>{formatDistance(filters.mileMin ?? 0)}</span>
-          <span>{formatDistance(filters.mileMax ?? MAX_MILEAGE)}</span>
-        </div>
-        <Slider
-          min={0}
-          max={MAX_MILEAGE}
-          step={MILEAGE_STEP}
-          value={[filters.mileMin ?? 0, filters.mileMax ?? MAX_MILEAGE]}
-          onValueChange={(value) => {
-            const v = Array.isArray(value) ? value : [value]
-            setFilters({
-              mileMin: v[0] === 0 ? null : v[0],
-              mileMax: v[1] === MAX_MILEAGE ? null : v[1],
-              page: 1,
-            })
+      {/* 주행거리 */}
+      <FilterSection title="주행거리" defaultOpen={false}>
+        <RangeInputs
+          minValue={mileMinInput}
+          maxValue={mileMaxInput}
+          minPlaceholder="0"
+          maxPlaceholder={`${MAX_MILEAGE}`}
+          onMinChange={(v) => {
+            setMileMinInput(v)
+            applyRangeFilter('mileMin', v)
+          }}
+          onMaxChange={(v) => {
+            setMileMaxInput(v)
+            applyRangeFilter('mileMax', v)
           }}
         />
-      </div>
-
-      {/* Reset */}
-      <Button variant="outline" className="w-full" onClick={handleReset}>
-        필터 초기화
-      </Button>
+        {(filters.mileMin || filters.mileMax) && (
+          <p className="mt-2 text-xs text-[#71717A]">
+            {formatDistance(filters.mileMin ?? 0)} ~{' '}
+            {filters.mileMax
+              ? formatDistance(filters.mileMax)
+              : `${formatDistance(MAX_MILEAGE)} 이상`}
+          </p>
+        )}
+      </FilterSection>
     </div>
   )
 }
@@ -258,9 +375,8 @@ export function SearchFilters() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden w-72 shrink-0 lg:block">
-        <div className="sticky top-20 space-y-6 rounded-lg border bg-background p-4">
-          <h2 className="font-semibold">필터</h2>
+      <aside className="hidden w-[280px] shrink-0 lg:block">
+        <div className="sticky top-20 rounded-xl border border-[#E4E4E7] bg-white px-4">
           <FilterContent />
         </div>
       </aside>
@@ -270,7 +386,10 @@ export function SearchFilters() {
         <Sheet>
           <SheetTrigger
             render={
-              <Button variant="outline" size="sm" />
+              <button
+                type="button"
+                className="flex items-center gap-1.5 rounded-lg border border-[#E4E4E7] bg-white px-3 py-2 text-sm font-medium text-[#0D0D0D]"
+              />
             }
           >
             <SlidersHorizontal className="size-4" />

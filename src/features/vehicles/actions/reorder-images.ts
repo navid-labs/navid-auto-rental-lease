@@ -32,6 +32,17 @@ export async function reorderVehicleImages(
     }
   }
 
+  // Validate all imageIds belong to this vehicle
+  const images = await prisma.vehicleImage.findMany({
+    where: { vehicleId },
+    select: { id: true },
+  })
+  const validIds = new Set(images.map((img) => img.id))
+  const allValid = orderedImageIds.every((id) => validIds.has(id))
+  if (!allValid) {
+    return { error: '유효하지 않은 이미지가 포함되어 있습니다.' }
+  }
+
   // Update all images in a transaction
   await prisma.$transaction(
     orderedImageIds.map((imageId, index) =>

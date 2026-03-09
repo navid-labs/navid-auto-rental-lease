@@ -215,6 +215,9 @@ describe('reorderVehicleImages', () => {
   it('updates order and isPrimary via transaction', async () => {
     mockGetCurrentUser.mockResolvedValue({ id: 'dealer-1', role: 'DEALER' })
     mockPrisma.vehicle.findUnique.mockResolvedValue({ dealerId: 'dealer-1' })
+    mockPrisma.vehicleImage.findMany.mockResolvedValue([
+      { id: 'img-1' }, { id: 'img-2' }, { id: 'img-3' },
+    ])
     mockPrisma.$transaction.mockResolvedValue([])
 
     const result = await reorderVehicleImages('v1', ['img-2', 'img-1', 'img-3'])

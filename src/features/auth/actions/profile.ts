@@ -47,15 +47,16 @@ export async function changeUserRole(userId: string, newRole: UserRole) {
     return { error: '유효하지 않은 역할입니다.' }
   }
 
-  await prisma.profile.update({
-    where: { id: userId },
-    data: { role: newRole },
-  })
-
   const adminClient = createAdminClient()
-  await adminClient.auth.admin.updateUserById(userId, {
-    app_metadata: { role: newRole },
-  })
+  await Promise.all([
+    prisma.profile.update({
+      where: { id: userId },
+      data: { role: newRole },
+    }),
+    adminClient.auth.admin.updateUserById(userId, {
+      app_metadata: { role: newRole },
+    }),
+  ])
 
   revalidatePath('/admin/users')
   return { success: true }

@@ -25,10 +25,12 @@ export async function login(formData: FormData) {
 
   // Get user and profile for role-based redirect
   const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
-    .eq('id', user!.id)
+    .eq('id', user.id)
     .single()
 
   const redirectPath = profile?.role === 'ADMIN'

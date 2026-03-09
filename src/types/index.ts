@@ -7,6 +7,7 @@ export type {
   Trim,
   Vehicle,
   VehicleImage,
+  VehicleStatusLog,
   RentalContract,
   LeaseContract,
   Payment,

@@ -82,12 +82,13 @@ model Profile {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  dealerVehicles  Vehicle[]        @relation("DealerVehicles")
-  customerRentals RentalContract[] @relation("CustomerRentals")
-  dealerRentals   RentalContract[] @relation("DealerRentals")
-  customerLeases  LeaseContract[]  @relation("CustomerLeases")
-  dealerLeases    LeaseContract[]  @relation("DealerLeases")
-  inquiries       Inquiry[]
+  dealerVehicles    Vehicle[]           @relation("DealerVehicles")
+  customerRentals   RentalContract[]    @relation("CustomerRentals")
+  dealerRentals     RentalContract[]    @relation("DealerRentals")
+  customerLeases    LeaseContract[]     @relation("CustomerLeases")
+  dealerLeases      LeaseContract[]     @relation("DealerLeases")
+  inquiries         Inquiry[]
+  vehicleStatusLogs VehicleStatusLog[]
 
   @@map("profiles")
 }
@@ -175,6 +176,7 @@ model Vehicle {
   rentalContracts RentalContract[]
   leaseContracts  LeaseContract[]
   inquiries       Inquiry[]
+  statusLogs      VehicleStatusLog[]
 
   @@map("vehicles")
 }
@@ -293,4 +295,20 @@ model ResidualValueRate {
 
   @@unique([brandId, carModelId, year])
   @@map("residual_value_rates")
+}
+
+model VehicleStatusLog {
+  id         String        @id @default(uuid()) @db.Uuid
+  vehicleId  String        @map("vehicle_id") @db.Uuid
+  fromStatus VehicleStatus @map("from_status")
+  toStatus   VehicleStatus @map("to_status")
+  note       String?
+  changedBy  String        @map("changed_by") @db.Uuid
+  createdAt  DateTime      @default(now()) @map("created_at")
+
+  // Relations
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+  profile Profile @relation(fields: [changedBy], references: [id])
+
+  @@map("vehicle_status_logs")
 }

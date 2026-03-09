@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
   Car,
+  Package,
   FileText,
   Users,
   Calculator,
@@ -14,6 +15,7 @@ import { cn } from '@/lib/utils'
 const navItems = [
   { href: '/admin/dashboard', label: '대시보드', icon: LayoutDashboard },
   { href: '/admin/vehicles', label: '차량 관리', icon: Car },
+  { href: '/admin/inventory', label: '재고 관리', icon: Package },
   { href: '/admin/contracts', label: '계약 관리', icon: FileText },
   { href: '/admin/users', label: '사용자 관리', icon: Users },
   { href: '/admin/residual-value', label: '잔존가치 관리', icon: Calculator },

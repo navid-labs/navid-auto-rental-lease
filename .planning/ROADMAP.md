@@ -147,10 +147,11 @@ Plans:
   1. Contract PDF is auto-generated with all contract details (vehicle, terms, parties, dates)
   2. Customer my page shows list of all contracts with current status
   3. Customer can download contract PDF from their my page
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 08-01: TBD
+- [ ] 08-01-PLAN.md -- PDF infrastructure: @react-pdf/renderer with Korean fonts, contract PDF template, API route with auth/ownership check
+- [ ] 08-02-PLAN.md -- My page contract list with status filter tabs, compact contract cards, PDF download integration, contract detail page download button
 
 ### Phase 9: Admin Dashboard & Demo Readiness
 **Goal**: Admins have full operational control through a comprehensive dashboard, and the entire platform is demo-ready for investor presentations
@@ -185,5 +186,5 @@ Phases execute in order: 1 → 2 → 3 → {4, 5 parallel} → 6 → 7 → 8 →
 | 5. Public Search & Discovery | 2/2 | Complete   | 2026-03-09 |
 | 6. Pricing & Calculation | 3/3 | Complete   | 2026-03-09 |
 | 7. Contract Engine | 3/3 | Complete   | 2026-03-09 |
-| 8. Contract Completion & My Page | 0/1 | Not started | - |
+| 8. Contract Completion & My Page | 0/2 | Not started | - |
 | 9. Admin Dashboard & Demo Readiness | 0/2 | Not started | - |

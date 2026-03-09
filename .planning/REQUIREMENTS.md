@@ -56,8 +56,8 @@ Requirements for demo/investor-ready release. Each maps to roadmap phases.
 ### Admin
 
 - [ ] **ADMN-01**: Admin can view/edit/delete all vehicles, contracts, users
-- [ ] **ADMN-02**: Dealer vehicle approval queue (approve/reject with reason)
-- [ ] **ADMN-03**: Stats dashboard (registered vehicles, active contracts, user count)
+- [x] **ADMN-02**: Dealer vehicle approval queue (approve/reject with reason)
+- [x] **ADMN-03**: Stats dashboard (registered vehicles, active contracts, user count)
 - [ ] **ADMN-04**: Residual value rate table management (make/model/year → percentage)
 
 ### UI & Experience
@@ -137,8 +137,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONT-07 | Phase 7 | Complete |
 | DEAL-01 | Phase 4 | Complete |
 | ADMN-01 | Phase 9 | Pending |
-| ADMN-02 | Phase 9 | Pending |
-| ADMN-03 | Phase 9 | Pending |
+| ADMN-02 | Phase 9 | Complete |
+| ADMN-03 | Phase 9 | Complete |
 | ADMN-04 | Phase 9 | Pending |
 | UIEX-01 | Phase 1 | Complete |
 | UIEX-02 | Phase 5 | Complete |

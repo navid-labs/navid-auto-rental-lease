@@ -43,6 +43,11 @@
 - [ ] Phase 12: Settings Management & Polish
   - **Goal:** 프로모션율, 보조금, 잔존가율 등 설정 CRUD 및 전체 마무리
   - **Requirements:** REQ-V11-08, REQ-V11-09, REQ-V11-10
+  - **Plans:** 3 plans
+  - Plans:
+    - [ ] 12-01-PLAN.md — Settings schema, password gate, promo/subsidy/default CRUD
+    - [ ] 12-02-PLAN.md — CSV upload for inventory data management
+    - [ ] 12-03-PLAN.md — Admin nav update, loading/error states, unit tests
 
 ## Progress
 
@@ -59,4 +64,4 @@
 | 9. Admin Dashboard & Demo Readiness | v1.0 | 3/3 | Complete | 2026-03-10 |
 | 10. Inventory Data & Table UI | v1.1 | 0/2 | Planning | - |
 | 11. Quote Generation Engine | v1.1 | 0/2 | Planned | - |
-| 12. Settings Management & Polish | v1.1 | 0/0 | Planned | - |
+| 12. Settings Management & Polish | v1.1 | 0/3 | Planned | - |

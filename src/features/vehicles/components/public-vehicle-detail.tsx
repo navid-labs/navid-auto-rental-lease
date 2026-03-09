@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -16,6 +16,7 @@ import { formatKRW, formatDistance, formatYearModel } from '@/lib/utils/format'
 import { ImageIcon, MessageCircle, FileText } from 'lucide-react'
 import { InquiryForm } from './inquiry-form'
 import { PricingCalculator } from '@/features/pricing/components/pricing-calculator'
+import { useVehicleInteractionStore } from '@/lib/stores/vehicle-interaction-store'
 import type { VehicleWithDetails } from '@/features/vehicles/types'
 
 type PublicVehicleDetailProps = {
@@ -35,6 +36,23 @@ export function PublicVehicleDetail({ vehicle, residualRate }: PublicVehicleDeta
   const trim = vehicle.trim
 
   const title = `${brand.name} ${model.name} ${generation.name} ${trim.name}`
+
+  // Track recently viewed
+  const addRecentlyViewed = useVehicleInteractionStore((s) => s.addRecentlyViewed)
+  useEffect(() => {
+    const primaryImage = images[0]
+    addRecentlyViewed({
+      id: vehicle.id,
+      brandName: brand.nameKo || brand.name,
+      modelName: model.nameKo || model.name,
+      year: vehicle.year,
+      mileage: vehicle.mileage,
+      price: vehicle.price,
+      monthlyRental: vehicle.monthlyRental,
+      monthlyLease: vehicle.monthlyLease,
+      thumbnailUrl: primaryImage?.url ?? null,
+    })
+  }, [vehicle.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="space-y-6">

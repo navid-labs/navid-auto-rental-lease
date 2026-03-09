@@ -4,6 +4,7 @@ import { searchParamsCache, PAGE_SIZE } from '@/features/vehicles/lib/search-par
 import { buildWhereClause, buildOrderBy } from '@/features/vehicles/lib/search-query'
 import { SearchFilters } from '@/features/vehicles/components/search-filters'
 import { SearchSort } from '@/features/vehicles/components/search-sort'
+import { PopularSearches } from '@/features/vehicles/components/popular-searches'
 import { VehicleGrid } from '@/features/vehicles/components/vehicle-grid'
 import { Pagination } from '@/features/vehicles/components/pagination'
 import type { Metadata } from 'next'
@@ -71,6 +72,8 @@ export default async function VehiclesPage({
           <Suspense fallback={null}>
             <SearchSort totalCount={totalCount} />
           </Suspense>
+
+          <PopularSearches />
 
           <VehicleGrid vehicles={vehicles as unknown as VehicleWithDetails[]} />
 

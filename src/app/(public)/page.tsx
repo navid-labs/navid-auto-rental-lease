@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { HeroSection } from '@/features/marketing/components/hero-section'
+import { PromotionBanner } from '@/features/marketing/components/promotion-banner'
 import { FeaturedVehicles } from '@/features/marketing/components/featured-vehicles'
 import { BrandShortcuts } from '@/features/marketing/components/brand-shortcuts'
 import { HowItWorks } from '@/features/marketing/components/how-it-works'
@@ -11,6 +12,7 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
+      <PromotionBanner />
       <Suspense fallback={<SectionSkeleton />}>
         <FeaturedVehicles />
       </Suspense>

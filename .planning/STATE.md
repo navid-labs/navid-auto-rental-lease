@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Phase 8 context gathered
-last_updated: "2026-03-09T17:53:11.648Z"
-last_activity: 2026-03-10 -- Phase 7 complete. Admin approval queue, Supabase Realtime status tracking, end-to-end contract flow verified.
+status: executing
+stopped_at: Completed 08-01-PLAN.md
+last_updated: "2026-03-09T18:14:08.169Z"
+last_activity: 2026-03-10 -- Phase 8 Plan 01 complete. Contract PDF API with Korean fonts and auth.
 progress:
   total_phases: 9
   completed_phases: 7
-  total_plans: 17
-  completed_plans: 17
-  percent: 100
+  total_plans: 19
+  completed_plans: 18
+  percent: 95
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** 고객이 중고차를 온라인에서 검색하고, 비교하고, 비대면으로 렌탈/리스 계약까지 완료할 수 있는 원스톱 경험
-**Current focus:** Phase 7 complete. Full contract lifecycle operational. Ready for Phase 8 (PDF/My Page).
+**Current focus:** Phase 8 in progress. PDF generation complete, My Page next.
 
 ## Current Position
 
 Phase: 8 of 9 (Contract Completion & My Page)
-Plan: 0 of 1 in current phase
-Status: Phase 7 complete. Ready for Phase 8 planning.
-Last activity: 2026-03-10 -- Phase 7 complete. Admin approval queue, Supabase Realtime status tracking, end-to-end contract flow verified.
+Plan: 1 of 2 in current phase
+Status: executing
+Last activity: 2026-03-10 -- Phase 8 Plan 01 complete. Contract PDF API with Korean fonts and auth.
 
-Progress: [██████████] 100%
+Progress: [██████████] 95%
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [██████████] 100%
 | Phase 07 P01 | 3min | 2 tasks | 9 files |
 | Phase 07 P02 | 6min | 2 tasks | 13 files |
 | Phase 07 P03 | 8min | 3 tasks | 7 files |
+| Phase 08 P01 | 3min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -117,6 +118,7 @@ Recent decisions affecting current work:
 - [07-02]: submitEkyc performs two transitions: DRAFT->PENDING_EKYC then PENDING_EKYC->PENDING_APPROVAL
 - [Phase 07]: Supabase Realtime subscription with router.refresh() for data reload (simpler than client state sync)
 - [Phase 07]: Admin contract queue reuses Phase 4 searchParams tab pattern for filter state
+- [Phase 08]: Separate lease/rental query paths for full type safety; inline formatters in PDF component; serverExternalPackages for @react-pdf/renderer
 
 ### Pending Todos
 
@@ -130,6 +132,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T17:53:11.645Z
-Stopped at: Phase 8 context gathered
-Resume file: .planning/phases/08-contract-completion-my-page/08-CONTEXT.md
+Last session: 2026-03-09T18:14:08.167Z
+Stopped at: Completed 08-01-PLAN.md
+Resume file: None

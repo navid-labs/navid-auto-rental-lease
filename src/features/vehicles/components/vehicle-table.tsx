@@ -12,12 +12,14 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from './status-badge'
+import { ApprovalBadge } from './approval-badge'
 import { StatusChangeDialog } from './status-change-dialog'
 import { deleteVehicle } from '@/features/vehicles/actions/delete-vehicle'
+import { resubmitVehicle } from '@/features/vehicles/actions/resubmit-vehicle'
 import type { VehicleWithDetails } from '@/features/vehicles/types'
 import type { VehicleStatus } from '@prisma/client'
 import Image from 'next/image'
-import { Pencil, Trash2, Car } from 'lucide-react'
+import { Pencil, Trash2, Car, RotateCcw } from 'lucide-react'
 
 const STATUS_TABS: { label: string; value: VehicleStatus | 'ALL' }[] = [
   { label: '전체', value: 'ALL' },
@@ -79,6 +81,20 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
     router.refresh()
   }, [router])
 
+  const handleResubmit = useCallback(
+    (vehicleId: string) => {
+      startTransition(async () => {
+        const result = await resubmitVehicle(vehicleId)
+        if ('error' in result) {
+          alert(result.error)
+          return
+        }
+        router.refresh()
+      })
+    },
+    [router]
+  )
+
   return (
     <div className="space-y-4">
       {/* Status filter tabs */}
@@ -115,6 +131,7 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
               <TableHead>주행거리</TableHead>
               <TableHead>가격</TableHead>
               <TableHead>상태</TableHead>
+              <TableHead>승인</TableHead>
               {userRole === 'ADMIN' && <TableHead>딜러</TableHead>}
               <TableHead className="text-right">관리</TableHead>
             </TableRow>
@@ -168,6 +185,28 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
                     >
                       <StatusBadge status={vehicle.status} />
                     </StatusChangeDialog>
+                  </TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center gap-1">
+                      {'approvalStatus' in vehicle && vehicle.approvalStatus ? (
+                        <ApprovalBadge
+                          status={vehicle.approvalStatus}
+                          rejectionReason={'rejectionReason' in vehicle ? (vehicle.rejectionReason as string | null) : null}
+                        />
+                      ) : null}
+                      {userRole === 'DEALER' && 'approvalStatus' in vehicle && vehicle.approvalStatus === 'REJECTED' && (
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => handleResubmit(vehicle.id)}
+                          disabled={isPending}
+                          aria-label="재심사 요청"
+                          title="재심사 요청"
+                        >
+                          <RotateCcw className="size-3.5" />
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                   {userRole === 'ADMIN' && (
                     <TableCell>

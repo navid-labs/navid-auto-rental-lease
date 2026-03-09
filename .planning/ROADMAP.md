@@ -26,7 +26,7 @@
 **Goal:** 외부 재고 데이터 연동, 재고 조회 테이블, 견적 생성, 설정 관리 — 롯데렌터카 Biz car 스타일 어드민
 **Reference:** https://inventory-ver0130.vercel.app/
 
-- [ ] Phase 10: Inventory Data & Table UI
+- [x] Phase 10: Inventory Data & Table UI (completed 2026-03-09)
   - **Goal:** 외부 재고 데이터를 가져와 필터/검색 가능한 대용량 테이블로 표시
   - **Requirements:** REQ-V11-01, REQ-V11-02, REQ-V11-03, REQ-V11-04
   - **Plans:** 2 plans
@@ -62,6 +62,6 @@
 | 7. Contract Engine | v1.0 | 3/3 | Complete | 2026-03-09 |
 | 8. Contract Completion & My Page | v1.0 | 2/2 | Complete | 2026-03-09 |
 | 9. Admin Dashboard & Demo Readiness | v1.0 | 3/3 | Complete | 2026-03-10 |
-| 10. Inventory Data & Table UI | 1/2 | In Progress|  | - |
+| 10. Inventory Data & Table UI | 2/2 | Complete   | 2026-03-09 | - |
 | 11. Quote Generation Engine | v1.1 | 0/2 | Planned | - |
 | 12. Settings Management & Polish | v1.1 | 0/3 | Planned | - |

@@ -5,6 +5,7 @@ import { MobileNav } from '@/components/layout/mobile-nav'
 
 const navLinks = [
   { href: '/vehicles', label: '차량검색' },
+  { href: '/calculator', label: '계산기' },
   { href: '/rental-lease', label: '렌탈/리스' },
   { href: '/inquiry', label: '문의하기' },
 ]

@@ -4,7 +4,6 @@ import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import type { Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { upsertResidualRate } from '../actions/residual-rate'
 import { getModelsByBrand } from '@/features/vehicles/actions/get-cascade-data'
@@ -52,7 +51,8 @@ export function ResidualValueForm({ brands }: ResidualValueFormProps) {
     setValue,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema) as unknown as Resolver<FormValues>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(formSchema) as any,
     defaultValues: {
       brandId: '',
       carModelId: '',

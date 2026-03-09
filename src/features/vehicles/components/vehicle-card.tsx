@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { formatKRW, formatDistance, formatYearModel } from '@/lib/utils/format'
+import { estimateMonthlyRental, formatEstimate } from '@/lib/finance/calculate'
 import { ImageIcon } from 'lucide-react'
 import type { VehicleWithDetails } from '@/features/vehicles/types'
 
@@ -47,6 +48,11 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
               ? formatKRW(vehicle.monthlyRental, { monthly: true })
               : formatKRW(vehicle.price)}
           </p>
+          {vehicle.price > 0 && !vehicle.monthlyRental && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              {formatEstimate(estimateMonthlyRental(vehicle.price))}
+            </p>
+          )}
         </CardContent>
       </Card>
     </Link>

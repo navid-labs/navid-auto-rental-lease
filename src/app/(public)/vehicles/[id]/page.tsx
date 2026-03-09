@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db/prisma'
 import { PublicVehicleDetail } from '@/features/vehicles/components/public-vehicle-detail'
+import { getResidualRate } from '@/features/pricing/actions/residual-rate'
 import type { Metadata } from 'next'
 import type { VehicleWithDetails } from '@/features/vehicles/types'
 
@@ -64,9 +65,18 @@ export default async function VehicleDetailPage({ params }: PageProps) {
     notFound()
   }
 
+  const residualRate = await getResidualRate(
+    vehicle.trim.generation.carModel.brand.id,
+    vehicle.trim.generation.carModel.id,
+    vehicle.year
+  )
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <PublicVehicleDetail vehicle={vehicle as unknown as VehicleWithDetails} />
+      <PublicVehicleDetail
+        vehicle={vehicle as unknown as VehicleWithDetails}
+        residualRate={residualRate}
+      />
     </div>
   )
 }

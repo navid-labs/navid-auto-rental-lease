@@ -14,13 +14,15 @@ import {
 import { formatKRW, formatDistance, formatYearModel } from '@/lib/utils/format'
 import { ImageIcon, MessageCircle } from 'lucide-react'
 import { InquiryForm } from './inquiry-form'
+import { PricingCalculator } from '@/features/pricing/components/pricing-calculator'
 import type { VehicleWithDetails } from '@/features/vehicles/types'
 
 type PublicVehicleDetailProps = {
   vehicle: VehicleWithDetails
+  residualRate?: number | null
 }
 
-export function PublicVehicleDetail({ vehicle }: PublicVehicleDetailProps) {
+export function PublicVehicleDetail({ vehicle, residualRate }: PublicVehicleDetailProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [inquiryOpen, setInquiryOpen] = useState(false)
   const images = vehicle.images.sort((a, b) => a.order - b.order)
@@ -145,6 +147,20 @@ export function PublicVehicleDetail({ vehicle }: PublicVehicleDetailProps) {
               </p>
             </div>
           )}
+
+          {/* Pricing Calculator */}
+          <div className="border-t pt-4">
+            <PricingCalculator
+              vehicle={{
+                id: vehicle.id,
+                price: vehicle.price,
+                brandName: brand.name,
+                modelName: model.name,
+                year: vehicle.year,
+              }}
+              residualRate={residualRate}
+            />
+          </div>
 
           {/* CTA */}
           <div className="border-t pt-4">

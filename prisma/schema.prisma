@@ -41,6 +41,12 @@ enum VehicleStatus {
   HIDDEN
 }
 
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum ContractStatus {
   DRAFT
   PENDING_EKYC
@@ -82,13 +88,15 @@ model Profile {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  dealerVehicles    Vehicle[]           @relation("DealerVehicles")
-  customerRentals   RentalContract[]    @relation("CustomerRentals")
-  dealerRentals     RentalContract[]    @relation("DealerRentals")
-  customerLeases    LeaseContract[]     @relation("CustomerLeases")
-  dealerLeases      LeaseContract[]     @relation("DealerLeases")
-  inquiries         Inquiry[]
-  vehicleStatusLogs VehicleStatusLog[]
+  dealerVehicles      Vehicle[]           @relation("DealerVehicles")
+  approvedVehicles    Vehicle[]           @relation("VehicleApprovers")
+  customerRentals     RentalContract[]    @relation("CustomerRentals")
+  dealerRentals       RentalContract[]    @relation("DealerRentals")
+  customerLeases      LeaseContract[]     @relation("CustomerLeases")
+  dealerLeases        LeaseContract[]     @relation("DealerLeases")
+  inquiries           Inquiry[]
+  vehicleStatusLogs   VehicleStatusLog[]
+  approvalLogs        VehicleApprovalLog[]
 
   @@map("profiles")
 }
@@ -164,19 +172,25 @@ model Vehicle {
   price          Int
   monthlyRental  Int?          @map("monthly_rental")
   monthlyLease   Int?          @map("monthly_lease")
-  status         VehicleStatus @default(AVAILABLE)
-  description    String?
-  createdAt      DateTime      @default(now()) @map("created_at")
-  updatedAt      DateTime      @updatedAt @map("updated_at")
+  status          VehicleStatus  @default(AVAILABLE)
+  description     String?
+  approvalStatus  ApprovalStatus @default(PENDING) @map("approval_status")
+  rejectionReason String?        @map("rejection_reason")
+  approvedBy      String?        @map("approved_by") @db.Uuid
+  approvedAt      DateTime?      @map("approved_at")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
 
   // Relations
   trim            Trim             @relation(fields: [trimId], references: [id])
   dealer          Profile          @relation("DealerVehicles", fields: [dealerId], references: [id])
+  approver        Profile?         @relation("VehicleApprovers", fields: [approvedBy], references: [id])
   images          VehicleImage[]
   rentalContracts RentalContract[]
   leaseContracts  LeaseContract[]
   inquiries       Inquiry[]
   statusLogs      VehicleStatusLog[]
+  approvalLogs    VehicleApprovalLog[]
 
   @@map("vehicles")
 }
@@ -311,4 +325,20 @@ model VehicleStatusLog {
   profile Profile @relation(fields: [changedBy], references: [id])
 
   @@map("vehicle_status_logs")
+}
+
+model VehicleApprovalLog {
+  id         String         @id @default(uuid()) @db.Uuid
+  vehicleId  String         @map("vehicle_id") @db.Uuid
+  fromStatus ApprovalStatus @map("from_status")
+  toStatus   ApprovalStatus @map("to_status")
+  reason     String?
+  changedBy  String         @map("changed_by") @db.Uuid
+  createdAt  DateTime       @default(now()) @map("created_at")
+
+  // Relations
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+  profile Profile @relation(fields: [changedBy], references: [id])
+
+  @@map("vehicle_approval_logs")
 }

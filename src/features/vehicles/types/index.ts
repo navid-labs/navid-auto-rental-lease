@@ -6,6 +6,7 @@ import type {
   CarModel,
   Brand,
   Profile,
+  ApprovalStatus,
 } from '@prisma/client'
 
 /** All fields collected across wizard steps */

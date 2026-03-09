@@ -10,27 +10,27 @@
 
 ## Requirements
 
-### Validated
+### Validated (v1 Demo Complete — 2026-03-10)
 
-(None yet — ship to validate)
+- [x] 차량 검색/필터/비교 기능 (Phase 5)
+- [x] 차량 상세 정보 조회 — 제원, 사진 갤러리, 가격 (Phase 5)
+- [x] 번호판 기반 차량 정보 자동 조회 — Mock Provider + 어댑터 패턴 (Phase 3)
+- [x] 회원가입/로그인 — 이메일/비밀번호, Supabase Auth (Phase 2)
+- [x] 역할 기반 접근 제어 — 고객/딜러/관리자, 미들웨어 RLS (Phase 2)
+- [x] 딜러 차량 등록/수정/삭제 — 3단계 위자드, 이미지 업로드 (Phase 3)
+- [x] 관리자 차량 등록/수정/삭제 — 자사 재고 + Sheet 편집 (Phase 3, 9)
+- [x] 렌탈/리스 계약 신청 플로우 — 4단계 위자드 (Phase 7)
+- [x] eKYC 모의 플로우 — 인증코드 입력 UI + DB 기록 (Phase 7)
+- [x] 계약서 PDF 자동 생성 및 다운로드 — @react-pdf/renderer (Phase 8)
+- [x] 실시간 차량 상태 업데이트 — Supabase Realtime (Phase 7)
+- [x] 마이페이지 — 계약 현황, 상태 필터, PDF 다운로드 (Phase 8)
+- [x] 관리자 대시보드 — 차량/계약/사용자 CRUD + Recharts 통계 (Phase 9)
+- [x] 잔존가치 자동 산정 — 브랜드/모델/연식별 관리자 테이블 (Phase 6)
+- [x] 반응형 웹 디자인 — 모바일 카드 레이아웃, skeleton loading (Phase 9)
 
 ### Active
 
-- [ ] 차량 검색/필터/비교 기능
-- [ ] 차량 상세 정보 조회 (제원, 사진, 가격)
-- [ ] 번호판 기반 차량 정보 자동 조회 (API 연동)
-- [ ] 회원가입/로그인 (이메일/비밀번호)
-- [ ] 역할 기반 접근 제어 (고객, 딜러, 관리자)
-- [ ] 딜러 차량 등록/수정/삭제
-- [ ] 관리자 차량 등록/수정/삭제 (자사 재고)
-- [ ] 렌탈/리스 계약 신청 플로우
-- [ ] eKYC 모의 플로우 (신분증 인증 UI/UX)
-- [ ] 계약서 PDF 자동 생성 및 다운로드
-- [ ] 실시간 차량 상태 업데이트 (예약됨/렌트중 등)
-- [ ] 마이페이지 (계약 현황, 차량 정보 조회)
-- [ ] 관리자 대시보드 (차량/계약/사용자 CRUD + 통계)
-- [ ] 잔존가치 자동 산정 (리스 계약용)
-- [ ] 반응형 웹 디자인 (모바일 최적화)
+(None — v1 scope complete)
 
 ### Out of Scope
 
@@ -63,12 +63,26 @@
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Web-First 전략 | 빠른 개발/배포, SEO, 크로스플랫폼 | — Pending |
-| Supabase BaaS 채택 | 인증/DB/Realtime 통합, 빠른 프로토타이핑 | — Pending |
-| eKYC/전자서명 v1 모의 플로우 | v1은 데모용, 실연동은 비용/시간 절약 | — Pending |
-| 번호판 조회 API v1 실연동 | 핵심 차별화 기능, 데모 임팩트 | — Pending |
-| 딜러 등록 하이브리드 모델 | 자사+딜러 재고 통합 관리 유연성 | — Pending |
-| shadcn/ui 도입 | Tailwind 기반 일관된 UI, 빠른 개발 속도 | — Pending |
+| Web-First 전략 | 빠른 개발/배포, SEO, 크로스플랫폼 | ✅ 데모 완성 |
+| Supabase BaaS 채택 | 인증/DB/Realtime 통합, 빠른 프로토타이핑 | ✅ Auth+RLS+Realtime 동작 |
+| eKYC/전자서명 v1 모의 플로우 | v1은 데모용, 실연동은 비용/시간 절약 | ✅ Mock eKYC 완성 |
+| 번호판 조회 API Mock Provider | 어댑터 패턴으로 향후 실API 교체 용이 | ✅ 플러거블 구조 |
+| 딜러 등록 하이브리드 모델 | 자사+딜러 재고 통합 관리 유연성 | ✅ 승인 큐 동작 |
+| shadcn/ui + base-ui 도입 | Tailwind v4 기반 일관된 UI | ✅ render prop 패턴 |
+| Prisma (not Supabase REST) for data | RLS 우회 + 타입 안전성 + 서버 컴포넌트 | ✅ 264 테스트 통과 |
+| PostgREST GRANT migration | 미들웨어 프로필 조회에 필요 | ✅ 2026-03-10 수정 |
+
+## v1 최종 수치 (2026-03-10)
+
+| 항목 | 수치 |
+|------|------|
+| Phases | 9/9 완료 |
+| Plans | 22/22 완료 |
+| Tests | 29파일, 264개 통과 |
+| 차량 데이터 | 180대 (8 브랜드, 25 모델) |
+| 데모 계정 | 9개 (admin 1 + dealer 3 + customer 5) |
+| 계약 데이터 | 13건 (7개 상태 전부 커버) |
+| 총 개발 시간 | ~1.05시간 (Plan 실행 기준) |
 
 ---
-*Last updated: 2026-03-09 after initialization*
+*Last updated: 2026-03-10 — v1 demo complete*

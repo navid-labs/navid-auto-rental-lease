@@ -59,6 +59,21 @@ export type ContractWithVehicle = (RentalContract | LeaseContract) & {
 }
 
 /** Data shape for PDF template rendering */
+/** Compact contract item for list display on my page */
+export type ContractListItem = {
+  id: string
+  contractType: 'RENTAL' | 'LEASE'
+  status: ContractStatus
+  vehicleName: string
+  vehicleYear: number
+  vehicleImageUrl: string | null
+  monthlyPayment: number
+  deposit: number
+  startDate: Date | null
+  endDate: Date | null
+  createdAt: Date
+}
+
 export type ContractPDFData = {
   contractType: 'RENTAL' | 'LEASE'
   contractId: string

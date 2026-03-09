@@ -31,13 +31,13 @@ Requirements for demo/investor-ready release. Each maps to roadmap phases.
 - [x] **SRCH-01**: User can search vehicles with multi-criteria filters (brand, model, year, price range, mileage)
 - [x] **SRCH-02**: User can sort results by price, year, mileage, or newest
 - [x] **SRCH-03**: Vehicle detail page with photo gallery, specs, and pricing info
-- [ ] **SRCH-04**: Interactive rental vs lease comparison calculator (period/deposit sliders)
+- [x] **SRCH-04**: Interactive rental vs lease comparison calculator (period/deposit sliders)
 - [x] **SRCH-05**: Filter state persisted in URL for sharing/bookmarking
 
 ### Pricing & Calculation
 
-- [ ] **PRIC-01**: Monthly rental/lease payment calculator based on contract terms
-- [ ] **PRIC-02**: Residual value estimation from admin-configurable lookup table (make/model/year → %)
+- [x] **PRIC-01**: Monthly rental/lease payment calculator based on contract terms
+- [x] **PRIC-02**: Residual value estimation from admin-configurable lookup table (make/model/year → %)
 
 ### Contract
 
@@ -124,10 +124,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SRCH-01 | Phase 5 | Complete |
 | SRCH-02 | Phase 5 | Complete |
 | SRCH-03 | Phase 5 | Complete |
-| SRCH-04 | Phase 6 | Pending |
+| SRCH-04 | Phase 6 | Complete |
 | SRCH-05 | Phase 5 | Complete |
-| PRIC-01 | Phase 6 | Pending |
-| PRIC-02 | Phase 6 | Pending |
+| PRIC-01 | Phase 6 | Complete |
+| PRIC-02 | Phase 6 | Complete |
 | CONT-01 | Phase 7 | Pending |
 | CONT-02 | Phase 7 | Pending |
 | CONT-03 | Phase 8 | Pending |

@@ -11,8 +11,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import Link from 'next/link'
 import { formatKRW, formatDistance, formatYearModel } from '@/lib/utils/format'
-import { ImageIcon, MessageCircle } from 'lucide-react'
+import { ImageIcon, MessageCircle, FileText } from 'lucide-react'
 import { InquiryForm } from './inquiry-form'
 import { PricingCalculator } from '@/features/pricing/components/pricing-calculator'
 import type { VehicleWithDetails } from '@/features/vehicles/types'
@@ -162,12 +163,25 @@ export function PublicVehicleDetail({ vehicle, residualRate }: PublicVehicleDeta
             />
           </div>
 
-          {/* CTA */}
-          <div className="border-t pt-4">
+          {/* Contract CTA */}
+          <div className="border-t pt-4 space-y-3">
+            {vehicle.status === 'AVAILABLE' && vehicle.approvalStatus === 'APPROVED' ? (
+              <Link href={`/vehicles/${vehicle.id}/contract`}>
+                <Button size="lg" className="w-full">
+                  <FileText className="size-4" />
+                  계약 신청
+                </Button>
+              </Link>
+            ) : (
+              <Button size="lg" className="w-full" disabled>
+                현재 계약 신청 불가
+              </Button>
+            )}
+
             <Dialog open={inquiryOpen} onOpenChange={setInquiryOpen}>
               <DialogTrigger
                 render={
-                  <Button size="lg" className="w-full" />
+                  <Button size="lg" variant="outline" className="w-full" />
                 }
               >
                 <MessageCircle className="size-4" />

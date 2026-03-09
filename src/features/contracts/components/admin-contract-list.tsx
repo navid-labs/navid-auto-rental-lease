@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { toast } from 'sonner'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -68,7 +69,7 @@ export function AdminContractList({ contracts }: AdminContractListProps) {
     startTransition(async () => {
       const result = await approveContract(contractId, contractType, 'APPROVED')
       if ('error' in result) {
-        alert(result.error)
+        toast.error(result.error)
       }
     })
   }
@@ -82,7 +83,7 @@ export function AdminContractList({ contracts }: AdminContractListProps) {
         rejectReason
       )
       if ('error' in result) {
-        alert(result.error)
+        toast.error(result.error)
       }
       setRejectDialog({ open: false, contractId: '', contractType: 'RENTAL' })
       setRejectReason('')

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition, useCallback } from 'react'
+import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import {
   Table,
@@ -68,7 +69,7 @@ export function ApprovalQueueTable({ vehicles }: ApprovalQueueTableProps) {
     startTransition(async () => {
       const result = await batchApproveVehicles(Array.from(selectedIds))
       if ('error' in result) {
-        alert(result.error)
+        toast.error(result.error)
         return
       }
       setSelectedIds(new Set())

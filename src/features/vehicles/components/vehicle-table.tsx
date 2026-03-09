@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition, useCallback } from 'react'
+import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import {
   Table,
@@ -68,7 +69,7 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
       startTransition(async () => {
         const result = await deleteVehicle(vehicleId)
         if ('error' in result) {
-          alert(result.error)
+          toast.error(result.error)
           return
         }
         router.refresh()
@@ -86,7 +87,7 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
       startTransition(async () => {
         const result = await resubmitVehicle(vehicleId)
         if ('error' in result) {
-          alert(result.error)
+          toast.error(result.error)
           return
         }
         router.refresh()

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { upsertResidualRate, deleteResidualRate } from '../actions/residual-rate'
 import { Pencil, Trash2, Check, X, Loader2 } from 'lucide-react'
@@ -41,7 +42,7 @@ export function ResidualValueTable({ rates }: ResidualValueTableProps) {
   function saveEdit(row: ResidualRateRow) {
     const percentValue = parseFloat(editValue)
     if (isNaN(percentValue) || percentValue < 1 || percentValue > 99) {
-      alert('1~99 사이의 값을 입력해주세요.')
+      toast.error('1~99 사이의 값을 입력해주세요.')
       return
     }
 
@@ -53,7 +54,7 @@ export function ResidualValueTable({ rates }: ResidualValueTableProps) {
         rate: percentValue / 100,
       })
       if ('error' in result) {
-        alert(result.error)
+        toast.error(result.error)
       } else {
         setEditingId(null)
         setEditValue('')
@@ -69,7 +70,7 @@ export function ResidualValueTable({ rates }: ResidualValueTableProps) {
     startTransition(async () => {
       const result = await deleteResidualRate(id)
       if ('error' in result) {
-        alert(result.error)
+        toast.error(result.error)
       } else {
         router.refresh()
       }

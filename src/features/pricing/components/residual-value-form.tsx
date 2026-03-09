@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition, useCallback } from 'react'
+import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -91,7 +92,7 @@ export function ResidualValueForm({ brands }: ResidualValueFormProps) {
         rate: data.ratePercent / 100,
       })
       if ('error' in result) {
-        alert(result.error)
+        toast.error(result.error)
       } else {
         reset()
         setModels([])

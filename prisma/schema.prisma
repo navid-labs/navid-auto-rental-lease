@@ -1,0 +1,296 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────
+
+enum UserRole {
+  CUSTOMER
+  DEALER
+  ADMIN
+}
+
+enum FuelType {
+  GASOLINE
+  DIESEL
+  LPG
+  HYBRID
+  ELECTRIC
+  HYDROGEN
+}
+
+enum Transmission {
+  AUTOMATIC
+  MANUAL
+  CVT
+  DCT
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  RESERVED
+  RENTED
+  LEASED
+  MAINTENANCE
+  HIDDEN
+}
+
+enum ContractStatus {
+  DRAFT
+  PENDING_EKYC
+  PENDING_APPROVAL
+  APPROVED
+  ACTIVE
+  COMPLETED
+  CANCELED
+}
+
+enum ContractType {
+  RENTAL
+  LEASE
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum InquiryStatus {
+  NEW
+  IN_PROGRESS
+  COMPLETED
+}
+
+// ─── Models ──────────────────────────────────────────────
+
+model Profile {
+  id        String   @id @db.Uuid
+  email     String   @unique
+  name      String?
+  phone     String?
+  role      UserRole @default(CUSTOMER)
+  avatarUrl String?  @map("avatar_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  dealerVehicles  Vehicle[]        @relation("DealerVehicles")
+  customerRentals RentalContract[] @relation("CustomerRentals")
+  dealerRentals   RentalContract[] @relation("DealerRentals")
+  customerLeases  LeaseContract[]  @relation("CustomerLeases")
+  dealerLeases    LeaseContract[]  @relation("DealerLeases")
+  inquiries       Inquiry[]
+
+  @@map("profiles")
+}
+
+model Brand {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique
+  nameKo    String?  @map("name_ko")
+  logoUrl   String?  @map("logo_url")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  carModels          CarModel[]
+  residualValueRates ResidualValueRate[]
+
+  @@map("brands")
+}
+
+model CarModel {
+  id        String   @id @default(uuid()) @db.Uuid
+  brandId   String   @map("brand_id") @db.Uuid
+  name      String
+  nameKo    String?  @map("name_ko")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  brand              Brand              @relation(fields: [brandId], references: [id])
+  generations        Generation[]
+  residualValueRates ResidualValueRate[]
+
+  @@map("car_models")
+}
+
+model Generation {
+  id         String   @id @default(uuid()) @db.Uuid
+  carModelId String   @map("car_model_id") @db.Uuid
+  name       String
+  startYear  Int      @map("start_year")
+  endYear    Int?     @map("end_year")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  carModel CarModel @relation(fields: [carModelId], references: [id])
+  trims    Trim[]
+
+  @@map("generations")
+}
+
+model Trim {
+  id           String       @id @default(uuid()) @db.Uuid
+  generationId String       @map("generation_id") @db.Uuid
+  name         String
+  fuelType     FuelType     @map("fuel_type")
+  engineCC     Int?         @map("engine_cc")
+  transmission Transmission
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  // Relations
+  generation Generation @relation(fields: [generationId], references: [id])
+  vehicles   Vehicle[]
+
+  @@map("trims")
+}
+
+model Vehicle {
+  id             String        @id @default(uuid()) @db.Uuid
+  trimId         String        @map("trim_id") @db.Uuid
+  dealerId       String        @map("dealer_id") @db.Uuid
+  year           Int
+  mileage        Int
+  color          String
+  licensePlate   String?       @map("license_plate")
+  price          Int
+  monthlyRental  Int?          @map("monthly_rental")
+  monthlyLease   Int?          @map("monthly_lease")
+  status         VehicleStatus @default(AVAILABLE)
+  description    String?
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  trim            Trim             @relation(fields: [trimId], references: [id])
+  dealer          Profile          @relation("DealerVehicles", fields: [dealerId], references: [id])
+  images          VehicleImage[]
+  rentalContracts RentalContract[]
+  leaseContracts  LeaseContract[]
+  inquiries       Inquiry[]
+
+  @@map("vehicles")
+}
+
+model VehicleImage {
+  id        String   @id @default(uuid()) @db.Uuid
+  vehicleId String   @map("vehicle_id") @db.Uuid
+  url       String
+  order     Int      @default(0)
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@map("vehicle_images")
+}
+
+model RentalContract {
+  id             String         @id @default(uuid()) @db.Uuid
+  vehicleId      String         @map("vehicle_id") @db.Uuid
+  customerId     String         @map("customer_id") @db.Uuid
+  dealerId       String         @map("dealer_id") @db.Uuid
+  status         ContractStatus @default(DRAFT)
+  startDate      DateTime?      @map("start_date")
+  endDate        DateTime?      @map("end_date")
+  monthlyPayment Int            @map("monthly_payment")
+  deposit        Int            @default(0)
+  totalAmount    Int            @map("total_amount")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  vehicle  Vehicle  @relation(fields: [vehicleId], references: [id])
+  customer Profile  @relation("CustomerRentals", fields: [customerId], references: [id])
+  dealer   Profile  @relation("DealerRentals", fields: [dealerId], references: [id])
+  payments Payment[]
+
+  @@map("rental_contracts")
+}
+
+model LeaseContract {
+  id             String         @id @default(uuid()) @db.Uuid
+  vehicleId      String         @map("vehicle_id") @db.Uuid
+  customerId     String         @map("customer_id") @db.Uuid
+  dealerId       String         @map("dealer_id") @db.Uuid
+  status         ContractStatus @default(DRAFT)
+  startDate      DateTime?      @map("start_date")
+  endDate        DateTime?      @map("end_date")
+  monthlyPayment Int            @map("monthly_payment")
+  deposit        Int            @default(0)
+  residualValue  Int?           @map("residual_value")
+  residualRate   Decimal?       @map("residual_rate")
+  totalAmount    Int            @map("total_amount")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  vehicle  Vehicle  @relation(fields: [vehicleId], references: [id])
+  customer Profile  @relation("CustomerLeases", fields: [customerId], references: [id])
+  dealer   Profile  @relation("DealerLeases", fields: [dealerId], references: [id])
+  payments Payment[]
+
+  @@map("lease_contracts")
+}
+
+model Payment {
+  id               String        @id @default(uuid()) @db.Uuid
+  rentalContractId String?       @map("rental_contract_id") @db.Uuid
+  leaseContractId  String?       @map("lease_contract_id") @db.Uuid
+  contractType     ContractType  @map("contract_type")
+  amount           Int
+  paymentDate      DateTime      @map("payment_date")
+  status           PaymentStatus @default(PENDING)
+  method           String?
+  createdAt        DateTime      @default(now()) @map("created_at")
+
+  // Relations
+  rentalContract RentalContract? @relation(fields: [rentalContractId], references: [id])
+  leaseContract  LeaseContract?  @relation(fields: [leaseContractId], references: [id])
+
+  @@map("payments")
+}
+
+model Inquiry {
+  id         String        @id @default(uuid()) @db.Uuid
+  customerId String?       @map("customer_id") @db.Uuid
+  vehicleId  String?       @map("vehicle_id") @db.Uuid
+  name       String
+  phone      String
+  email      String?
+  message    String
+  status     InquiryStatus @default(NEW)
+  createdAt  DateTime      @default(now()) @map("created_at")
+  updatedAt  DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  customer Profile? @relation(fields: [customerId], references: [id])
+  vehicle  Vehicle? @relation(fields: [vehicleId], references: [id])
+
+  @@map("inquiries")
+}
+
+model ResidualValueRate {
+  id         String   @id @default(uuid()) @db.Uuid
+  brandId    String   @map("brand_id") @db.Uuid
+  carModelId String   @map("car_model_id") @db.Uuid
+  year       Int
+  rate       Decimal
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  brand    Brand    @relation(fields: [brandId], references: [id])
+  carModel CarModel @relation(fields: [carModelId], references: [id])
+
+  @@unique([brandId, carModelId, year])
+  @@map("residual_value_rates")
+}

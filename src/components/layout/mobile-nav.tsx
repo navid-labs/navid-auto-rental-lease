@@ -12,13 +12,19 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { Separator } from '@/components/ui/separator'
+import { LogoutButton } from '@/features/auth/components/logout-button'
 
 interface NavLink {
   href: string
   label: string
 }
 
-export function MobileNav({ links }: { links: NavLink[] }) {
+interface MobileNavProps {
+  links: NavLink[]
+  user?: { name: string | null; email: string } | null
+}
+
+export function MobileNav({ links, user }: MobileNavProps) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -52,13 +58,38 @@ export function MobileNav({ links }: { links: NavLink[] }) {
 
           <Separator className="my-2 bg-sidebar-border" />
 
-          <Link
-            href="/login"
-            onClick={() => setOpen(false)}
-            className="rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-accent transition-colors hover:bg-sidebar-accent/10"
-          >
-            로그인
-          </Link>
+          {user ? (
+            <div className="space-y-2 px-3">
+              <p className="text-sm font-medium text-sidebar-foreground">
+                {user.name || user.email}
+              </p>
+              <Link
+                href="/mypage"
+                onClick={() => setOpen(false)}
+                className="block rounded-lg py-2 text-sm text-sidebar-foreground transition-colors hover:text-sidebar-accent"
+              >
+                마이페이지
+              </Link>
+              <LogoutButton />
+            </div>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                onClick={() => setOpen(false)}
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-accent transition-colors hover:bg-sidebar-accent/10"
+              >
+                로그인
+              </Link>
+              <Link
+                href="/signup"
+                onClick={() => setOpen(false)}
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent/10"
+              >
+                회원가입
+              </Link>
+            </>
+          )}
         </nav>
       </SheetContent>
     </Sheet>

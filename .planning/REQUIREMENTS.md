@@ -19,7 +19,7 @@ Requirements for demo/investor-ready release. Each maps to roadmap phases.
 ### Vehicle Management
 
 - [x] **VEHI-01**: Dealer can register vehicle with details (make, model, year, mileage, color, price)
-- [ ] **VEHI-02**: Dealer can upload multiple vehicle images
+- [x] **VEHI-02**: Dealer can upload multiple vehicle images
 - [x] **VEHI-03**: Dealer can edit/delete own vehicle listings
 - [x] **VEHI-04**: Admin can register/edit/delete vehicles (self-operated inventory)
 - [x] **VEHI-05**: Vehicle status transitions (available → reserved → rented → maintenance)
@@ -115,7 +115,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-05 | Phase 2 | Complete |
 | AUTH-06 | Phase 2 | Complete |
 | VEHI-01 | Phase 3 | Complete |
-| VEHI-02 | Phase 3 | Pending |
+| VEHI-02 | Phase 3 | Complete |
 | VEHI-03 | Phase 3 | Complete |
 | VEHI-04 | Phase 3 | Complete |
 | VEHI-05 | Phase 3 | Complete |

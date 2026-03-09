@@ -33,7 +33,7 @@
   - Plans:
     - [ ] 10-01-PLAN.md — Inventory schema, types, JSON adapter, sample data
     - [ ] 10-02-PLAN.md — Table UI, search/filter toolbar, admin page integration
-- [ ] Phase 11: Quote Generation Engine (gap closure in progress)
+- [x] Phase 11: Quote Generation Engine (gap closure in progress) (completed 2026-03-09)
   - **Goal:** 선택한 차량들로 렌탈/리스 견적서를 생성하고 PDF 출력
   - **Requirements:** REQ-V11-05, REQ-V11-06, REQ-V11-07
   - **Plans:** 3 plans
@@ -64,5 +64,5 @@
 | 8. Contract Completion & My Page | v1.0 | 2/2 | Complete | 2026-03-09 |
 | 9. Admin Dashboard & Demo Readiness | v1.0 | 3/3 | Complete | 2026-03-10 |
 | 10. Inventory Data & Table UI | v1.1 | 2/2 | Complete | 2026-03-09 |
-| 11. Quote Generation Engine | v1.1 | 2/3 | Gap Closure | - |
+| 11. Quote Generation Engine | 3/3 | Complete   | 2026-03-09 | - |
 | 12. Settings Management & Polish | v1.1 | 0/3 | Planned | - |

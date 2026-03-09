@@ -113,11 +113,12 @@ Plans:
   1. User can calculate monthly rental and lease payments based on contract terms (period, deposit)
   2. Residual value estimation displays for lease contracts based on admin-configured lookup table (make/model/year)
   3. Interactive rental vs lease comparison calculator allows users to adjust period and deposit via sliders and see side-by-side results
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
+- [ ] 06-01-PLAN.md -- Simplified rental/lease calculation functions (TDD), residual rate Server Actions and Zod schemas
+- [ ] 06-02-PLAN.md -- Interactive PricingCalculator component, standalone /calculator page, vehicle detail integration, vehicle card monthly estimates
+- [ ] 06-03-PLAN.md -- Admin residual value rate management page with inline editing, seed data
 
 ### Phase 7: Contract Engine
 **Goal**: Users can apply for rental/lease contracts through a complete multi-step flow with identity verification and real-time status tracking
@@ -181,7 +182,7 @@ Phases execute in order: 1 → 2 → 3 → {4, 5 parallel} → 6 → 7 → 8 →
 | 3. Vehicle Data & Storage | 3/3 | Complete   | 2026-03-09 |
 | 4. Dealer Portal & Approval Workflow | 2/2 | Complete   | 2026-03-09 |
 | 5. Public Search & Discovery | 2/2 | Complete   | 2026-03-09 |
-| 6. Pricing & Calculation | 0/2 | Not started | - |
+| 6. Pricing & Calculation | 0/3 | Not started | - |
 | 7. Contract Engine | 0/3 | Not started | - |
 | 8. Contract Completion & My Page | 0/1 | Not started | - |
 | 9. Admin Dashboard & Demo Readiness | 0/2 | Not started | - |

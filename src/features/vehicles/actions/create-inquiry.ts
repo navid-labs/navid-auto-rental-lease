@@ -21,6 +21,19 @@ export type InquiryFormData = z.infer<typeof inquirySchema>
 export async function createInquiry(formData: InquiryFormData) {
   const parsed = inquirySchema.parse(formData)
 
+  // 차량 존재 및 승인 상태 확인
+  const vehicle = await prisma.vehicle.findFirst({
+    where: {
+      id: parsed.vehicleId,
+      approvalStatus: 'APPROVED',
+      status: { not: 'HIDDEN' },
+    },
+    select: { id: true },
+  })
+  if (!vehicle) {
+    return { error: '해당 차량을 찾을 수 없습니다.' }
+  }
+
   await prisma.inquiry.create({
     data: {
       vehicleId: parsed.vehicleId,

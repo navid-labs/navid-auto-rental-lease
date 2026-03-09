@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const { mockPrisma } = vi.hoisted(() => ({
   mockPrisma: {
+    vehicle: {
+      findFirst: vi.fn(),
+    },
     inquiry: {
       create: vi.fn(),
     },
@@ -24,7 +27,17 @@ describe('createInquiry', () => {
     vi.clearAllMocks()
   })
 
+  it('returns error for non-existent vehicle', async () => {
+    mockPrisma.vehicle.findFirst.mockResolvedValue(null)
+
+    const result = await createInquiry(validData)
+
+    expect(result).toEqual({ error: expect.stringContaining('찾을 수 없') })
+    expect(mockPrisma.inquiry.create).not.toHaveBeenCalled()
+  })
+
   it('creates inquiry with valid data', async () => {
+    mockPrisma.vehicle.findFirst.mockResolvedValue({ id: validData.vehicleId })
     mockPrisma.inquiry.create.mockResolvedValue({ id: 'inquiry-1' })
 
     const result = await createInquiry(validData)
@@ -60,6 +73,7 @@ describe('createInquiry', () => {
   })
 
   it('accepts phone without dashes', async () => {
+    mockPrisma.vehicle.findFirst.mockResolvedValue({ id: validData.vehicleId })
     mockPrisma.inquiry.create.mockResolvedValue({ id: 'inquiry-2' })
 
     const result = await createInquiry({ ...validData, phone: '01012345678' })

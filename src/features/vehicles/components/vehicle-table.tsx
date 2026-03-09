@@ -16,7 +16,9 @@ import { StatusBadge } from './status-badge'
 import { ApprovalBadge } from './approval-badge'
 import { StatusChangeDialog } from './status-change-dialog'
 import { deleteVehicle } from '@/features/vehicles/actions/delete-vehicle'
+import { softDeleteVehicle } from '@/features/admin/actions/soft-delete-vehicle'
 import { resubmitVehicle } from '@/features/vehicles/actions/resubmit-vehicle'
+import { VehicleEditSheet } from '@/features/admin/components/vehicle-edit-sheet'
 import type { VehicleWithDetails } from '@/features/vehicles/types'
 import type { VehicleStatus } from '@prisma/client'
 import Image from 'next/image'
@@ -49,10 +51,27 @@ function formatKRW(value: number): string {
   return `${value.toLocaleString('ko-KR')}원`
 }
 
+type EditVehicleData = {
+  id: string
+  year: number
+  mileage: number
+  color: string
+  price: number
+  description: string | null
+  status: string
+  brandName: string
+  modelName: string
+  trimName: string
+}
+
 export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps) {
   const router = useRouter()
   const [statusFilter, setStatusFilter] = useState<VehicleStatus | 'ALL'>('ALL')
   const [isPending, startTransition] = useTransition()
+  const [editSheet, setEditSheet] = useState<{ open: boolean; vehicle: EditVehicleData | null }>({
+    open: false,
+    vehicle: null,
+  })
 
   const filteredVehicles =
     statusFilter === 'ALL'
@@ -67,15 +86,18 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
       if (!confirm('이 차량을 숨김 처리하시겠습니까?')) return
 
       startTransition(async () => {
-        const result = await deleteVehicle(vehicleId)
+        const result = userRole === 'ADMIN'
+          ? await softDeleteVehicle(vehicleId)
+          : await deleteVehicle(vehicleId)
         if ('error' in result) {
           toast.error(result.error)
           return
         }
+        toast.success('차량이 삭제되었습니다.')
         router.refresh()
       })
     },
-    [router]
+    [router, userRole]
   )
 
   const handleStatusChanged = useCallback(() => {
@@ -94,6 +116,37 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
       })
     },
     [router]
+  )
+
+  const handleRowClick = useCallback(
+    (vehicle: VehicleWithDetails) => {
+      if (userRole === 'ADMIN') {
+        const brandName = vehicle.trim.generation.carModel.brand.nameKo
+          || vehicle.trim.generation.carModel.brand.name
+        const modelName = vehicle.trim.generation.carModel.nameKo
+          || vehicle.trim.generation.carModel.name
+        const trimName = vehicle.trim.name
+
+        setEditSheet({
+          open: true,
+          vehicle: {
+            id: vehicle.id,
+            year: vehicle.year,
+            mileage: vehicle.mileage,
+            color: vehicle.color,
+            price: vehicle.price,
+            description: vehicle.description,
+            status: vehicle.status,
+            brandName,
+            modelName,
+            trimName,
+          },
+        })
+      } else {
+        router.push(`${basePath}/${vehicle.id}/edit`)
+      }
+    },
+    [userRole, router, basePath]
   )
 
   return (
@@ -124,122 +177,134 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
           <p>등록된 차량이 없습니다.</p>
         </div>
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>차량</TableHead>
-              <TableHead>연식</TableHead>
-              <TableHead>주행거리</TableHead>
-              <TableHead>가격</TableHead>
-              <TableHead>상태</TableHead>
-              <TableHead>승인</TableHead>
-              {userRole === 'ADMIN' && <TableHead>딜러</TableHead>}
-              <TableHead className="text-right">관리</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredVehicles.map((vehicle) => {
-              const brandName = vehicle.trim.generation.carModel.brand.nameKo
-                || vehicle.trim.generation.carModel.brand.name
-              const modelName = vehicle.trim.generation.carModel.nameKo
-                || vehicle.trim.generation.carModel.name
-              const trimName = vehicle.trim.name
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>차량</TableHead>
+                <TableHead>연식</TableHead>
+                <TableHead>주행거리</TableHead>
+                <TableHead>가격</TableHead>
+                <TableHead>상태</TableHead>
+                <TableHead>승인</TableHead>
+                {userRole === 'ADMIN' && <TableHead>딜러</TableHead>}
+                <TableHead className="text-right">관리</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredVehicles.map((vehicle) => {
+                const brandName = vehicle.trim.generation.carModel.brand.nameKo
+                  || vehicle.trim.generation.carModel.brand.name
+                const modelName = vehicle.trim.generation.carModel.nameKo
+                  || vehicle.trim.generation.carModel.name
+                const trimName = vehicle.trim.name
 
-              return (
-                <TableRow
-                  key={vehicle.id}
-                  className="cursor-pointer"
-                  onClick={() => router.push(`${basePath}/${vehicle.id}/edit`)}
-                >
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      {vehicle.images[0] ? (
-                        <Image
-                          src={vehicle.images[0].url}
-                          alt={`${brandName} ${modelName}`}
-                          width={40}
-                          height={40}
-                          className="size-10 rounded-md object-cover"
-                        />
-                      ) : (
-                        <div className="flex size-10 items-center justify-center rounded-md bg-muted">
-                          <Car className="size-5 text-muted-foreground" />
+                return (
+                  <TableRow
+                    key={vehicle.id}
+                    className="cursor-pointer"
+                    onClick={() => handleRowClick(vehicle)}
+                  >
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        {vehicle.images[0] ? (
+                          <Image
+                            src={vehicle.images[0].url}
+                            alt={`${brandName} ${modelName}`}
+                            width={40}
+                            height={40}
+                            className="size-10 rounded-md object-cover"
+                          />
+                        ) : (
+                          <div className="flex size-10 items-center justify-center rounded-md bg-muted">
+                            <Car className="size-5 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-medium">
+                            {brandName} {modelName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{trimName}</p>
                         </div>
-                      )}
-                      <div>
-                        <p className="font-medium">
-                          {brandName} {modelName}
-                        </p>
-                        <p className="text-xs text-muted-foreground">{trimName}</p>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{vehicle.year}년</TableCell>
-                  <TableCell>{vehicle.mileage.toLocaleString('ko-KR')}km</TableCell>
-                  <TableCell>{formatKRW(vehicle.price)}</TableCell>
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <StatusChangeDialog
-                      vehicleId={vehicle.id}
-                      currentStatus={vehicle.status}
-                      userRole={userRole}
-                      onStatusChanged={handleStatusChanged}
-                    >
-                      <StatusBadge status={vehicle.status} />
-                    </StatusChangeDialog>
-                  </TableCell>
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <div className="flex items-center gap-1">
-                      {'approvalStatus' in vehicle && vehicle.approvalStatus ? (
-                        <ApprovalBadge
-                          status={vehicle.approvalStatus}
-                          rejectionReason={'rejectionReason' in vehicle ? (vehicle.rejectionReason as string | null) : null}
-                        />
-                      ) : null}
-                      {userRole === 'DEALER' && 'approvalStatus' in vehicle && vehicle.approvalStatus === 'REJECTED' && (
+                    </TableCell>
+                    <TableCell>{vehicle.year}년</TableCell>
+                    <TableCell>{vehicle.mileage.toLocaleString('ko-KR')}km</TableCell>
+                    <TableCell>{formatKRW(vehicle.price)}</TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <StatusChangeDialog
+                        vehicleId={vehicle.id}
+                        currentStatus={vehicle.status}
+                        userRole={userRole}
+                        onStatusChanged={handleStatusChanged}
+                      >
+                        <StatusBadge status={vehicle.status} />
+                      </StatusChangeDialog>
+                    </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-1">
+                        {'approvalStatus' in vehicle && vehicle.approvalStatus ? (
+                          <ApprovalBadge
+                            status={vehicle.approvalStatus}
+                            rejectionReason={'rejectionReason' in vehicle ? (vehicle.rejectionReason as string | null) : null}
+                          />
+                        ) : null}
+                        {userRole === 'DEALER' && 'approvalStatus' in vehicle && vehicle.approvalStatus === 'REJECTED' && (
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => handleResubmit(vehicle.id)}
+                            disabled={isPending}
+                            aria-label="재심사 요청"
+                            title="재심사 요청"
+                          >
+                            <RotateCcw className="size-3.5" />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                    {userRole === 'ADMIN' && (
+                      <TableCell>
+                        <span className="text-xs">{vehicle.dealer?.name ?? '-'}</span>
+                      </TableCell>
+                    )}
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <div className="flex justify-end gap-1">
                         <Button
                           variant="ghost"
                           size="icon-sm"
-                          onClick={() => handleResubmit(vehicle.id)}
-                          disabled={isPending}
-                          aria-label="재심사 요청"
-                          title="재심사 요청"
+                          onClick={() => handleRowClick(vehicle)}
+                          aria-label="수정"
                         >
-                          <RotateCcw className="size-3.5" />
+                          <Pencil className="size-4" />
                         </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                  {userRole === 'ADMIN' && (
-                    <TableCell>
-                      <span className="text-xs">{vehicle.dealer?.name ?? '-'}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => handleDelete(vehicle.id)}
+                          disabled={isPending}
+                          aria-label="삭제"
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
                     </TableCell>
-                  )}
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => router.push(`${basePath}/${vehicle.id}/edit`)}
-                        aria-label="수정"
-                      >
-                        <Pencil className="size-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => handleDelete(vehicle.id)}
-                        disabled={isPending}
-                        aria-label="삭제"
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      {/* Admin Vehicle Edit Sheet */}
+      {userRole === 'ADMIN' && (
+        <VehicleEditSheet
+          vehicle={editSheet.vehicle}
+          open={editSheet.open}
+          onOpenChange={(open) => setEditSheet((prev) => ({ ...prev, open }))}
+          onSuccess={() => router.refresh()}
+        />
       )}
     </div>
   )

@@ -1,4 +1,11 @@
 export { pmt } from './pmt'
+export {
+  calculateRental,
+  calculateLease,
+  estimateMonthlyRental,
+  formatEstimate,
+} from './calculate'
+export type { RentalResult, LeaseResult } from './calculate'
 export { calcAcquisitionTax } from './acquisition-tax'
 export { calcDepositCredit } from './deposit-credit'
 export { calcResidualValue, getMaxResidualRate } from './residual-value'

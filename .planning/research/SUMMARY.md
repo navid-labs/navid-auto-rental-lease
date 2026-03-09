@@ -155,6 +155,25 @@ Phases with standard patterns (skip research-phase):
 - **PDF generation on Vercel:** Serverless function timeout (10s on Hobby) may be tight for contract PDF generation. Test early; consider client-side generation as fallback.
 - **MVP scope risk:** 14 P1 features for a demo/investment MVP is ambitious. During roadmap creation, consider which features can be simplified (e.g., comparison as a basic table rather than a rich interactive feature).
 
+## Additional Research (2026-03-09 Session 2)
+
+### New Research Files
+- `EKYC-CONTRACT.md` — eKYC 본인인증, 전자계약서 필수항목, 렌탈 vs 리스 차이, 잔존가치 산정
+- `RLS-PATTERNS.md` — Supabase RLS 역할 기반 접근제어, 테이블별 정책 분리, 성능 최적화
+- `TECH-STACK-DEEP.md` — Next.js 15 Server Actions, Tailwind v4 마이그레이션, React 19 패턴
+- `SEED-DATA.md` — 데모용 차량 32대(현대14/기아12/제네시스6) + 딜러/고객 계정 + 샘플 계약
+
+### Key Insights Added
+- **eKYC**: 휴대폰 본인인증 기반, 6개 필드 수집 (이름/전화/통신사/생년월일/성별/국적)
+- **계약서 필수항목**: 성능·상태점검기록부 법적 의무(자동차관리법 58조), 중도해지 위약금율
+- **잔존가치**: 국산차 56% vs 수입차 46% 보장한도, 30~48% 실무 설정구간
+- **RLS**: JWT Claims 패턴(성능 최적화) vs Profiles Table 패턴(구현 용이) 비교
+- **Tailwind v4**: CSS-first config(@theme), Oxide 엔진, @import "tailwindcss" 진입점
+
+### Design References
+- 6개 경쟁사 스크린샷 캡처 (데스크톱 + 모바일): K Car, 엔카, 보배드림, 롯데렌터카, 쏘카, 현대CPO(실패)
+- Obsidian 볼트에 분석 노트 저장: `claude_volt/Research/Web/navid-competitor-ui-references.md`
+
 ## Sources
 
 ### Primary (HIGH confidence)

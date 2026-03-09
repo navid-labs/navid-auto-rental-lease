@@ -19,7 +19,7 @@ import { approveContract } from '@/features/contracts/actions/approve-contract'
 import { formatKRW, formatDate } from '@/lib/utils/format'
 import { CONTRACT_STATUS_LABELS } from '@/features/contracts/utils/contract-machine'
 import type { ContractStatus } from '@prisma/client'
-import { CheckCircle, XCircle, Loader2 } from 'lucide-react'
+import { CheckCircle, XCircle, Loader2, Ban } from 'lucide-react'
 
 type ContractItem = {
   id: string
@@ -47,6 +47,9 @@ const TABS: { key: string; label: string; filter?: ContractStatus[] }[] = [
   { key: 'completed', label: '완료', filter: ['COMPLETED', 'CANCELED'] },
 ]
 
+/** Statuses that can be canceled by admin */
+const CANCELABLE_STATUSES: ContractStatus[] = ['PENDING_APPROVAL', 'APPROVED']
+
 export function AdminContractList({ contracts }: AdminContractListProps) {
   const searchParams = useSearchParams()
   const activeTab = searchParams.get('tab') ?? 'all'
@@ -70,6 +73,21 @@ export function AdminContractList({ contracts }: AdminContractListProps) {
       const result = await approveContract(contractId, contractType, 'APPROVED')
       if ('error' in result) {
         toast.error(result.error)
+      } else {
+        toast.success('계약이 승인되었습니다.')
+      }
+    })
+  }
+
+  function handleCancel(contractId: string, contractType: 'RENTAL' | 'LEASE') {
+    if (!confirm('이 계약을 취소하시겠습니까?')) return
+
+    startTransition(async () => {
+      const result = await approveContract(contractId, contractType, 'CANCELED', '관리자 취소')
+      if ('error' in result) {
+        toast.error(result.error)
+      } else {
+        toast.success('계약이 취소되었습니다.')
       }
     })
   }
@@ -88,6 +106,68 @@ export function AdminContractList({ contracts }: AdminContractListProps) {
       setRejectDialog({ open: false, contractId: '', contractType: 'RENTAL' })
       setRejectReason('')
     })
+  }
+
+  function renderActions(contract: ContractItem) {
+    if (contract.status === 'PENDING_APPROVAL') {
+      return (
+        <div className="flex items-center justify-center gap-1">
+          <Button
+            size="xs"
+            variant="default"
+            disabled={isPending}
+            onClick={() => handleApprove(contract.id, contract.contractType)}
+          >
+            {isPending ? (
+              <Loader2 className="size-3 animate-spin" />
+            ) : (
+              <CheckCircle className="size-3" />
+            )}
+            승인
+          </Button>
+          <Button
+            size="xs"
+            variant="destructive"
+            disabled={isPending}
+            onClick={() =>
+              setRejectDialog({
+                open: true,
+                contractId: contract.id,
+                contractType: contract.contractType,
+              })
+            }
+          >
+            <XCircle className="size-3" />
+            반려
+          </Button>
+        </div>
+      )
+    }
+
+    if (CANCELABLE_STATUSES.includes(contract.status)) {
+      return (
+        <Button
+          size="xs"
+          variant="outline"
+          disabled={isPending}
+          onClick={() => handleCancel(contract.id, contract.contractType)}
+          className="text-destructive hover:text-destructive"
+        >
+          {isPending ? (
+            <Loader2 className="size-3 animate-spin" />
+          ) : (
+            <Ban className="size-3" />
+          )}
+          취소
+        </Button>
+      )
+    }
+
+    return (
+      <span className="text-xs text-muted-foreground">
+        {CONTRACT_STATUS_LABELS[contract.status]}
+      </span>
+    )
   }
 
   return (
@@ -114,93 +194,101 @@ export function AdminContractList({ contracts }: AdminContractListProps) {
         ))}
       </div>
 
-      {/* Table */}
+      {/* Empty state */}
       {filtered.length === 0 ? (
         <div className="py-12 text-center text-sm text-muted-foreground">
           {activeTab === 'pending' ? '승인 대기 중인 계약이 없습니다.' : '계약이 없습니다.'}
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium">차량</th>
-                <th className="px-4 py-3 text-left font-medium">고객</th>
-                <th className="px-4 py-3 text-left font-medium">유형</th>
-                <th className="px-4 py-3 text-right font-medium">월납입금</th>
-                <th className="px-4 py-3 text-left font-medium">상태</th>
-                <th className="px-4 py-3 text-left font-medium">신청일</th>
-                <th className="px-4 py-3 text-center font-medium">액션</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {filtered.map((contract) => (
-                <tr key={`${contract.contractType}-${contract.id}`} className="hover:bg-muted/30">
-                  <td className="px-4 py-3 font-medium">{contract.vehicleName}</td>
-                  <td className="px-4 py-3">{contract.customerName}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                        contract.contractType === 'RENTAL'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-purple-100 text-purple-800'
-                      }`}
-                    >
-                      {contract.contractType === 'RENTAL' ? '렌탈' : '리스'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right tabular-nums">
-                    {formatKRW(contract.monthlyPayment, { monthly: true })}
-                  </td>
-                  <td className="px-4 py-3">
-                    <ContractStatusBadge status={contract.status} />
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {formatDate(contract.createdAt, { short: true })}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    {contract.status === 'PENDING_APPROVAL' ? (
-                      <div className="flex items-center justify-center gap-1">
-                        <Button
-                          size="xs"
-                          variant="default"
-                          disabled={isPending}
-                          onClick={() => handleApprove(contract.id, contract.contractType)}
-                        >
-                          {isPending ? (
-                            <Loader2 className="size-3 animate-spin" />
-                          ) : (
-                            <CheckCircle className="size-3" />
-                          )}
-                          승인
-                        </Button>
-                        <Button
-                          size="xs"
-                          variant="destructive"
-                          disabled={isPending}
-                          onClick={() =>
-                            setRejectDialog({
-                              open: true,
-                              contractId: contract.id,
-                              contractType: contract.contractType,
-                            })
-                          }
-                        >
-                          <XCircle className="size-3" />
-                          반려
-                        </Button>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">
-                        {CONTRACT_STATUS_LABELS[contract.status]}
-                      </span>
-                    )}
-                  </td>
+        <>
+          {/* Desktop table */}
+          <div className="hidden overflow-x-auto rounded-lg border md:block">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium">차량</th>
+                  <th className="px-4 py-3 text-left font-medium">고객</th>
+                  <th className="px-4 py-3 text-left font-medium">유형</th>
+                  <th className="px-4 py-3 text-right font-medium">월납입금</th>
+                  <th className="px-4 py-3 text-left font-medium">상태</th>
+                  <th className="px-4 py-3 text-left font-medium">신청일</th>
+                  <th className="px-4 py-3 text-center font-medium">액션</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y">
+                {filtered.map((contract) => (
+                  <tr key={`${contract.contractType}-${contract.id}`} className="hover:bg-muted/30">
+                    <td className="px-4 py-3 font-medium">{contract.vehicleName}</td>
+                    <td className="px-4 py-3">{contract.customerName}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                          contract.contractType === 'RENTAL'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-purple-100 text-purple-800'
+                        }`}
+                      >
+                        {contract.contractType === 'RENTAL' ? '렌탈' : '리스'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right tabular-nums">
+                      {formatKRW(contract.monthlyPayment, { monthly: true })}
+                    </td>
+                    <td className="px-4 py-3">
+                      <ContractStatusBadge status={contract.status} />
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {formatDate(contract.createdAt, { short: true })}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {renderActions(contract)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile card layout */}
+          <div className="space-y-3 md:hidden">
+            {filtered.map((contract) => (
+              <div
+                key={`${contract.contractType}-${contract.id}`}
+                className="rounded-lg border p-4 space-y-3"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-medium text-sm">{contract.vehicleName}</p>
+                    <p className="text-xs text-muted-foreground">{contract.customerName}</p>
+                  </div>
+                  <span
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                      contract.contractType === 'RENTAL'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-purple-100 text-purple-800'
+                    }`}
+                  >
+                    {contract.contractType === 'RENTAL' ? '렌탈' : '리스'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ContractStatusBadge status={contract.status} />
+                    <span className="text-xs text-muted-foreground">
+                      {formatDate(contract.createdAt, { short: true })}
+                    </span>
+                  </div>
+                  <span className="text-sm font-medium tabular-nums">
+                    {formatKRW(contract.monthlyPayment, { monthly: true })}
+                  </span>
+                </div>
+                <div className="flex justify-end">
+                  {renderActions(contract)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Rejection reason dialog */}

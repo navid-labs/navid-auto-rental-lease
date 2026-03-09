@@ -57,3 +57,32 @@ export type VehicleWithDetails = Vehicle & {
 export type ContractWithVehicle = (RentalContract | LeaseContract) & {
   vehicle: VehicleWithDetails
 }
+
+/** Data shape for PDF template rendering */
+export type ContractPDFData = {
+  contractType: 'RENTAL' | 'LEASE'
+  contractId: string
+  status: ContractStatus
+  // Vehicle
+  vehicleName: string
+  vehicleYear: number
+  vehiclePlateNumber: string | null
+  vehicleMileage: number
+  vehicleColor: string | null
+  // Parties
+  customerName: string
+  customerPhone: string | null
+  customerEmail: string
+  dealerName: string | null
+  // Terms
+  startDate: Date | null
+  endDate: Date | null
+  monthlyPayment: number
+  deposit: number
+  totalAmount: number
+  // Lease-only
+  residualValue?: number | null
+  residualRate?: number | null
+  // Meta
+  createdAt: Date
+}

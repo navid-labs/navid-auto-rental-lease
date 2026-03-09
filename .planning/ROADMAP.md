@@ -99,11 +99,11 @@ Plans:
   3. Vehicle detail page shows photo gallery, full specs, and pricing information
   4. Filter and sort state is persisted in the URL so users can share or bookmark searches
   5. Landing page displays featured vehicles and a quick search entry point
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
+- [ ] 05-01-PLAN.md -- Search infrastructure (nuqs URL state, Prisma query builders, tests), search page with filters/sort/grid/pagination, vehicle detail page with inquiry form
+- [ ] 05-02-PLAN.md -- Landing page with hero quick search, featured vehicles, brand shortcuts, how-it-works, trust metrics sections
 
 ### Phase 6: Pricing & Calculation
 **Goal**: Users can understand and compare rental vs lease costs with transparent pricing calculations

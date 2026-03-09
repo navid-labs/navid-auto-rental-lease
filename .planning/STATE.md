@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-03-09T15:56:23.786Z"
-last_activity: 2026-03-10 -- Plan 06-01 completed. Rental/lease calculation functions and residual rate CRUD.
+stopped_at: Completed 06-03-PLAN.md
+last_updated: "2026-03-09T16:02:28Z"
+last_activity: 2026-03-10 -- Plan 06-03 completed. Admin residual value CRUD page and seed data.
 progress:
   total_phases: 9
-  completed_phases: 5
-  total_plans: 14
-  completed_plans: 12
-  percent: 86
+  completed_phases: 6
+  total_plans: 20
+  completed_plans: 14
+  percent: 70
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** 고객이 중고차를 온라인에서 검색하고, 비교하고, 비대면으로 렌탈/리스 계약까지 완료할 수 있는 원스톱 경험
-**Current focus:** Phase 5 complete. Search page and landing page both done. Ready for Phase 6.
+**Current focus:** Phase 6 complete. Pricing calculator, residual value admin, and seed data all done. Ready for Phase 7.
 
 ## Current Position
 
-Phase: 6 of 9 (Pricing & Calculation)
-Plan: 1 of 3 in current phase (done)
-Status: Executing Phase 06
-Last activity: 2026-03-10 -- Plan 06-01 completed. Rental/lease calculation functions and residual rate CRUD.
+Phase: 6 of 9 (Pricing & Calculation) -- COMPLETE
+Plan: 3 of 3 in current phase (done)
+Status: Phase 06 Complete. Ready for Phase 07.
+Last activity: 2026-03-10 -- Plan 06-03 completed. Admin residual value CRUD page and seed data.
 
-Progress: [█████████░] 86%
+Progress: [███████░░░] 70%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [█████████░] 86%
 | Phase 05 P02 | 3min | 2 tasks | 6 files |
 | Phase 05 P01 | 7min | 2 tasks | 19 files |
 | Phase 06 P01 | 2min | 1 tasks | 5 files |
+| Phase 06 P03 | 4min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,9 @@ Recent decisions affecting current work:
 - [Phase 06]: DEFAULT_ANNUAL_RATE 0.084 for simplified public lease calculation
 - [Phase 06]: Default residual rate fallback 40% when DB record missing
 - [Phase 06]: Zod 4 uses .issues not .errors for validation error access
+- [06-03]: Native HTML select for admin forms (simpler than base-ui Select)
+- [06-03]: Brand filter via URL searchParams for server-side filtering
+- [06-03]: tsx added as devDependency for prisma seed execution
 
 ### Pending Todos
 
@@ -115,6 +119,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T15:56:23.784Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-03-09T16:02:28Z
+Stopped at: Completed 06-03-PLAN.md
 Resume file: None

@@ -363,3 +363,34 @@ model EkycVerification {
 
   @@map("ekyc_verifications")
 }
+
+// ─── Inventory ────────────────────────────────────────────
+
+enum InventoryCategory {
+  STRATEGIC // 전략구매
+  GENERAL   // 일반구매
+}
+
+model InventoryItem {
+  id                String            @id @default(uuid()) @db.Uuid
+  category          InventoryCategory // 구분 (전략/일반)
+  itemNumber        String            @map("item_number")       // 번호
+  promotion         String?           // 프로모션
+  representModel    String            @map("represent_model")   // 대표차종
+  modelName         String            @map("model_name")        // 차종명
+  options           String?           // 옵션
+  modelYear         Int               @map("model_year")        // 차량연식
+  exteriorColor     String            @map("exterior_color")    // 외장색
+  interiorColor     String            @map("interior_color")    // 내장색
+  price             Int               // 가격 (원)
+  subsidy           Int               @default(0)               // 보조금
+  availableQuantity Int               @map("available_quantity") // 판매가능수량
+  immediateQuantity Int               @map("immediate_quantity") // 즉시출고수량
+  productionDate    String?           @map("production_date")   // 생산예시일
+  notice            String?           // 공지
+  brand             String?           // 브랜드 (parsed from representModel)
+  loadedAt          DateTime          @default(now()) @map("loaded_at")
+  createdAt         DateTime          @default(now()) @map("created_at")
+
+  @@map("inventory_items")
+}

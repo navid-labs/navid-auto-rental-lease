@@ -42,11 +42,11 @@ Requirements for demo/investor-ready release. Each maps to roadmap phases.
 ### Contract
 
 - [ ] **CONT-01**: Multi-step contract application form (vehicle → terms → eKYC → review → submit)
-- [ ] **CONT-02**: Mock eKYC flow with ID verification UI (real API integration in v2)
+- [x] **CONT-02**: Mock eKYC flow with ID verification UI (real API integration in v2)
 - [ ] **CONT-03**: Contract PDF auto-generation with all contract details
 - [ ] **CONT-04**: Contract status tracking on customer my page
 - [ ] **CONT-05**: Real-time vehicle/contract status updates via Supabase Realtime
-- [ ] **CONT-06**: Contract state machine with explicit transitions (draft → pending_ekyc → pending_approval → approved → active → completed)
+- [x] **CONT-06**: Contract state machine with explicit transitions (draft → pending_ekyc → pending_approval → approved → active → completed)
 - [ ] **CONT-07**: Admin approval step after contract submission
 
 ### Dealer Portal
@@ -129,11 +129,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PRIC-01 | Phase 6 | Complete |
 | PRIC-02 | Phase 6 | Complete |
 | CONT-01 | Phase 7 | Pending |
-| CONT-02 | Phase 7 | Pending |
+| CONT-02 | Phase 7 | Complete |
 | CONT-03 | Phase 8 | Pending |
 | CONT-04 | Phase 8 | Pending |
 | CONT-05 | Phase 7 | Pending |
-| CONT-06 | Phase 7 | Pending |
+| CONT-06 | Phase 7 | Complete |
 | CONT-07 | Phase 7 | Pending |
 | DEAL-01 | Phase 4 | Complete |
 | ADMN-01 | Phase 9 | Pending |

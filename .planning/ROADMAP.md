@@ -166,11 +166,12 @@ Plans:
   6. Demo seed data includes 20+ realistic Korean vehicles (Hyundai, Kia, Genesis etc.), 3 dealer accounts, 5 customer accounts, sample contracts in various states
   7. All pages display appropriate loading indicators, empty states, and error messages — no blank screens during demo
   8. All monetary values display in KRW format (월 450,000원), dates in Korean format (2026년 3월 9일)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 09-01: TBD
-- [ ] 09-02: TBD
+- [ ] 09-01-PLAN.md -- Stats dashboard with recharts charts, actionable stat cards, recent activity feed. Sonner toast setup replacing all alert() calls.
+- [ ] 09-02-PLAN.md -- Admin CRUD completion: vehicle edit Sheet, soft delete, user deactivation, contract cancel, mobile responsive admin pages.
+- [ ] 09-03-PLAN.md -- Demo seed data with loginable accounts, skeleton loading screens, empty states, format audit, DEMO.md walkthrough.
 
 ## Progress
 
@@ -187,4 +188,4 @@ Phases execute in order: 1 → 2 → 3 → {4, 5 parallel} → 6 → 7 → 8 →
 | 6. Pricing & Calculation | 3/3 | Complete   | 2026-03-09 |
 | 7. Contract Engine | 3/3 | Complete   | 2026-03-09 |
 | 8. Contract Completion & My Page | 2/2 | Complete   | 2026-03-09 |
-| 9. Admin Dashboard & Demo Readiness | 0/2 | Not started | - |
+| 9. Admin Dashboard & Demo Readiness | 0/3 | Not started | - |

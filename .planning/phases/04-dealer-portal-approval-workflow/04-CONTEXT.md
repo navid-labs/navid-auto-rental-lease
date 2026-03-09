@@ -19,6 +19,7 @@ Dealers get a dedicated dashboard to manage their vehicles and see approval stat
 - Desktop: table as main content, stats panel on the side
 - Mobile stats layout: Claude's discretion — pick the best pattern for stats + table on small screens
 - Notification dot/count badge on sidebar when approval status changes since last visit
+- Contract requests section: UI placeholder with empty state ("아직 계약 요청이 없습니다" or "Phase 7에서 활성화") — actual contract logic is Phase 7, but the dashboard slot exists now
 
 ### Admin Approval Queue
 - New "Approval Queue" tab added to existing `/admin/vehicles` page alongside existing status filter tabs (All, Available, Reserved, etc.)

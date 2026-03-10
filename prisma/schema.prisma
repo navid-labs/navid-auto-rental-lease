@@ -112,6 +112,7 @@ model Brand {
   // Relations
   carModels          CarModel[]
   residualValueRates ResidualValueRate[]
+  promoRates         PromoRate[]
 
   @@map("brands")
 }
@@ -362,6 +363,34 @@ model EkycVerification {
   profile Profile @relation(fields: [profileId], references: [id])
 
   @@map("ekyc_verifications")
+}
+
+// ─── Settings ─────────────────────────────────────────────
+
+model PromoRate {
+  id        String   @id @default(uuid()) @db.Uuid
+  brandId   String   @map("brand_id") @db.Uuid
+  rate      Decimal  // 0.03 = 3%
+  label     String?
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  brand Brand @relation(fields: [brandId], references: [id])
+
+  @@unique([brandId])
+  @@map("promo_rates")
+}
+
+model DefaultSetting {
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @unique
+  value     String
+  label     String
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("default_settings")
 }
 
 // ─── Inventory ────────────────────────────────────────────

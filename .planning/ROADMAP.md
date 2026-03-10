@@ -41,7 +41,7 @@
     - [x] 11-01-PLAN.md — Quote types, calculation server action, builder UI with result cards
     - [x] 11-02-PLAN.md — Quote PDF component, API route, download button wiring
     - [ ] 11-03-PLAN.md — Gap closure: wire QuoteBuilder into inventory page
-- [ ] Phase 12: Settings Management & Polish
+- [x] Phase 12: Settings Management & Polish (completed 2026-03-10)
   - **Goal:** 프로모션율, 보조금, 잔존가율 등 설정 CRUD 및 전체 마무리
   - **Requirements:** REQ-V11-08, REQ-V11-09, REQ-V11-10
   - **Plans:** 3 plans
@@ -65,4 +65,4 @@
 | 9. Admin Dashboard & Demo Readiness | v1.0 | 3/3 | Complete | 2026-03-10 |
 | 10. Inventory Data & Table UI | v1.1 | 2/2 | Complete | 2026-03-09 |
 | 11. Quote Generation Engine | 3/3 | Complete    | 2026-03-09 | - |
-| 12. Settings Management & Polish | 2/3 | In Progress|  | - |
+| 12. Settings Management & Polish | 3/3 | Complete   | 2026-03-10 | - |

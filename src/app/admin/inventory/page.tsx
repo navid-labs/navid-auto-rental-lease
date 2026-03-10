@@ -1,6 +1,10 @@
 import { getInventoryItems } from '@/features/inventory/actions/load-inventory'
+import { getLastUploadTime } from '@/features/inventory/actions/inventory-upload'
 import type { InventoryFilter, InventoryCategory } from '@/features/inventory/types'
 import { InventoryPageClient } from './inventory-page-client'
+import { CsvUploadForm } from '@/features/inventory/components/csv-upload-form'
+import { UploadStatus } from '@/features/inventory/components/upload-status'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,7 +28,10 @@ export default async function InventoryPage({ searchParams }: Props) {
     brand: params.brand || undefined,
   }
 
-  const { items, count } = await getInventoryItems(filter)
+  const [{ items, count }, lastUploadTime] = await Promise.all([
+    getInventoryItems(filter),
+    getLastUploadTime(),
+  ])
 
   return (
     <div className="space-y-6">
@@ -35,6 +42,19 @@ export default async function InventoryPage({ searchParams }: Props) {
           도매 재고 현황을 조회하고 관리합니다
         </p>
       </div>
+
+      {/* CSV Upload Section */}
+      <Card>
+        <CardHeader className="border-b">
+          <div className="flex items-center justify-between">
+            <CardTitle>CSV 데이터 업로드</CardTitle>
+            <UploadStatus lastUploadTime={lastUploadTime?.toISOString() ?? null} />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <CsvUploadForm />
+        </CardContent>
+      </Card>
 
       {/* Client Interactive Wrapper */}
       <InventoryPageClient

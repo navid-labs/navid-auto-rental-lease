@@ -9,6 +9,7 @@ import {
   FileText,
   Users,
   Calculator,
+  Settings,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -19,6 +20,7 @@ const navItems = [
   { href: '/admin/contracts', label: '계약 관리', icon: FileText },
   { href: '/admin/users', label: '사용자 관리', icon: Users },
   { href: '/admin/residual-value', label: '잔존가치 관리', icon: Calculator },
+  { href: '/admin/settings', label: '설정 관리', icon: Settings },
 ]
 
 export function AdminSidebar() {

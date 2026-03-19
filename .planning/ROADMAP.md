@@ -51,13 +51,13 @@
 **Success Criteria** (what must be TRUE):
   1. Embla plugins, YARL lightbox, react-intersection-observer가 설치되어 import 가능
   2. 13개 신규 shadcn/ui 컴포넌트(Accordion, Tabs, Carousel 등)가 추가되어 렌더링 가능
-  3. K Car 색상 팔레트(Primary Red, 배경, 텍스트, 보더)가 Tailwind CSS 토큰으로 적용되어 전체 앱에서 사용 가능
-  4. formatKRW(), formatKoreanDate(), getKoreanVehicleName() 유틸리티가 구현되어 테스트 통과
-**Plans**: TBD
+  3. K Car 보조 디자인 토큰(배지, 상태 색상, 카드 배경)이 Tailwind CSS로 적용되어 전체 앱에서 사용 가능
+  4. formatKoreanDate(), getKoreanVehicleName() 유틸리티가 구현되어 테스트 통과
+**Plans**: 2 plans
 
 Plans:
-- [ ] 13-01: TBD
-- [ ] 13-02: TBD
+- [ ] 13-01-PLAN.md -- Install npm packages (Embla plugins, YARL, IO) + 13 shadcn/ui components + verification tests
+- [ ] 13-02-PLAN.md -- Supplementary design tokens + getKoreanVehicleName/formatKoreanDate utilities + tests
 
 ### Phase 14: Vehicle Detail Page
 **Goal**: 투자자와 고객이 가장 먼저 보는 차량 상세 페이지를 K Car 수준의 정보 밀도와 신뢰감을 주는 UI로 재구축
@@ -141,7 +141,7 @@ Plans:
 | 10. Inventory Data & Table UI | v1.1 | 2/2 | Complete | 2026-03-09 |
 | 11. Quote Generation Engine | v1.1 | 3/3 | Complete | 2026-03-09 |
 | 12. Settings Management & Polish | v1.1 | 3/3 | Complete | 2026-03-10 |
-| 13. Component Foundation | v2.0 | 0/? | Not started | - |
+| 13. Component Foundation | v2.0 | 0/2 | Planning complete | - |
 | 14. Vehicle Detail Page | v2.0 | 0/? | Not started | - |
 | 15. Search & Listing Page | v2.0 | 0/? | Not started | - |
 | 16. Homepage & Navigation | v2.0 | 0/? | Not started | - |

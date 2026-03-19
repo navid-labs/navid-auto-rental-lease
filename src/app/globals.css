@@ -48,6 +48,16 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
   --font-sans: "Pretendard", system-ui, sans-serif;
+  /* K Car layout token mappings */
+  --color-badge-success: var(--badge-success);
+  --color-badge-warning: var(--badge-warning);
+  --color-badge-info: var(--badge-info);
+  --color-badge-new: var(--badge-new);
+  --color-badge-danger: var(--badge-danger);
+  --color-card-hover: var(--card-hover);
+  --color-text-price: var(--text-price);
+  --color-text-secondary: var(--text-secondary);
+  --color-border-light: var(--border-light);
 }
 
 :root {
@@ -84,6 +94,16 @@
   --chart-4: hsl(220 30% 60%);
   --chart-5: hsl(217 50% 35%);
   --radius: 0.625rem;
+  /* K Car layout supplementary tokens */
+  --badge-success: hsl(142 71% 45%);
+  --badge-warning: hsl(38 92% 50%);
+  --badge-info: hsl(217 91% 60%);
+  --badge-new: hsl(262 83% 58%);
+  --badge-danger: hsl(0 84% 60%);
+  --card-hover: hsl(220 15% 96%);
+  --text-price: hsl(217 91% 60%);
+  --text-secondary: hsl(220 10% 45%);
+  --border-light: hsl(220 15% 92%);
 }
 
 .dark {
@@ -118,6 +138,16 @@
   --chart-3: hsl(217 70% 45%);
   --chart-4: hsl(220 30% 65%);
   --chart-5: hsl(217 50% 35%);
+  /* K Car layout supplementary tokens (dark mode) */
+  --badge-success: hsl(142 71% 55%);
+  --badge-warning: hsl(38 92% 60%);
+  --badge-info: hsl(217 91% 70%);
+  --badge-new: hsl(262 83% 68%);
+  --badge-danger: hsl(0 84% 65%);
+  --card-hover: hsl(220 25% 15%);
+  --text-price: hsl(217 91% 70%);
+  --text-secondary: hsl(220 10% 60%);
+  --border-light: hsl(220 20% 22%);
 }
 
 @layer base {

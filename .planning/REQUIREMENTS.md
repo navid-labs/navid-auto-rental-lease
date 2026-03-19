@@ -1,64 +1,131 @@
-# Requirements: v1.1 Inventory Admin
+# Requirements: Navid Auto v2.0
 
-**Reference:** https://inventory-ver0130.vercel.app/ (롯데렌터카 Biz car × AUTO.ST.)
+**Defined:** 2026-03-19
+**Core Value:** K Car(kcar.com) 수준의 프로덕션급 UI/UX로 전환하여 투자자/고객 신뢰도 확보
 
-## Phase 10: Inventory Data & Table UI
+## v2.0 Requirements
 
-### REQ-V11-01: External Inventory Data Source
-- 외부 재고 데이터를 가져오는 데이터 소스 어댑터
-- 초기: JSON/CSV import 또는 API 연동 (플러그 가능한 어댑터 패턴)
-- 전략구매/일반구매(현대·기아) 구분 지원
-- 398건+ 대용량 데이터 처리 가능
+### Component Foundation (COMP)
 
-### REQ-V11-02: Inventory Table with Virtual Scroll
-- 대용량 재고 테이블 (가상 스크롤 또는 페이지네이션)
-- 컬럼: 구분, 번호, 프로모션, 대표차종, 차종명, 옵션, 차량연식, 외장색, 내장색, 가격, 보조금, 판매가능수량, 즉시출고수량, 생산예시일, 공지
-- 체크박스 행 선택 (다중 선택)
-- 정렬 가능한 컬럼 헤더
+- [ ] **COMP-01**: 프로젝트에 5개 신규 npm 패키지 설치 (Embla plugins, YARL lightbox, Intersection Observer, Kakao Maps SDK)
+- [ ] **COMP-02**: 13개 신규 shadcn/ui 컴포넌트 추가 (Accordion, Tabs, Carousel, Collapsible, Progress, Pagination, Popover, ScrollArea, Avatar, Breadcrumb, ToggleGroup, RadioGroup, DropdownMenu)
+- [ ] **COMP-03**: K Car 색상 팔레트로 Tailwind CSS 디자인 토큰 업데이트 (Primary Red, 배경, 텍스트, 보더)
+- [ ] **COMP-04**: 한국어 포맷 유틸리티 함수 통합 (formatKRW, formatKoreanDate, getKoreanVehicleName)
 
-### REQ-V11-03: Search & Filter
-- 텍스트 검색 (차종, 옵션, 색상 등)
-- 전략구매/일반구매 토글 필터
-- 검색 결과 건수 표시 ("조회결과 N건")
+### Vehicle Detail Page (DETAIL)
 
-### REQ-V11-04: Inventory Admin Page
-- /admin/inventory 라우트
-- 기존 admin 레이아웃과 통합
-- 데이터 조회 버튼으로 로딩 트리거
-- 반응형 (데스크톱 중심, 모바일 기본 지원)
+- [ ] **DETAIL-01**: 차량 이미지 갤러리 — Embla 메인 캐러셀 + 썸네일 스트립 + YARL 풀스크린 라이트박스
+- [ ] **DETAIL-02**: 차량 가격 섹션 — 가격(만원), 할부 월, 구매비용 계산기/대출한도/보험료 CTA 버튼
+- [ ] **DETAIL-03**: 주요 옵션 그리드 — 아이콘 기반 옵션 표시 + "옵션 모두 보기" 확장
+- [ ] **DETAIL-04**: 외부 패널/프레임 진단 — SVG 차체 도면 (5방향) + 판금/교환 색상 코딩
+- [ ] **DETAIL-05**: 주요 진단결과 — 사고진단, 진단통과, 카테고리별 건수 (실내/외관, 타이어/휠, 소모품, 하체)
+- [ ] **DETAIL-06**: 주요 과거이력 — 내차 피해, 소유주 변경 횟수, 주의이력 (침수/도난/전손)
+- [ ] **DETAIL-07**: 보증 타임라인 — 제조사 보증 → 연장 보증 타임라인 바 + 보증 기간/주행거리 표시
+- [ ] **DETAIL-08**: 홈서비스 구매 안내 — 온라인 주문/결제 → 배송 → 3일 환불 플로우 + 직영점 방문 예약
+- [ ] **DETAIL-09**: 구매 후기 + FAQ — 고객 리뷰 캐러셀 + FAQ 아코디언
+- [ ] **DETAIL-10**: Sticky 사이드바 — 차량명, 구매비용 계산기, 비용 항목 분류, CTA 버튼 (구매/방문예약/찜/비교/공유)
+- [ ] **DETAIL-11**: 차량평가사 추천 섹션 — 평가사 프로필 (소속, 사원증) + 추천 코멘트
+- [ ] **DETAIL-12**: Prisma 스키마에 차량 진단 데이터 JSONB 컬럼 추가 (inspectionData, historyData)
 
-## Phase 11: Quote Generation Engine
+### Search & Listing Page (SEARCH)
 
-### REQ-V11-05: Quote Builder
-- 테이블에서 선택한 차량들로 견적 생성
-- 차량 미선택 시 견적 버튼 비활성화
-- 견적 상세: 차량 정보 + 렌탈/리스 조건 + 월납입금 계산
+- [ ] **SEARCH-01**: 14개 필터 사이드바 — 차종, 제조사/모델 cascade, 연식 범위, 주행거리 범위, 가격 슬라이더, 색상 칩, 옵션, 지역/직영점, 연료, 변속기, 인승, 구동방식, 판매구분, 키워드 태그
+- [ ] **SEARCH-02**: 차량 카드 리디자인 — 이미지 배지 오버레이(타임딜/무료배송/3D), 보증 배지 바, 차량명, 가격+할부, 스펙라인, 태그 칩
+- [ ] **SEARCH-03**: 무한 스크롤 — Intersection Observer 센티널 + 스켈레톤 로딩 + SEO용 페이지네이션 fallback
+- [ ] **SEARCH-04**: 그리드/리스트 뷰 토글 — Toggle Group 기반 보기 모드 전환
+- [ ] **SEARCH-05**: 비교함 기능 — 플로팅 비교 버튼 + 최대 3대 차량 비교 + 스펙 나란히 비교 테이블
+- [ ] **SEARCH-06**: 퀵 필터 뱃지 — 무료배송, 위클리특가, 3D, 렌트가능 토글 뱃지
+- [ ] **SEARCH-07**: 정렬 드롭다운 — 기본정렬, 연식순, 주행거리순, 가격순 (9개 옵션)
+- [ ] **SEARCH-08**: 모바일 접이식 필터 — Collapsible/Sheet 기반 모바일 필터 UI
 
-### REQ-V11-06: Quote Calculation
-- 기존 Phase 6 PMT 계산 로직 재활용
-- 보조금, 프로모션 할인 반영
-- 잔존가율 기반 리스 계산
-- 렌탈/리스/할부 비교 견적
+### Homepage & Navigation (HOME)
 
-### REQ-V11-07: Quote PDF Export
-- 견적서 PDF 다운로드
-- 기존 Phase 8 PDF 생성 인프라 재활용
-- 회사 로고, 딜러 정보, 차량 스펙, 가격 상세 포함
+- [ ] **HOME-01**: 히어로 배너 캐러셀 — Embla autoplay 전체 너비 프로모션 배너 슬라이더
+- [ ] **HOME-02**: 퀵링크 아이콘 바 — 무료배송, 위클리특가, 기획전, 렌트특가, 테마기획전
+- [ ] **HOME-03**: 추천 차량 섹션 — 인기/최신/특가 차량 카드 그리드
+- [ ] **HOME-04**: 글로벌 헤더 리디자인 — K Car 스타일 로고 + 중앙 검색바 + 로그인/회원가입 + 메가메뉴 네비게이션
+- [ ] **HOME-05**: 글로벌 푸터 리디자인 — 회사정보, 고객센터, SNS 링크, 수상내역, 앱 다운로드
+- [ ] **HOME-06**: 브레드크럼 내비게이션 — 전체 페이지에 일관된 브레드크럼 적용
 
-## Phase 12: Settings Management & Polish
+### Admin Refresh (ADMIN)
 
-### REQ-V11-08: Settings CRUD
-- 관리자 비밀번호로 접근 제한 (설정 관리 진입 시 인증)
-- 프로모션율 설정 (차종별/브랜드별)
-- 보조금 금액 설정
-- 기본 이율/잔존가율 설정
+- [ ] **ADMIN-01**: 어드민 대시보드 디자인 언어 통일 — 새로운 색상/타이포그래피 토큰 적용
+- [ ] **ADMIN-02**: 차량 비교 테이블 개선 — 나란히 스펙 비교 + 시각적 차이 하이라이팅
+- [ ] **ADMIN-03**: 전체 리디자인 페이지 모바일 반응형 검증 (375px viewport)
+- [ ] **ADMIN-04**: 데모 플로우 재검증 — 계약 신청 → PDF 생성 전체 흐름 리그레션 테스트
 
-### REQ-V11-09: Data Management
-- 재고 데이터 수동 갱신 (CSV 업로드)
-- 마지막 업데이트 일시 표시
-- 데이터 유효성 검증
+## Future Requirements (v3.0)
 
-### REQ-V11-10: UI Polish & Integration
-- 전체 흐름 통합 테스트
-- 로딩/에러 상태 처리
-- 기존 admin 네비게이션에 "재고 관리" 메뉴 추가
+### 지도/위치
+- **MAP-01**: 카카오맵 직영점 위치 표시
+- **MAP-02**: 딜러 프로필 카드
+
+### 렌트
+- **RENT-01**: 렌트 전용 페이지 (렌트 방식/개월수/렌트비 필터)
+- **RENT-02**: 친환경차 토글
+
+### 기타
+- **EXT-01**: 360도 사진 시퀀스 뷰어
+- **EXT-02**: 실제 eKYC API 연동
+- **EXT-03**: 전자서명 API 연동
+- **EXT-04**: PG 결제 연동
+- **EXT-05**: 소셜 로그인 (카카오/네이버)
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| 카카오맵 직영점 | v2.0 범위 제외 — API 키 등록 필요, 별도 phase |
+| 렌트 전용 페이지 | v2.0 범위 제외 — 기존 렌트 기능 유지 |
+| 360도 뷰어 | 복잡도 대비 낮은 우선순위 |
+| 네이티브 앱 | v3.0+ Capacitor |
+| 실시간 채팅 | v3.0+ |
+| AI 차량 추천 | v3.0+ |
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| COMP-01 | — | Pending |
+| COMP-02 | — | Pending |
+| COMP-03 | — | Pending |
+| COMP-04 | — | Pending |
+| DETAIL-01 | — | Pending |
+| DETAIL-02 | — | Pending |
+| DETAIL-03 | — | Pending |
+| DETAIL-04 | — | Pending |
+| DETAIL-05 | — | Pending |
+| DETAIL-06 | — | Pending |
+| DETAIL-07 | — | Pending |
+| DETAIL-08 | — | Pending |
+| DETAIL-09 | — | Pending |
+| DETAIL-10 | — | Pending |
+| DETAIL-11 | — | Pending |
+| DETAIL-12 | — | Pending |
+| SEARCH-01 | — | Pending |
+| SEARCH-02 | — | Pending |
+| SEARCH-03 | — | Pending |
+| SEARCH-04 | — | Pending |
+| SEARCH-05 | — | Pending |
+| SEARCH-06 | — | Pending |
+| SEARCH-07 | — | Pending |
+| SEARCH-08 | — | Pending |
+| HOME-01 | — | Pending |
+| HOME-02 | — | Pending |
+| HOME-03 | — | Pending |
+| HOME-04 | — | Pending |
+| HOME-05 | — | Pending |
+| HOME-06 | — | Pending |
+| ADMIN-01 | — | Pending |
+| ADMIN-02 | — | Pending |
+| ADMIN-03 | — | Pending |
+| ADMIN-04 | — | Pending |
+
+**Coverage:**
+- v2.0 requirements: 34 total
+- Mapped to phases: 0
+- Unmapped: 34 (pending roadmap creation)
+
+---
+*Requirements defined: 2026-03-19*
+*Last updated: 2026-03-19 after initial definition*

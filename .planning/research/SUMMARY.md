@@ -1,197 +1,208 @@
 # Project Research Summary
 
-**Project:** Navid Auto -- Korean Used Car Rental/Lease Platform
-**Domain:** B2B2C marketplace (used car rental/lease)
-**Researched:** 2026-03-09
-**Confidence:** MEDIUM-HIGH
+**Project:** Navid Auto v2.0 — K Car Style Redesign
+**Domain:** B2B2C Used Car Rental/Lease Marketplace (Korean Market) — UI Overhaul Milestone
+**Researched:** 2026-03-19
+**Confidence:** HIGH
 
 ## Executive Summary
 
-Navid Auto sits at the intersection of two established Korean markets -- used car marketplaces (Encar, K Car) and rental/lease providers (Lotte Rentacar) -- combining them into a B2B2C platform where dealers list used vehicles and customers apply for rental or lease contracts online. This is a well-understood architectural pattern (marketplace with multi-tenant data isolation), but the domain introduces specific complexity around lease pricing (residual value calculations), contract lifecycle state management, and Korean regulatory requirements around personal data and vehicle ownership verification. The recommended stack (Next.js 15 + Supabase + Tailwind/shadcn) is pre-decided and well-suited: Supabase's RLS provides the multi-tenant isolation this model demands, and Next.js Server Components deliver the SEO-critical vehicle listing pages.
+v2.0 is a major UI overhaul milestone, not a feature milestone. The existing v1.0 platform ships a fully functional rental/lease marketplace (auth, vehicle CRUD, contract engine, admin dashboard, PDF generation, Realtime status) on Next.js 15 + Supabase + Tailwind v4 + shadcn/ui. v2.0 targets K Car (kcar.com) visual parity: a polished, high-trust commercial UI with richer image presentation, a more detailed vehicle detail page (panel damage diagrams, inspection scores, accident history), infinite scroll on listings, a Kakao Maps dealership locator, and overall visual refinement to support real dealer onboarding and investor credibility beyond demo. The core stack is validated and unchanged — v2.0 adds only 5 lightweight npm packages and 13 new shadcn/ui components on top of the existing codebase.
 
-The recommended approach is to build foundation-first: database schema with RLS policies baked in from day one, followed by vehicle data management (the supply side), then public-facing search (the demand side), and finally the contract engine (the business logic). The license plate lookup API integration is a key demo differentiator and should be built early with aggressive caching and fallback to manual input. The contract flow -- including mock eKYC, state machine, and PDF generation -- is the most complex feature and should be treated as a distinct phase with careful state machine design before any UI work begins.
+The recommended approach is component-by-component progressive enhancement: start with the highest-visibility surfaces (vehicle detail page and search listing) since these are what investors and customers see first, then extend to navigation, map integration, and admin UI improvements. The vehicle body damage diagram (SVG-based, custom React components) is the most technically novel element but has no external dependency risk — it is pure SVG in JSX. The Kakao Maps integration requires an API key registration and careful `next/script` + `next/dynamic` loading order, which is the only meaningful external dependency risk.
 
-The top risks are: (1) RLS misconfiguration leaking dealer data across tenants -- must be addressed in the first migration, not retrofitted; (2) vehicle double-booking race conditions -- require database-level atomic reservation, not application-level checks; (3) auth token mismanagement in SSR context -- use `getUser()` never `getSession()` on the server; and (4) demo survivability -- the MVP targets investors, so depth over breadth matters more than feature count. Every feature built should survive a live walkthrough with intentional detours.
+The primary risks for v2.0 are scope creep and visual regression. Because v2.0 touches the most visible pages of a working application, every UI change carries regression risk against existing functionality (search filters, contract wizard, admin CRUD). The existing 264 unit tests provide a safety net for business logic but do not cover UI rendering. The recommended mitigation is incremental rollout per page (not a big-bang redesign) with manual testing of critical flows after each page redesign.
 
 ## Key Findings
 
 ### Recommended Stack
 
-The core stack is pre-decided and version-verified: Next.js 15.x with App Router, React 19, Supabase (auth + Postgres + storage + realtime), Tailwind CSS v4, and shadcn/ui. The complementary stack fills in the gaps well: react-hook-form + zod for complex contract forms with shared client/server validation, zustand for lightweight client state, TanStack Query for mutations with optimistic updates, and @react-pdf/renderer for contract PDF generation.
+The v1.0 stack (Next.js 15, React 19, Tailwind v4, shadcn/ui, Prisma, Supabase, Zustand) is fully validated and requires no changes. v2.0 introduces only these additions:
 
-**Core technologies:**
-- **Next.js 15 + React 19:** App Router with Server Components for SEO-critical vehicle listings; Server Actions for all mutations
-- **Supabase (@supabase/supabase-js + @supabase/ssr):** Auth, PostgreSQL with RLS for multi-tenant isolation, Storage for vehicle photos, Realtime for status updates
-- **Tailwind CSS v4 + shadcn/ui:** Utility-first styling with pre-built accessible components; v4 uses CSS-based config (no tailwind.config.ts)
-- **react-hook-form + zod:** Performant forms with type-safe validation shared between client and server
-- **@react-pdf/renderer:** React-component approach to contract PDF generation with Korean text support
-- **date-fns v4:** Lightweight date manipulation with Korean locale support
+**New npm packages (5 packages, ~32KB gzipped total):**
+- Embla Carousel plugins (`embla-carousel-autoplay` ^8.6.0, `embla-carousel-thumbs` ^8.6.0): Auto-rotating hero banners and thumbnail-strip image galleries — already in the shadcn ecosystem via the Carousel component, zero additional dependency management
+- `yet-another-react-lightbox` ^3.25.0: Full-screen image viewer with pinch-zoom and swipe navigation — most actively maintained React lightbox with React 19 support, ~7KB gzipped
+- `react-intersection-observer` ^10.0.3: Infinite scroll sentinel, sticky nav activation, section tracking — wraps native IntersectionObserver cleanly, 10M+ weekly downloads
+- `react-kakao-maps-sdk` ^1.2.0: Dealership location map — Kakao Maps is de facto standard for Korean web (higher market share than Naver for web), K Car uses it, generous free tier (300K calls/day)
 
-**Critical version note:** Verify zod v4 compatibility with @hookform/resolvers v5 before installing. Fall back to zod v3.23 if resolvers lag behind.
+**New shadcn/ui components (13 components, zero npm — copy-paste):**
+Accordion, Tabs, Carousel, Collapsible, Progress, Pagination, Popover, Scroll Area, Avatar, Breadcrumb, Toggle Group, Radio Group, Dropdown Menu
+
+**What NOT to add:** Swiper (Embla already covers this), Framer Motion beyond current usage, Three.js (K Car uses 360-photo sequences not 3D), `@tanstack/react-query` (Server Components + Server Actions sufficient), react-window/react-virtual (overkill for vehicle list scale), date-fns (native Intl API sufficient).
+
+**Confidence:** HIGH — all packages version-verified, React 19 compatibility confirmed, bundle impact estimated at ~32KB gzipped total.
 
 ### Expected Features
 
-**Must have (table stakes):**
-- Vehicle search/filter/sort with multi-criteria filtering (brand, model, year, price, mileage)
-- Vehicle detail pages with photo gallery and specs
-- Auth with role-based access control (customer/dealer/admin)
-- Dealer vehicle CRUD with image upload
-- Rental/lease monthly payment calculator with residual value calculation
-- Multi-step contract application flow with mock eKYC
-- Contract PDF auto-generation
-- My page (contract status tracking)
-- Admin dashboard (CRUD + basic stats)
-- Responsive web (mobile-first)
+v2.0 features are categorized as UI redesign targets, not new business capabilities.
 
-**Should have (differentiators):**
-- License plate-based vehicle info auto-lookup (key demo feature, v1 real integration)
-- Transparent residual value display with admin-configurable rates
-- Rental vs. lease side-by-side comparison
-- Dealer approval workflow
+**Must have (K Car visual parity — v2.0 launch):**
+- Hero carousel with auto-rotating banners (Embla autoplay plugin)
+- Vehicle image gallery with thumbnail strip + full-screen lightbox (Embla thumbs + YARL)
+- Vehicle body panel damage diagram — 5 SVG views (front/rear/left/right/top) with per-panel color coding (normal/repaired/replaced), custom React SVG components, no library needed
+- Vehicle detail page redesign: accordion sections for inspection/history/specs, sticky sidebar with section TOC, breadcrumb navigation
+- Search listing page improvements: infinite scroll sentinel (react-intersection-observer), grid/list view toggle (Toggle Group), mobile collapsible filter sidebar
+- Dealership location map with Kakao Maps markers (react-kakao-maps-sdk)
+- Korean vehicle naming convention enforcement throughout (현대 쏘나타 not Hyundai Sonata)
+- Responsive refinement pass on all redesigned pages (375px mobile viewport)
 
-**Defer (v2+):**
-- Real eKYC/e-sign API integration (PASS, Modusign)
+**Should have (quality improvements — v2.0 if time allows):**
+- Vehicle comparison table improvement (side-by-side spec table with visual diff highlighting)
+- Admin UI visual refresh (consistent with new design language)
+- 360-degree photo sequence viewer (Embla carousel with ~36 angle images — no Three.js needed)
+- Loading skeleton refinement (match K Car's skeleton patterns for vehicle cards)
+
+**Defer (v3.0+ or separate milestones):**
+- Real eKYC/electronic signature API integration
 - Payment/CMS integration
 - Social login (Kakao/Naver)
-- Real-time chat
-- Native mobile app
+- Native mobile app (Capacitor)
 - AI vehicle recommendations
+- Real-time chat
+
+**v1.0 features preserved (must not regress):**
+- License plate auto-lookup with cache/fallback
+- Multi-step contract wizard with mock eKYC
+- Contract state machine and PDF generation
+- Admin dashboard CRUD and statistics
+- Role-based access control and RLS policies
 
 ### Architecture Approach
 
-The architecture follows a three-layer pattern: Presentation (four route groups for public/customer/dealer/admin), Application (Server Actions for mutations, Route Handlers for external API proxying, Middleware for auth), and Data (Supabase Postgres+RLS, Auth, Storage, Realtime). Three separate Supabase clients enforce the security boundary: browser client for realtime, server client for SSR reads (RLS-scoped), and admin/service-role client for trusted mutations after Server Action validation.
+The v1.0 architecture is correct and unchanged: four route groups (`(public)`, `(customer)`, `(dealer)`, `(admin)`), Server Component reads, Server Action mutations, three Supabase clients. v2.0 changes are purely in the presentation layer — new and enhanced React components within existing route groups. No new route groups, no new API routes (except potentially Kakao Maps API key proxy), no schema changes except possibly adding a vehicle inspection JSONB column for the panel diagram data.
 
-**Major components:**
-1. **Public Pages (SSR/SSG)** -- Vehicle search, listing, detail; SEO-critical, server-rendered
-2. **Customer Portal** -- Contract application, eKYC flow, my page; auth-protected
-3. **Dealer Portal** -- Vehicle CRUD, inventory management, contract review; role-gated
-4. **Admin Dashboard** -- All CRUD, user management, approval workflows, stats; role-gated
-5. **Contract State Machine** -- Explicit state transitions (draft -> pending_ekyc -> ... -> active -> completed); enforced in Server Actions
-6. **External API Layer** -- License plate lookup proxy with caching; mock eKYC with real interface contracts
+**Key architectural decisions for v2.0:**
+1. Vehicle body diagram data: Store panel inspection data as a JSONB column in the vehicle table (Prisma schema addition). SVG component reads this data and maps to fill colors. No real-time updates needed — inspection data is static per vehicle.
+2. Kakao Maps loading: Use `next/dynamic` with `ssr: false` to prevent SSR hydration issues. Load Kakao Maps SDK via `next/script` with `strategy="afterInteractive"` only on pages that need it.
+3. Infinite scroll: Intersection Observer sentinel `<div>` at bottom of vehicle grid. When `inView` becomes true, trigger a Server Action for the next page. Display skeleton cards during loading. Combine with URL-based pagination fallback for SEO (page 1 is always SSR with `searchParams`).
+4. Image carousel + lightbox: Embla for inline gallery, clicking any image opens YARL lightbox. Pass the same `images[]` array to both. Embla thumbnails use the same array with `embla-carousel-thumbs` plugin syncing two Embla instances.
+
+**Major components being added or redesigned:**
+1. `VehicleImageGallery` — Embla main carousel + thumbnail strip + YARL lightbox integration
+2. `VehicleBodyDiagram` — 5 SVG view components with ~20 named path regions each, colored by inspection data
+3. `VehicleDetailPage` redesign — accordion sections, sticky TOC sidebar, breadcrumb, K Car-style information hierarchy
+4. `SearchListingPage` redesign — infinite scroll, grid/list toggle, collapsible mobile filters, visual card updates
+5. `DealershipMap` — Kakao Maps with dealer location markers, `next/dynamic` SSR-disabled wrapper
+6. `HeroBanner` — Embla carousel with autoplay, K Car-style full-width banner
+
+**Scaling considerations unchanged from v1.0:** Vehicle search bottleneck (composite indexes on status/make/model/year/price) and Realtime connection batching are the same concerns. v2.0 adds image-heavy pages — ensure Next.js `<Image>` with explicit width/height is used throughout to prevent CLS and enable Vercel's image optimization.
 
 ### Critical Pitfalls
 
-1. **RLS misconfiguration leaking dealer data** -- Enable RLS on every table in every migration; index all policy-referenced columns; never test RLS from SQL Editor (it bypasses RLS); verify from client SDK
-2. **Vehicle double-booking race condition** -- Use PostgreSQL advisory locks or SELECT FOR UPDATE in an atomic RPC function; add UNIQUE constraint preventing two active contracts per vehicle
-3. **Auth token mismanagement in SSR** -- Always use `getUser()` (not `getSession()`) on the server; implement middleware per Supabase's official guide; cache with React `cache()` to avoid duplicate auth calls
-4. **Residual value calculations divorced from market reality** -- Use admin-configurable lookup tables (make/model/year -> residual %), not hardcoded formulas; display as "estimated" with disclaimers
-5. **Demo that breaks on live walkthrough** -- Prioritize depth over breadth; persist mock flow state in DB; pre-seed demo data; add loading/error states everywhere; build a demo script and rehearse it
+The v1.0 critical pitfalls (RLS misconfiguration, double-booking race condition, auth token mismanagement) are already addressed in the shipped codebase. The relevant pitfalls for v2.0 are:
+
+1. **UI regression on working contract flow** — Vehicle detail and search listing pages are entry points to the contract wizard. Any redesign that breaks the "Apply for Rental/Lease" CTA, filter state persistence in URL, or vehicle ID routing will break the contract flow. Prevention: test the full contract happy path after each page redesign, not just at the end.
+
+2. **Kakao Maps loading in Next.js App Router** — `react-kakao-maps-sdk` requires `'use client'`, `next/dynamic` with `ssr: false`, and Kakao Maps SDK loaded via `next/script` in the correct order. Getting the loading sequence wrong causes `window.kakao is not defined` errors that are hard to debug. Prevention: implement with `next/dynamic` from the start, test in production build (not just dev server where timing differs).
+
+3. **Image-heavy pages degrading performance** — Vehicle detail redesign adds a full-screen lightbox, thumbnail strip, and potentially 360-degree sequence. Without proper lazy loading and Next.js `<Image>` optimization, this can make the detail page significantly slower. Prevention: use Next.js `<Image>` with explicit dimensions for all vehicle photos, lazy-load YARL lightbox via `next/dynamic`, avoid loading 360-degree sequence images until user clicks the 360 tab.
+
+4. **Vehicle body SVG complexity underestimated** — Creating accurate car body outlines for 5 views with ~20 named regions each is more design work than engineering work. The SVG paths must be correct enough to be recognizable as a real car, and the region labels must match the inspection data schema. Prevention: source a reference SVG from K Car's public HTML (inspect their damage diagram in browser DevTools), adapt it rather than drawing from scratch. Define the panel region naming schema in Prisma before drawing the SVG.
+
+5. **Demo survivability regression** — v1.0's final phase hardened the demo environment. v2.0 UI changes could break loading states, error states, or skeleton screens that were previously audited. Prevention: the "Looks Done But Isn't" checklist from v1.0 PITFALLS.md should be re-run against every redesigned page.
+
+6. **Korean locale formatting gaps in redesigned pages** — New UI surfaces (vehicle detail sections, map markers, inspection score labels) must use Korean formatting (KRW currency with comma separators, 년/월/일 date format, Korean brand/model names). Prevention: define a shared `formatKRW()`, `formatKoreanDate()`, and `getKoreanVehicleName()` utility reused across all new components rather than inline formatting.
 
 ## Implications for Roadmap
 
-Based on research, suggested phase structure:
+Based on research, the v2.0 roadmap should structure phases around UI surfaces (not features), ordered by investor/customer visibility:
 
-### Phase 1: Foundation and Auth
-**Rationale:** Every other feature depends on database schema, RLS policies, authentication, and role-based access. Auth bugs compound -- every feature built on broken auth inherits the problem. RLS must be baked in from day one; retrofitting is error-prone.
-**Delivers:** Supabase project setup, database schema with RLS, three Supabase clients (browser/server/admin), auth flow (signup/login/logout), middleware with role-based route protection, user profiles with roles
-**Addresses:** Auth/signup/login, role-based access control
-**Avoids:** Pitfall 1 (RLS misconfiguration), Pitfall 4 (auth token mismanagement), Pitfall (PII/privacy compliance in schema design)
+### Phase 1: Component Foundation & Design System Update
+**Rationale:** Install new packages and shadcn components before any page work begins. Update global design tokens (colors, typography, spacing) to match K Car aesthetic. This prevents installing packages mid-development and ensures all page phases share the same base components.
+**Delivers:** 5 new npm packages installed, 13 new shadcn components added, Tailwind CSS color/typography tokens updated to K Car palette, shared utility components (Korean formatters, skeleton patterns), Storybook-style component demos for new carousel and lightbox components (optional)
+**Addresses:** Embla carousel, YARL lightbox, Intersection Observer, Kakao Maps SDK setup
+**Avoids:** Installing packages mid-phase, inconsistent design token usage across pages
 
-### Phase 2: Vehicle Data and Dealer Portal
-**Rationale:** Vehicle data is the supply side of the marketplace. Search, contracts, and admin features all depend on vehicles existing in the system. License plate API integration is a headline demo feature and should be built early with caching/fallback.
-**Delivers:** Vehicle table and CRUD, dealer vehicle registration with license plate auto-lookup, image upload to Supabase Storage, vehicle status management, admin vehicle approval workflow
-**Addresses:** Dealer vehicle registration/management, license plate auto-lookup, vehicle status display, dealer approval system
-**Avoids:** Pitfall 7 (license plate API without fallback), performance trap (image optimization pipeline)
+### Phase 2: Vehicle Detail Page Redesign
+**Rationale:** Highest-value single page for both investors and customers. Contains the most complex new UI elements (image gallery, body diagram, accordion sections, sticky TOC). Best to tackle first while the team's focus is sharpest and before patterns are set by lower-complexity pages.
+**Delivers:** Vehicle detail page fully redesigned to K Car standard: main image carousel + thumbnail strip + lightbox, vehicle body panel damage diagram (custom SVG, 5 views), accordion sections (inspection report, accident history, specs, pricing), sticky sidebar with section TOC and "Apply" CTA, breadcrumb navigation, K Car-style information hierarchy
+**Addresses:** VehicleImageGallery, VehicleBodyDiagram, accordion/tabs for inspection data
+**Avoids:** UI regression on contract application CTA, image performance issues (use Next.js Image throughout)
+**Research flag:** SVG panel diagram — inspect K Car's actual HTML to source reference SVG paths before implementation
 
-### Phase 3: Public Experience and Search
-**Rationale:** With vehicle data populated, the primary user entry point (search/browse) can be built. SSR-first for SEO. URL-based filter state for shareability. This phase creates the "storefront" that investors see first.
-**Delivers:** Vehicle search with multi-criteria filters, vehicle detail pages with gallery, monthly payment calculator, residual value estimation, responsive mobile layout
-**Addresses:** Vehicle search/filter, vehicle detail pages, payment calculator, residual value calculation, responsive web
-**Avoids:** Pitfall 3 (residual value divorced from reality -- use configurable lookup tables), UX pitfall (filter state not in URL)
+### Phase 3: Search & Listing Page Redesign
+**Rationale:** Primary entry point for new visitors. Infinite scroll and grid/list toggle are high-visibility improvements. Must preserve URL-based filter state (existing nuqs implementation) during redesign.
+**Delivers:** Vehicle listing page redesigned: infinite scroll with skeleton loading (Intersection Observer sentinel), grid/list view toggle (Toggle Group), mobile collapsible filter sidebar (Collapsible), vehicle card visual refresh (photos, price hierarchy, status badges), sort dropdown (Dropdown Menu), pagination fallback for SEO
+**Addresses:** Infinite scroll, filter UI improvements, vehicle card design
+**Avoids:** URL filter state regression (nuqs implementation must be preserved), N+1 query on infinite scroll pages
 
-### Phase 4: Contract Engine
-**Rationale:** The contract flow is the core business logic and the most complex feature. It depends on vehicles (Phase 2) and payment calculations (Phase 3). The state machine must be designed before any UI work. Double-booking prevention is critical here.
-**Delivers:** Contract state machine, multi-step application form, mock eKYC flow (with state persistence), contract PDF generation, Realtime status updates, my page (contract tracking)
-**Addresses:** Contract application flow, eKYC mock, PDF generation, my page
-**Avoids:** Pitfall 2 (double-booking race condition), Pitfall 5 (state machine without explicit transitions)
+### Phase 4: Navigation, Landing Page & Global UI
+**Rationale:** After the two highest-traffic pages are redesigned, standardize the global navigation and landing page to match the new design language. Landing page hero redesign (Embla autoplay carousel) ties together the visual identity.
+**Delivers:** Global header redesign (K Car-style nav with dropdowns), hero banner with auto-rotating carousel (Embla autoplay), footer redesign, breadcrumb navigation integrated globally, loading and error state consistency across all new pages
+**Addresses:** HeroBanner (Embla autoplay), navigation redesign, global design consistency
+**Avoids:** Navigation regression (existing role-based nav links must be preserved), hero banner blocking LCP (preload first image)
 
-### Phase 5: Admin Dashboard
-**Rationale:** Admin dashboard aggregates data from all other features, so it naturally comes last. It needs vehicles, contracts, and users to exist to be meaningful.
-**Delivers:** Stats overview, user management, contract oversight, vehicle/dealer approval queues, data tables with filtering/sorting
-**Addresses:** Admin dashboard with CRUD and statistics
+### Phase 5: Dealership Map & Location Pages
+**Rationale:** Kakao Maps requires careful SSR/dynamic loading setup that is isolated to specific pages. Doing this in its own phase prevents loading sequence issues from affecting earlier phases and allows dedicated testing of the `next/dynamic` + `next/script` combination.
+**Delivers:** Dealership location page with Kakao Maps markers, dealer profile cards, API key proxy endpoint (if needed), graceful fallback (list view) when map fails to load
+**Addresses:** DealershipMap component (react-kakao-maps-sdk), Kakao API key setup
+**Avoids:** `window.kakao is not defined` SSR errors, map loading blocking page paint
+**Research flag:** Kakao Maps API key registration (free but requires developer account) should be done before Phase 5 begins
 
-### Phase 6: Polish and Demo Preparation
-**Rationale:** The MVP targets investors/demos. This phase focuses on demo survivability: seeding realistic data, hardening error states, building a demo script, and testing edge cases.
-**Delivers:** Demo seed data (realistic Korean vehicles), loading/error states audit, demo mode flag for cached API responses, end-to-end demo script, Korean locale formatting audit, performance optimization
-**Addresses:** Demo survivability, Korean formatting, mobile responsive verification
-**Avoids:** Pitfall 6 (demo that can't survive a live walkthrough)
+### Phase 6: Admin UI Refresh & Polish
+**Rationale:** Admin UI is not investor-facing but is used daily by operations staff. Light visual refresh to match new design language. Final polish pass on all redesigned pages. Re-run v1.0 "Looks Done But Isn't" checklist against all new UI.
+**Delivers:** Admin dashboard visual refresh (consistent with new design), vehicle comparison table improvement, Korean locale formatting audit on all new components, mobile responsive verification (375px viewport) on all redesigned pages, performance check (Lighthouse scores on vehicle detail and search pages), demo script re-tested end-to-end
+**Addresses:** Admin UI consistency, Korean formatting completeness, demo survivability continuity
+**Avoids:** Demo regression from UI changes (re-run full contract flow after all redesigns)
 
 ### Phase Ordering Rationale
 
-- **Foundation first** because auth and RLS are prerequisites for every data operation, and getting them wrong is the most expensive mistake to fix later
-- **Vehicle data before search** because you cannot build or test search without data to search through
-- **Search before contracts** because contracts depend on vehicle detail pages and payment calculators
-- **Contract engine as a distinct phase** because it is the most complex feature and benefits from focused attention with the state machine designed upfront
-- **Admin dashboard last** because it is a read-heavy aggregation layer that benefits from all data models being stable
-- **Polish as final phase** because demo reliability requires all features to exist before they can be hardened
+- Component foundation (Phase 1) must precede all page work to avoid dependency gaps mid-phase
+- Vehicle detail (Phase 2) before search (Phase 3) because it is more complex, higher investor value, and sets component patterns (image gallery, skeleton cards) reused in search
+- Global UI (Phase 4) after the two main pages so the design language is established before being applied globally
+- Kakao Maps (Phase 5) isolated to its own phase because the SSR/dynamic loading configuration is an isolated risk that should not block other phases
+- Admin polish (Phase 6) last because it is the lowest customer/investor visibility surface
 
 ### Research Flags
 
-Phases likely needing deeper research during planning:
-- **Phase 2 (Vehicle/Dealer):** License plate API integration needs API-specific research -- data.go.kr endpoint specifics, rate limits, response format variations, consent requirements
-- **Phase 4 (Contract Engine):** Contract state machine design needs domain expert input -- rental vs. lease have different state flows; early termination, extension, and dispute handling need business rules
+Phases likely needing deeper research or pre-work before implementation:
+- **Phase 2 (Vehicle Detail):** SVG panel diagram — inspect K Car's HTML source to find or adapt their damage diagram SVG paths before drawing from scratch. Also define the Prisma schema for `inspection_data` JSONB column before the component is built.
+- **Phase 5 (Kakao Maps):** API key registration at https://developers.kakao.com must be completed before Phase 5 begins. Test `next/script` + `react-kakao-maps-sdk` loading sequence in a production build (not dev) to catch timing issues early.
 
-Phases with standard patterns (skip research-phase):
-- **Phase 1 (Foundation):** Supabase + Next.js auth is extremely well-documented with official guides
-- **Phase 3 (Public Experience):** SSR search with filters is a solved pattern in Next.js App Router
-- **Phase 5 (Admin Dashboard):** CRUD dashboards with shadcn/ui data tables are well-documented
+Phases with standard patterns (no additional research needed):
+- **Phase 1 (Component Foundation):** Package installation and shadcn component addition follow documented patterns.
+- **Phase 3 (Search/Listing):** Intersection Observer infinite scroll with Server Components is a well-documented Next.js pattern. nuqs URL state is already implemented and just needs to be preserved.
+- **Phase 4 (Landing/Nav):** Embla autoplay carousel has official shadcn docs. Navigation changes are additive to existing role-based nav.
+- **Phase 6 (Polish):** Reusing the v1.0 "Looks Done But Isn't" checklist as the verification framework — no new research needed.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Core stack pre-decided; all versions verified against npm; compatibility matrix validated |
-| Features | MEDIUM | Good competitor analysis of Korean market; MVP scope is aggressive (14 P1 features) -- may need trimming during roadmap |
-| Architecture | HIGH | Standard marketplace patterns with Supabase; official docs and community patterns well-aligned |
-| Pitfalls | MEDIUM-HIGH | Domain-specific pitfalls well-identified; Korean market specifics (residual value, privacy law) add nuance beyond generic web app pitfalls |
+| Stack | HIGH | 4 of 5 new packages are widely-used with 6M-10M+ weekly downloads and React 19 support confirmed. Kakao Maps SDK is MEDIUM — less widely used but official docs cover Next.js App Router setup. |
+| Features | HIGH | K Car feature analysis is based on direct inspection of kcar.com. Target features are well-defined visual patterns, not speculative business features. |
+| Architecture | HIGH | All architectural changes are in the presentation layer only. No new route groups, no RLS changes, no auth changes. Pattern is additive, not rearchitectural. |
+| Pitfalls | HIGH | v2.0 pitfalls are primarily UI regression and integration order risks, which are well-understood. The Kakao Maps loading order issue is documented and has a known solution. |
 
-**Overall confidence:** MEDIUM-HIGH
+**Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **Residual value data source:** No authoritative Korean used car depreciation data source identified for v1. Plan is admin-configurable lookup tables, but initial seed values need domain expert input or industry benchmark data.
-- **License plate API specifics:** data.go.kr vs. commercial providers (apick.app, CODEF) -- needs API key registration and testing to determine which endpoints return what data without owner consent. This should be validated early in Phase 2.
-- **Zod v4 + @hookform/resolvers compatibility:** Zod v4 is a major release. Verify resolver support before committing; have zod v3.23 as fallback plan.
-- **PDF generation on Vercel:** Serverless function timeout (10s on Hobby) may be tight for contract PDF generation. Test early; consider client-side generation as fallback.
-- **MVP scope risk:** 14 P1 features for a demo/investment MVP is ambitious. During roadmap creation, consider which features can be simplified (e.g., comparison as a basic table rather than a rich interactive feature).
-
-## Additional Research (2026-03-09 Session 2)
-
-### New Research Files
-- `EKYC-CONTRACT.md` — eKYC 본인인증, 전자계약서 필수항목, 렌탈 vs 리스 차이, 잔존가치 산정
-- `RLS-PATTERNS.md` — Supabase RLS 역할 기반 접근제어, 테이블별 정책 분리, 성능 최적화
-- `TECH-STACK-DEEP.md` — Next.js 15 Server Actions, Tailwind v4 마이그레이션, React 19 패턴
-- `SEED-DATA.md` — 데모용 차량 32대(현대14/기아12/제네시스6) + 딜러/고객 계정 + 샘플 계약
-
-### Key Insights Added
-- **eKYC**: 휴대폰 본인인증 기반, 6개 필드 수집 (이름/전화/통신사/생년월일/성별/국적)
-- **계약서 필수항목**: 성능·상태점검기록부 법적 의무(자동차관리법 58조), 중도해지 위약금율
-- **잔존가치**: 국산차 56% vs 수입차 46% 보장한도, 30~48% 실무 설정구간
-- **RLS**: JWT Claims 패턴(성능 최적화) vs Profiles Table 패턴(구현 용이) 비교
-- **Tailwind v4**: CSS-first config(@theme), Oxide 엔진, @import "tailwindcss" 진입점
-
-### Design References
-- 6개 경쟁사 스크린샷 캡처 (데스크톱 + 모바일): K Car, 엔카, 보배드림, 롯데렌터카, 쏘카, 현대CPO(실패)
-- Obsidian 볼트에 분석 노트 저장: `claude_volt/Research/Web/navid-competitor-ui-references.md`
+- **Vehicle body SVG source:** The car body panel damage diagram requires SVG outlines of a vehicle in 5 views with ~20 named regions. Decision needed before Phase 2: trace from K Car's public HTML, use a generic car silhouette from SVG libraries (e.g., Font Awesome does not have this; consider Noun Project or similar), or create simplified custom paths. The quality of these SVGs directly impacts the feature's visual impact.
+- **Prisma inspection data schema:** The vehicle body diagram maps SVG panel regions to inspection data stored in the database. The JSONB schema for `inspection_data` (which panels exist, status values, severity levels) must be defined before the SVG component is built. This is a ~1-hour design decision but must happen first.
+- **Kakao Maps API key:** Needs registration at https://developers.kakao.com before Phase 5. Add `NEXT_PUBLIC_KAKAO_MAP_API_KEY` to `.env.local` and Vercel environment variables. Free tier is sufficient (300K daily calls).
+- **K Car design token extraction:** Before Phase 1, spend 30 minutes extracting K Car's primary color palette, typography scale, and border-radius values from their CSS (browser DevTools). These become the Tailwind v4 `@theme` tokens for v2.0. Without this, the redesign will look "inspired by K Car" but not visually matching.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- Supabase official docs (SSR, RLS, Auth, Storage, Realtime)
-- Next.js official docs (App Router, Server Actions, Middleware)
-- npm package registries (all versions verified)
-- shadcn/ui official docs (React 19 + Tailwind v4 compatibility)
+- [K Car website](https://www.kcar.com/) — Direct UI reference for all visual patterns (inspected via browser DevTools, March 2026)
+- [shadcn/ui Carousel docs](https://ui.shadcn.com/docs/components/carousel) — Embla integration confirmation
+- [Embla Carousel GitHub](https://github.com/davidjerleke/embla-carousel) — v8.6.0, 6M+ weekly downloads, thumbs and autoplay plugins
+- [yet-another-react-lightbox](https://yet-another-react-lightbox.com/) — React 19 support, plugin architecture, ~7KB gzipped
+- [react-intersection-observer npm](https://www.npmjs.com/package/react-intersection-observer) — v10.0.3, 10M+ weekly downloads
+- [react-kakao-maps-sdk docs](https://react-kakao-maps-sdk.jaeseokim.dev/docs/setup/next/) — Next.js App Router setup guide
+- [Supabase + Next.js 15 v1.0 research](STACK.md) — Core stack validated and unchanged
 
 ### Secondary (MEDIUM confidence)
-- Korean competitor platforms (Encar, K Car, KB ChaCha, Lotte Rentacar) -- feature analysis via public websites
-- MakerKit blog -- Supabase patterns and best practices
-- Korean market analysis articles -- used car market dynamics
-- data.go.kr -- vehicle API documentation
+- [Kakao Developers Platform](https://developers.kakao.com/) — API key registration and Maps SDK documentation
+- [SVGR documentation](https://react-svgr.com/) — SVG to React component conversion tooling
+- [shadcn/ui component list](https://ui.shadcn.com/docs/components) — All 13 new components available in current shadcn CLI
 
-### Tertiary (LOW confidence)
-- Residual value calculation patterns -- derived from industry articles (banksalad, getcha) rather than authoritative financial data
-- Korean personal data protection law specifics -- referenced but not legally verified
+### Tertiary (LOW confidence — needs validation)
+- Vehicle body SVG paths — not yet sourced; K Car HTML inspection may reveal their SVG structure, but clean sourcing of a 5-view car body diagram with labeled regions is unresolved
+- Kakao Maps daily quota behavior in practice — 300K calls/day free tier is documented but real-world production behavior with concurrent users is unverified
 
 ---
-*Research completed: 2026-03-09*
+*Research completed: 2026-03-19*
 *Ready for roadmap: yes*

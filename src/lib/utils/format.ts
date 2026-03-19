@@ -60,3 +60,54 @@ export function formatDistance(
 export function formatYearModel(year: number): string {
   return `${year}년식`
 }
+
+/**
+ * Input type for getKoreanVehicleName - matches Prisma Vehicle with nested relations
+ * Vehicle -> trim (Trim) -> generation (Generation) -> carModel (CarModel) -> brand (Brand)
+ */
+type VehicleNameInput = {
+  year: number
+  trim: {
+    name: string
+    generation: {
+      carModel: {
+        name: string
+        nameKo: string | null
+        brand: {
+          name: string
+          nameKo: string | null
+        }
+      }
+    }
+  }
+}
+
+export type { VehicleNameInput }
+
+/**
+ * Build Korean display name for a vehicle from its nested relations.
+ * Pattern: "현대 쏘나타 프리미엄 2024" (brand model trim year)
+ * Fallback: Uses English name if nameKo is null
+ */
+export function getKoreanVehicleName(
+  vehicle: VehicleNameInput,
+  options?: { includeTrim?: boolean; includeYear?: boolean }
+): string {
+  const { includeTrim = true, includeYear = true } = options ?? {}
+  const brand = vehicle.trim.generation.carModel.brand
+  const model = vehicle.trim.generation.carModel
+  const parts = [
+    brand.nameKo || brand.name,
+    model.nameKo || model.name,
+  ]
+  if (includeTrim) parts.push(vehicle.trim.name)
+  if (includeYear) parts.push(String(vehicle.year))
+  return parts.join(' ')
+}
+
+/**
+ * Format date in Korean formal format.
+ * Alias for formatDate() -- existing function already outputs Korean format.
+ * Exported for API consistency with COMP-04 requirement.
+ */
+export const formatKoreanDate = formatDate

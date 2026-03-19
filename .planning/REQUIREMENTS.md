@@ -75,8 +75,8 @@
 
 | Feature | Reason |
 |---------|--------|
-| 카카오맵 직영점 | v2.0 범위 제외 — API 키 등록 필요, 별도 phase |
-| 렌트 전용 페이지 | v2.0 범위 제외 — 기존 렌트 기능 유지 |
+| 카카오맵 직영점 | v2.0 범위 제외 -- API 키 등록 필요, 별도 phase |
+| 렌트 전용 페이지 | v2.0 범위 제외 -- 기존 렌트 기능 유지 |
 | 360도 뷰어 | 복잡도 대비 낮은 우선순위 |
 | 네이티브 앱 | v3.0+ Capacitor |
 | 실시간 채팅 | v3.0+ |
@@ -86,46 +86,46 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| COMP-01 | — | Pending |
-| COMP-02 | — | Pending |
-| COMP-03 | — | Pending |
-| COMP-04 | — | Pending |
-| DETAIL-01 | — | Pending |
-| DETAIL-02 | — | Pending |
-| DETAIL-03 | — | Pending |
-| DETAIL-04 | — | Pending |
-| DETAIL-05 | — | Pending |
-| DETAIL-06 | — | Pending |
-| DETAIL-07 | — | Pending |
-| DETAIL-08 | — | Pending |
-| DETAIL-09 | — | Pending |
-| DETAIL-10 | — | Pending |
-| DETAIL-11 | — | Pending |
-| DETAIL-12 | — | Pending |
-| SEARCH-01 | — | Pending |
-| SEARCH-02 | — | Pending |
-| SEARCH-03 | — | Pending |
-| SEARCH-04 | — | Pending |
-| SEARCH-05 | — | Pending |
-| SEARCH-06 | — | Pending |
-| SEARCH-07 | — | Pending |
-| SEARCH-08 | — | Pending |
-| HOME-01 | — | Pending |
-| HOME-02 | — | Pending |
-| HOME-03 | — | Pending |
-| HOME-04 | — | Pending |
-| HOME-05 | — | Pending |
-| HOME-06 | — | Pending |
-| ADMIN-01 | — | Pending |
-| ADMIN-02 | — | Pending |
-| ADMIN-03 | — | Pending |
-| ADMIN-04 | — | Pending |
+| COMP-01 | Phase 13 | Pending |
+| COMP-02 | Phase 13 | Pending |
+| COMP-03 | Phase 13 | Pending |
+| COMP-04 | Phase 13 | Pending |
+| DETAIL-01 | Phase 14 | Pending |
+| DETAIL-02 | Phase 14 | Pending |
+| DETAIL-03 | Phase 14 | Pending |
+| DETAIL-04 | Phase 14 | Pending |
+| DETAIL-05 | Phase 14 | Pending |
+| DETAIL-06 | Phase 14 | Pending |
+| DETAIL-07 | Phase 14 | Pending |
+| DETAIL-08 | Phase 14 | Pending |
+| DETAIL-09 | Phase 14 | Pending |
+| DETAIL-10 | Phase 14 | Pending |
+| DETAIL-11 | Phase 14 | Pending |
+| DETAIL-12 | Phase 14 | Pending |
+| SEARCH-01 | Phase 15 | Pending |
+| SEARCH-02 | Phase 15 | Pending |
+| SEARCH-03 | Phase 15 | Pending |
+| SEARCH-04 | Phase 15 | Pending |
+| SEARCH-05 | Phase 15 | Pending |
+| SEARCH-06 | Phase 15 | Pending |
+| SEARCH-07 | Phase 15 | Pending |
+| SEARCH-08 | Phase 15 | Pending |
+| HOME-01 | Phase 16 | Pending |
+| HOME-02 | Phase 16 | Pending |
+| HOME-03 | Phase 16 | Pending |
+| HOME-04 | Phase 16 | Pending |
+| HOME-05 | Phase 16 | Pending |
+| HOME-06 | Phase 16 | Pending |
+| ADMIN-01 | Phase 17 | Pending |
+| ADMIN-02 | Phase 17 | Pending |
+| ADMIN-03 | Phase 17 | Pending |
+| ADMIN-04 | Phase 17 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 34 total
-- Mapped to phases: 0
-- Unmapped: 34 (pending roadmap creation)
+- Mapped to phases: 34/34
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-19*
-*Last updated: 2026-03-19 after initial definition*
+*Last updated: 2026-03-19 after roadmap creation*

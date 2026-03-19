@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: K Car Style Redesign
-status: defining requirements
+status: ready to plan
 stopped_at: null
-last_updated: "2026-03-19T09:21:00.000Z"
-last_activity: 2026-03-19 -- Milestone v2.0 started
+last_updated: "2026-03-19T10:00:00.000Z"
+last_activity: 2026-03-19 -- Roadmap created for v2.0 (Phases 13-17, 34 requirements)
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,73 +20,32 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-03-19)
 
-**Core value:** 고객이 중고차를 온라인에서 검색하고, 비교하고, 비대면으로 렌탈/리스 계약까지 완료할 수 있는 원스톱 경험
-**Current focus:** v2.0 K Car Style Redesign — K Car 디자인 카피, 차량 상세/검색/홈 전면 리디자인
+**Core value:** K Car 수준의 프로덕션급 UI/UX로 전환하여 투자자/고객 신뢰도 확보
+**Current focus:** Phase 13 - Component Foundation (ready to plan)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-10 -- Completed 12-01 settings CRUD with password gate
+Phase: 13 of 17 (Component Foundation)
+Plan: --
+Status: Ready to plan
+Last activity: 2026-03-19 -- Roadmap created for v2.0 milestone
 
-Progress: [█████████░] 87%
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
-**Velocity:**
-- Total plans completed: 23
+**Velocity (v1.0 + v1.1 baseline):**
+- Total plans completed: 28
 - Average duration: ~4.4min per plan
 - Total execution time: ~1.08 hours
 
-**By Phase (Final):**
+**By Phase (v2.0):**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1-Foundation | 2/2 | 24min | 12min |
-| 2-Auth | 2/2 | 10min | 5min |
-| 3-Vehicle | 3/3 | 16min | 5.3min |
-| 4-Dealer Portal | 2/2 | 13min | 6.5min |
-| 5-Search | 2/2 | 10min | 5min |
-| 6-Pricing | 3/3 | 6min | 2min |
-| 7-Contract | 3/3 | 17min | 5.7min |
-| 8-PDF/MyPage | 2/2 | 5min | 2.5min |
-| 9-Admin/Demo | 3/3 | 15min | 5min |
+| - | - | - | - |
 
-**Plan Execution Log:**
-
-| Plan | Duration | Tasks | Files |
-|------|----------|-------|-------|
-| 01-01 | 12min | - | - |
-| 01-02 | 12min | - | - |
-| 02-01 | 5min | - | - |
-| 02-02 | 5min | - | - |
-| 03-01 | 5min | - | - |
-| 03-02 | 6min | - | - |
-| 03-03 | 5min | - | - |
-| 04-01 | 5min | - | - |
-| 04-02 | 8min | - | - |
-| 05-01 | 7min | 2 tasks | 19 files |
-| 05-02 | 3min | 2 tasks | 6 files |
-| 06-01 | 2min | 1 tasks | 5 files |
-| 06-02 | - | - | - |
-| 06-03 | 4min | 2 tasks | 6 files |
-| 07-01 | 3min | 2 tasks | 9 files |
-| 07-02 | 6min | 2 tasks | 13 files |
-| 07-03 | 8min | 3 tasks | 7 files |
-| 08-01 | 3min | 2 tasks | 6 files |
-| 08-02 | 2min | 2 tasks | 6 files |
-| 09-01 | 4min | 2 tasks | 15 files |
-| 09-02 | 4min | 2 tasks | 8 files |
-| 09-03 | 7min | 2 tasks | 14 files |
-| 10-01 | 4min | 2 tasks | 8 files |
-| 10-02 | 6min | 2 tasks | 7 files |
-| Phase 11 P01 | 2min | 2 tasks | 5 files |
-| Phase 11 P02 | 2min | 2 tasks | 3 files |
-| Phase 11 P03 | 1min | 1 tasks | 1 files |
-| Phase 12 P02 | 2min | 1 tasks | 5 files |
-| Phase 12 P01 | 3min | 2 tasks | 12 files |
-| Phase 12 P03 | 3min | 2 tasks | 4 files |
+*Updated after each plan completion*
 
 ## Accumulated Context
 
@@ -95,107 +54,24 @@ Progress: [█████████░] 87%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- [Roadmap]: 9 phases derived from 35 v1 requirements with fine granularity
-- [Roadmap]: Foundation-first approach -- RLS and auth before any feature work
-- [Roadmap]: Contract engine split into two phases (7: engine, 8: PDF/my page) for focused complexity management
-- [01-01]: Used Prisma 6.x instead of 7.x due to Node 21 compatibility
-- [01-01]: Switched Yarn to node-modules linker for Turbopack and Vitest ESM compatibility
-- [01-01]: Used happy-dom instead of jsdom for ESM compatibility in tests
-- [01-02]: Accent palette changed from gold to blue per DESIGN-SPEC.md
-- [01-02]: Middleware guards Supabase env vars to prevent build/runtime errors
-- [02-01]: Used vi.hoisted() for Vitest mock factories to resolve hoisting issues
-- [02-01]: Zod 3.x chosen over 4.x for @hookform/resolvers compatibility
-- [02-01]: shadcn card/label/input added for auth forms
-- [02-02]: force-dynamic for admin pages querying database at request time
-- [02-02]: Header converted to async Server Component for getCurrentUser() direct call
-- [02-02]: MobileNav accepts optional user prop for auth state display
-- [03-01]: Zod 4 confirmed working (z.string().uuid() works), correcting earlier v3 assumption
-- [03-01]: Admin can force ANY status transition for operational flexibility
-- [03-01]: Mock plate provider with pluggable adapter pattern for future API swap
-- [03-01]: Image compression to WebP with 500KB threshold
-- [03-02]: base-ui uses render prop (not asChild) for Button/Link composition
-- [03-02]: zodResolver cast to Resolver<T> for Zod coerce compatibility with react-hook-form
-- [03-02]: Cascade select uses useMemo for derived state to avoid synchronous setState in effects
-- [03-02]: Vehicle wizard submits at step 2; step 3 photo placeholder for Plan 03
-- [03-03]: Vehicle wizard creates vehicle at step 2, passes vehicleId to step 3 for photo uploads
-- [03-03]: HTML5 native drag events for file upload, dnd-kit only for thumbnail reorder
-- [03-03]: Optimistic UI for reorder/delete with Server Action persistence in useTransition
-- [04-01]: ApprovalStatus kept as separate enum from VehicleStatus (independent concerns)
-- [04-01]: base-ui Tooltip (not Radix) -- shadcn v4 uses base-ui, no asChild prop
-- [04-01]: Dealer resubmit also allowed for ADMIN role for operational flexibility
-- [04-02]: Dealer layout split into server + client components for notification dot prop passing
-- [04-02]: Dealer /vehicles redirects to /dealer/dashboard -- dashboard IS the vehicles page
-- [04-02]: Admin approval queue uses searchParams tab state (tab=approval-queue)
-- [Phase 05-02]: Inline VehicleCardMini in featured-vehicles for parallel plan execution independence
-- [05-01]: nuqs for type-safe URL state with shallow:false to trigger Server Component re-renders
-- [05-01]: Slider onValueChange uses Array.isArray guard for base-ui type compatibility
-- [05-01]: visibleModels/visibleGenerations derived from filter state to avoid setState-in-effect lint errors
-- [Phase 06]: DEFAULT_ANNUAL_RATE 0.084 for simplified public lease calculation
-- [Phase 06]: Default residual rate fallback 40% when DB record missing
-- [Phase 06]: Zod 4 uses .issues not .errors for validation error access
-- [06-03]: Native HTML select for admin forms (simpler than base-ui Select)
-- [06-03]: Brand filter via URL searchParams for server-side filtering
-- [06-03]: tsx added as devDependency for prisma seed execution
-- [07-01]: Contract state machine follows vehicle status-machine.ts pattern (admin force any, role-based transitions)
-- [07-01]: Mock eKYC uses pluggable adapter pattern matching Phase 3 MockPlateProvider
-- [07-01]: EkycVerification.contractId nullable -- verification happens before contract creation
-- [07-02]: Slider onValueChange uses `number | readonly number[]` type for base-ui compatibility
-- [07-02]: Contract wizard redirects to vehicle detail after submission (Phase 8 expands my-page)
-- [07-02]: submitEkyc performs two transitions: DRAFT->PENDING_EKYC then PENDING_EKYC->PENDING_APPROVAL
-- [Phase 07]: Supabase Realtime subscription with router.refresh() for data reload (simpler than client state sync)
-- [Phase 07]: Admin contract queue reuses Phase 4 searchParams tab pattern for filter state
-- [Phase 08]: Separate lease/rental query paths for full type safety; inline formatters in PDF component; serverExternalPackages for @react-pdf/renderer
-- [Phase 08]: ContractListItem as flattened DTO instead of passing full Prisma relations to client component
-- [Phase 08]: URL searchParams tab state reuses Phase 4 admin pattern for consistency
-- [Phase 09]: Recharts loaded via next/dynamic ssr:false for bundle optimization
-- [Phase 09]: getDashboardStats() uses single Promise.all() for 10 parallel Prisma queries
-- [09-02]: Vehicle edit via Sheet slide-out (not separate page) for faster admin workflow
-- [09-02]: User deactivation via name suffix "(비활성)" -- no isActive column in Profile schema
-- [09-02]: Contract cancel reuses approveContract action with CANCELED status
-- [09-03]: Seed gracefully falls back to fixed UUIDs when SUPABASE_SERVICE_ROLE_KEY missing
-- [09-03]: Public route group is (public) not (marketing) -- loading.tsx placed accordingly
-- [09-03]: toLocaleDateString replaced with formatDate utility for consistent Korean dates
-- [10-01]: Extended vitest include to cover tests/ directory alongside src/
-- [10-01]: deleteMany + createMany for clean reload of wholesale inventory data
-- [10-01]: Brand extracted from representModel first word for filtering
-- [10-02]: Server-client split for inventory page: server fetches, client manages selection/loading
-- [10-02]: URL searchParams for inventory filter state (search, category)
-- [10-02]: Fixed pre-existing Framer Motion Variants type errors with explicit annotations
-- [Phase 11-01]: Native HTML select for admin forms (consistent with 06-03)
-- [Phase 11-01]: setValueAs for percentage inputs: user enters 40, stored as 0.4
-- [Phase 11-01]: QuoteBuilder accepts selectedVehicles as prop for decoupled integration
-- [Phase 11-02]: QuotePDFData as flattened DTO for JSON transfer (Date to string, nested objects flattened)
-- [Phase 11]: Inline expandable panel (not modal) for QuoteBuilder rendering in inventory page
-- [Phase 12]: CSV upload reuses parseCategory/parseNumber from json-adapter for consistency
-- [Phase 12-01]: DefaultSetting as key-value store for flexible settings (password, defaults, subsidies)
-- [Phase 12-01]: sessionStorage for settings auth gate (cleared on tab close)
-- [Phase 12-01]: subsidy_ key prefix convention to filter subsidy entries from DefaultSetting
-- [Phase 12]: Settings icon from lucide-react for sidebar nav consistency
+- [v2.0 Roadmap]: 5 phases (13-17) derived from 34 requirements in 5 categories
+- [v2.0 Roadmap]: Component Foundation first -- all packages/tokens before page work
+- [v2.0 Roadmap]: Vehicle Detail before Search -- higher complexity, sets component patterns
+- [v2.0 Roadmap]: Phase 15 and 16 can run after Phase 14 (partial parallelism possible)
+- [v2.0 Roadmap]: Kakao Maps deferred to v3.0 -- API key registration required, isolated risk
 
 ### Pending Todos
 
 None yet.
 
-### Blockers/Concerns (Final Status)
+### Blockers/Concerns
 
-- ~~Zod v4 + @hookform/resolvers compatibility~~ → RESOLVED: Zod 4 + resolvers v5.2.2 동작 확인
-- ~~License plate API provider~~ → RESOLVED: MockPlateProvider + 어댑터 패턴
-- ~~PostgREST schema permission denied~~ → RESOLVED: GRANT migration 추가 (2026-03-10)
-- PDF generation on Vercel serverless timeout (10s hobby) → **v2에서 대응 필요** (Vercel Pro 또는 Edge Function)
-
-### v2 후보 작업
-
-- 실제 eKYC API 연동 (CLOVA Face)
-- 전자서명 API 연동 (모두싸인)
-- 결제/PG 연동
-- 번호판 조회 실API 교체 (data.go.kr)
-- Vercel Pro로 PDF 타임아웃 해결
-- JWT Claims 기반 RLS 최적화 (profiles 테이블 조회 제거)
-- 실시간 채팅/상담 기능
-- Capacitor 네이티브 앱 패키징
+- PDF generation Vercel serverless timeout -- carried from v1.0, needs Vercel Pro or Edge Function
+- Vehicle body SVG source -- need to inspect K Car HTML or source generic car silhouette before Phase 14
+- K Car design token extraction -- 30min DevTools inspection needed before Phase 13
 
 ## Session Continuity
 
-Last session: 2026-03-10T06:34:56.421Z
-Stopped at: Completed 12-03-PLAN.md
+Last session: 2026-03-19
+Stopped at: Roadmap created for v2.0 K Car Style Redesign
 Resume file: None

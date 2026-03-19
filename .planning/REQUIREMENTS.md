@@ -7,8 +7,8 @@
 
 ### Component Foundation (COMP)
 
-- [ ] **COMP-01**: 프로젝트에 5개 신규 npm 패키지 설치 (Embla plugins, YARL lightbox, Intersection Observer, Kakao Maps SDK)
-- [ ] **COMP-02**: 13개 신규 shadcn/ui 컴포넌트 추가 (Accordion, Tabs, Carousel, Collapsible, Progress, Pagination, Popover, ScrollArea, Avatar, Breadcrumb, ToggleGroup, RadioGroup, DropdownMenu)
+- [x] **COMP-01**: 프로젝트에 5개 신규 npm 패키지 설치 (Embla plugins, YARL lightbox, Intersection Observer, Kakao Maps SDK)
+- [x] **COMP-02**: 13개 신규 shadcn/ui 컴포넌트 추가 (Accordion, Tabs, Carousel, Collapsible, Progress, Pagination, Popover, ScrollArea, Avatar, Breadcrumb, ToggleGroup, RadioGroup, DropdownMenu)
 - [ ] **COMP-03**: K Car 색상 팔레트로 Tailwind CSS 디자인 토큰 업데이트 (Primary Red, 배경, 텍스트, 보더)
 - [ ] **COMP-04**: 한국어 포맷 유틸리티 함수 통합 (formatKRW, formatKoreanDate, getKoreanVehicleName)
 
@@ -86,8 +86,8 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| COMP-01 | Phase 13 | Pending |
-| COMP-02 | Phase 13 | Pending |
+| COMP-01 | Phase 13 | Complete |
+| COMP-02 | Phase 13 | Complete |
 | COMP-03 | Phase 13 | Pending |
 | COMP-04 | Phase 13 | Pending |
 | DETAIL-01 | Phase 14 | Pending |

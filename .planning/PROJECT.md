@@ -30,7 +30,21 @@
 
 ### Active
 
-(None — next milestone not yet defined. Use `/gsd:new-milestone` to start.)
+## Current Milestone: v2.0 K Car Style Redesign
+
+**Goal:** K Car(kcar.com) 디자인과 페이지 구조를 완전히 카피하여 프로덕션급 UI/UX로 전환. 특히 차량 상세 페이지의 진단/이력/보증 정보 구조, 검색 필터 사이드바, 차량 카드 디자인을 K Car 수준으로 재구축.
+
+**Target features:**
+- K Car 스타일 차량 검색 페이지 (14개 필터 사이드바 + 3열 카드 그리드)
+- K Car 스타일 차량 상세 페이지 (10개 정보 섹션 + Sticky 사이드바)
+- K Car 스타일 차량 카드 디자인 (배지, 보증 바, 스펙라인, 태그)
+- K Car 스타일 홈페이지 (히어로 배너, 퀵링크, 프로모션)
+- K Car 스타일 렌트 페이지 (필터 + 렌트비 계산)
+- K Car 스타일 글로벌 네비게이션 + 푸터
+- 차량 진단결과 UI (외부 패널 도면, 진단 카테고리)
+- 차량 과거이력 UI (사고, 소유주변경, 주의이력)
+- K Car Warranty 스타일 보증 타임라인
+- 구매비용 계산기 (Sticky 사이드바)
 
 ### Out of Scope
 
@@ -93,4 +107,4 @@
 - Tech debt: 10 items tracked in `.planning/milestones/v1.0-MILESTONE-AUDIT.md`
 
 ---
-*Last updated: 2026-03-10 after v1.0 milestone*
+*Last updated: 2026-03-19 after v2.0 milestone start*

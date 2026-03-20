@@ -15,11 +15,11 @@
 ### Vehicle Detail Page (DETAIL)
 
 - [x] **DETAIL-01**: 차량 이미지 갤러리 — Embla 메인 캐러셀 + 썸네일 스트립 + YARL 풀스크린 라이트박스
-- [ ] **DETAIL-02**: 차량 가격 섹션 — 가격(만원), 할부 월, 구매비용 계산기/대출한도/보험료 CTA 버튼
-- [ ] **DETAIL-03**: 주요 옵션 그리드 — 아이콘 기반 옵션 표시 + "옵션 모두 보기" 확장
+- [x] **DETAIL-02**: 차량 가격 섹션 — 가격(만원), 할부 월, 구매비용 계산기/대출한도/보험료 CTA 버튼
+- [x] **DETAIL-03**: 주요 옵션 그리드 — 아이콘 기반 옵션 표시 + "옵션 모두 보기" 확장
 - [x] **DETAIL-04**: 외부 패널/프레임 진단 — SVG 차체 도면 (5방향) + 판금/교환 색상 코딩
 - [x] **DETAIL-05**: 주요 진단결과 — 사고진단, 진단통과, 카테고리별 건수 (실내/외관, 타이어/휠, 소모품, 하체)
-- [ ] **DETAIL-06**: 주요 과거이력 — 내차 피해, 소유주 변경 횟수, 주의이력 (침수/도난/전손)
+- [x] **DETAIL-06**: 주요 과거이력 — 내차 피해, 소유주 변경 횟수, 주의이력 (침수/도난/전손)
 - [ ] **DETAIL-07**: 보증 타임라인 — 제조사 보증 → 연장 보증 타임라인 바 + 보증 기간/주행거리 표시
 - [ ] **DETAIL-08**: 홈서비스 구매 안내 — 온라인 주문/결제 → 배송 → 3일 환불 플로우 + 직영점 방문 예약
 - [ ] **DETAIL-09**: 구매 후기 + FAQ — 고객 리뷰 캐러셀 + FAQ 아코디언
@@ -91,11 +91,11 @@
 | COMP-03 | Phase 13 | Complete |
 | COMP-04 | Phase 13 | Complete |
 | DETAIL-01 | Phase 14 | Complete |
-| DETAIL-02 | Phase 14 | Pending |
-| DETAIL-03 | Phase 14 | Pending |
+| DETAIL-02 | Phase 14 | Complete |
+| DETAIL-03 | Phase 14 | Complete |
 | DETAIL-04 | Phase 14 | Complete |
 | DETAIL-05 | Phase 14 | Complete |
-| DETAIL-06 | Phase 14 | Pending |
+| DETAIL-06 | Phase 14 | Complete |
 | DETAIL-07 | Phase 14 | Pending |
 | DETAIL-08 | Phase 14 | Pending |
 | DETAIL-09 | Phase 14 | Pending |

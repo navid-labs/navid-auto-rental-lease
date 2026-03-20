@@ -54,7 +54,7 @@ describe('historyDataSchema', () => {
 
   it('validates insurance claim type enum', () => {
     const data = makeValidData()
-    data.insuranceClaims[0].type = 'otherDamage'
+    ;(data.insuranceClaims[0] as any).type = 'otherDamage'
     const result = historyDataSchema.parse(data)
     expect(result.insuranceClaims[0].type).toBe('otherDamage')
   })
@@ -72,7 +72,7 @@ describe('historyDataSchema', () => {
 
   it('validates ownership history usage type enum', () => {
     const data = makeValidData()
-    data.ownershipHistory[0].usageType = 'commercial'
+    ;(data.ownershipHistory[0] as any).usageType = 'commercial'
     const result = historyDataSchema.parse(data)
     expect(result.ownershipHistory[0].usageType).toBe('commercial')
   })

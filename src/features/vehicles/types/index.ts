@@ -6,7 +6,10 @@ import type {
   CarModel,
   Brand,
   Profile,
+  ImageCategory,
 } from '@prisma/client'
+import type { InspectionData } from '../schemas/inspection-data'
+import type { HistoryData } from '../schemas/history-data'
 
 /** All fields collected across wizard steps */
 export type VehicleFormData = {
@@ -45,4 +48,13 @@ export type ImageItem = {
   id: string
   url: string
   order: number
+}
+
+/** Extended type for detail page only -- does not affect existing components */
+export type VehicleDetailData = VehicleWithDetails & {
+  inspectionData: InspectionData | null
+  historyData: HistoryData | null
+  warrantyEndDate: Date | null
+  warrantyMileage: number | null
+  images: (VehicleImage & { category: ImageCategory })[]
 }

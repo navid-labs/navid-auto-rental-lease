@@ -96,9 +96,9 @@ describe('inspectionDataSchema', () => {
   })
 
   it('validates overallGrade enum values', () => {
-    for (const grade of ['A_PLUS', 'A', 'B_PLUS', 'B', 'C'] as const) {
+    for (const grade of ['A_PLUS', 'A', 'B_PLUS', 'B', 'C']) {
       const data = makeValidData()
-      data.overallGrade = grade
+      ;(data as any).overallGrade = grade
       expect(() => inspectionDataSchema.parse(data)).not.toThrow()
     }
   })

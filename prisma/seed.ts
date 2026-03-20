@@ -1,5 +1,8 @@
 import { PrismaClient } from '@prisma/client'
 import { createClient } from '@supabase/supabase-js'
+import { calculateGrade } from '../src/features/vehicles/lib/diagnosis-grade'
+import type { InspectionData } from '../src/features/vehicles/schemas/inspection-data'
+import type { HistoryData } from '../src/features/vehicles/schemas/history-data'
 
 const prisma = new PrismaClient()
 
@@ -314,6 +317,129 @@ function mileageForYear(year: number): number {
   return base + randomInt(-3000, 5000)
 }
 
+// ─── Inspection & History Data Generators ───
+
+const PANEL_KEYS = [
+  'hood', 'frontBumper', 'rearBumper', 'trunk', 'roof',
+  'frontLeftFender', 'frontRightFender', 'rearLeftFender', 'rearRightFender',
+  'frontLeftDoor', 'frontRightDoor', 'rearLeftDoor', 'rearRightDoor',
+  'leftRocker', 'rightRocker',
+] as const
+
+const EVALUATOR_NAMES = ['김진수', '이상호', '박영민', '최동욱', '정하늘']
+const EVALUATOR_BRANCHES = ['서울센터', '강남센터', '부산센터', '대구센터', '인천센터']
+
+function generateInspectionData(): InspectionData {
+  const overallScore = randomInt(70, 95)
+  const overallGrade = calculateGrade(overallScore)
+
+  const panels: Record<string, string> = {}
+  let repaintCount = 0
+  let replacedCount = 0
+  for (const key of PANEL_KEYS) {
+    const roll = Math.random()
+    if (roll < 0.70) {
+      panels[key] = 'normal'
+    } else if (roll < 0.90) {
+      panels[key] = 'repainted'
+      repaintCount++
+    } else {
+      panels[key] = 'replaced'
+      replacedCount++
+    }
+  }
+
+  const makeCategory = () => {
+    const score = randomInt(60, 100)
+    const totalItems = randomInt(5, 15)
+    const failedItems = score < 70 ? randomInt(1, 3) : 0
+    const warningItems = score < 85 ? randomInt(0, 2) : 0
+    const passedItems = totalItems - failedItems - warningItems
+    return { score, totalItems, passedItems, warningItems, failedItems }
+  }
+
+  const hasEvaluator = Math.random() < 0.6
+  const evaluator = hasEvaluator ? {
+    name: randomPick(EVALUATOR_NAMES),
+    branch: randomPick(EVALUATOR_BRANCHES),
+    employeeId: `E${randomInt(100, 999)}`,
+    photoUrl: null,
+    recommendation: overallScore >= 80 ? '상태 양호, 구매 추천합니다.' : '일부 소모품 교체 필요, 전체적으로 양호합니다.',
+  } : null
+
+  return {
+    overallScore,
+    overallGrade,
+    panels: panels as any,
+    repaintCount,
+    replacedCount,
+    categories: {
+      interior: makeCategory(),
+      exterior: makeCategory(),
+      tires: makeCategory(),
+      consumables: makeCategory(),
+      undercarriage: makeCategory(),
+    },
+    accidentDiagnosis: repaintCount + replacedCount === 0 ? 'none' : replacedCount > 2 ? 'moderate' : 'minor',
+    evaluator,
+    inspectedAt: `2026-0${randomInt(1, 3)}-${String(randomInt(1, 28)).padStart(2, '0')}`,
+  }
+}
+
+function generateHistoryData(): HistoryData {
+  const accidentCount = Math.random() < 0.3 ? randomInt(1, 2) : 0
+  const ownerCount = randomInt(1, 3)
+
+  const ownershipHistory = Array.from({ length: ownerCount }, (_, i) => ({
+    ownerNumber: i + 1,
+    usageType: i === 0 ? 'personal' as const : randomPick(['personal', 'commercial', 'rental'] as const),
+    startDate: `${2020 + i}-0${randomInt(1, 9)}-01`,
+    endDate: i < ownerCount - 1 ? `${2021 + i}-0${randomInt(1, 9)}-01` : null,
+  }))
+
+  const myDamageCount = accidentCount > 0 ? randomInt(0, accidentCount) : 0
+  const otherDamageCount = accidentCount - myDamageCount
+  const myDamageAmount = myDamageCount * randomInt(200000, 800000)
+  const otherDamageAmount = otherDamageCount * randomInt(100000, 500000)
+
+  const insuranceClaims = []
+  for (let i = 0; i < myDamageCount; i++) {
+    insuranceClaims.push({
+      date: `202${randomInt(2, 5)}-${String(randomInt(1, 12)).padStart(2, '0')}-${String(randomInt(1, 28)).padStart(2, '0')}`,
+      type: 'myDamage' as const,
+      amount: randomInt(200000, 800000),
+      description: randomPick(['앞범퍼 찰과', '후면 접촉사고', '측면 긁힘', null]),
+    })
+  }
+  for (let i = 0; i < otherDamageCount; i++) {
+    insuranceClaims.push({
+      date: `202${randomInt(2, 5)}-${String(randomInt(1, 12)).padStart(2, '0')}-${String(randomInt(1, 28)).padStart(2, '0')}`,
+      type: 'otherDamage' as const,
+      amount: randomInt(100000, 500000),
+      description: randomPick(['상대방 과실 접촉', '주차장 접촉사고', null]),
+    })
+  }
+
+  const hasWarning = Math.random() < 0.1
+  const warnings = {
+    flood: hasWarning && Math.random() < 0.4,
+    theft: hasWarning && Math.random() < 0.2,
+    totalLoss: hasWarning && Math.random() < 0.1,
+  }
+
+  return {
+    accidentCount,
+    myDamageCount,
+    myDamageAmount,
+    otherDamageCount,
+    otherDamageAmount,
+    ownerCount,
+    ownershipHistory,
+    insuranceClaims,
+    warnings,
+  }
+}
+
 // ─── Demo Account Definitions ───
 
 const DEMO_PASSWORD = 'navid1234!'
@@ -481,6 +607,11 @@ async function main() {
       const mileage = mileageForYear(year)
       const dealerId = randomPick(dealerIds)
 
+      // Generate optional inspection/history/warranty data
+      const hasInspection = Math.random() < 0.7
+      const hasHistory = Math.random() < 0.8
+      const hasWarranty = Math.random() < 0.5
+
       const vehicle = await prisma.vehicle.create({
         data: {
           trimId: t.trimId,
@@ -494,18 +625,27 @@ async function main() {
           approvedBy: adminId,
           approvedAt: new Date(),
           description: `${year}년식 ${t.brandName} ${t.modelName} ${t.trimName}. 정비 완료, 즉시 출고 가능.`,
+          inspectionData: hasInspection ? generateInspectionData() : undefined,
+          historyData: hasHistory ? generateHistoryData() : undefined,
+          warrantyEndDate: hasWarranty ? new Date(new Date().getFullYear() + randomInt(1, 3), new Date().getMonth(), new Date().getDate()) : undefined,
+          warrantyMileage: hasWarranty ? randomPick([100000, 120000, 150000]) : undefined,
         },
       })
 
-      // Add 1~3 images per vehicle
+      // Add 1~3 images per vehicle with categories
       const numImages = randomInt(1, 3)
+      const IMAGE_CATEGORIES = ['EXTERIOR', 'EXTERIOR', 'EXTERIOR', 'INTERIOR', 'ENGINE', 'OTHER'] as const
       for (let imgIdx = 0; imgIdx < numImages; imgIdx++) {
+        // Distribute: first 60% EXTERIOR, next 25% INTERIOR, next 10% ENGINE, rest OTHER
+        const catRatio = imgIdx / numImages
+        const category = catRatio < 0.6 ? 'EXTERIOR' : catRatio < 0.85 ? 'INTERIOR' : catRatio < 0.95 ? 'ENGINE' : 'OTHER'
         await prisma.vehicleImage.create({
           data: {
             vehicleId: vehicle.id,
             url: getImageUrl(t.brandName, t.modelName, vehicleCount + imgIdx),
             order: imgIdx,
             isPrimary: imgIdx === 0,
+            category: numImages === 1 ? 'EXTERIOR' : category,
           },
         })
       }

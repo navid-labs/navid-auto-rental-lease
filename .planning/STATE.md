@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: K Car Style Redesign
 status: executing
-stopped_at: Completed 14-03-PLAN.md
-last_updated: "2026-03-20T02:08:15.000Z"
-last_activity: 2026-03-20 -- Completed 14-03 content sections (price, specs, options, diagnosis, history)
+stopped_at: Completed 14-04-PLAN.md
+last_updated: "2026-03-20T02:09:00.000Z"
+last_activity: 2026-03-20 -- Completed 14-04 remaining sections (warranty, home service, reviews/FAQ, evaluator)
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 7
-  completed_plans: 5
-  percent: 71
+  completed_plans: 6
+  percent: 86
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** K Car 수준의 프로덕션급 UI/UX로 전환하여 투자자/고객 신뢰도 확보
-**Current focus:** Phase 14 - Vehicle Detail Page (Plan 03 complete, 2 remaining)
+**Current focus:** Phase 14 - Vehicle Detail Page (Plan 04 complete, 1 remaining)
 
 ## Current Position
 
 Phase: 14 of 17 (Vehicle Detail Page)
-Plan: 3 of 5 (14-03 complete)
+Plan: 4 of 5 (14-04 complete)
 Status: In Progress
-Last activity: 2026-03-20 -- Completed 14-03 content sections
+Last activity: 2026-03-20 -- Completed 14-04 remaining sections
 
-Progress: [███████░░░] 71% (Phase 14)
+Progress: [████████░░] 86% (Phase 14)
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ Progress: [███████░░░] 71% (Phase 14)
 | 14-01 | 2 | 5min | 2.5min |
 | 14-02 | 2 | 3min | 1.5min |
 | 14-03 | 2 | 3min | 1.5min |
+| 14-04 | 2 | 4min | 2.0min |
 
 *Updated after each plan completion*
 
@@ -78,6 +79,8 @@ Recent decisions affecting current work:
 - [14-03]: fuelType/transmission read from vehicle.trim (Prisma Trim model), not vehicle directly
 - [14-03]: accidentDiagnosis maps none/minor/moderate/severe (actual schema) not clean/minor/major
 - [14-03]: usageType maps personal/commercial/rental/lease (actual schema)
+- [14-04]: Plain spans instead of ProgressValue for warranty date ranges (base-ui render prop constraint)
+- [14-04]: Mock review data embedded as default prop for initial launch
 
 ### Pending Todos
 
@@ -91,6 +94,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-20T02:08:15.000Z
-Stopped at: Completed 14-03-PLAN.md
-Resume file: .planning/phases/14-vehicle-detail-page/14-04-PLAN.md
+Last session: 2026-03-20T02:09:00.000Z
+Stopped at: Completed 14-04-PLAN.md
+Resume file: .planning/phases/14-vehicle-detail-page/14-05-PLAN.md

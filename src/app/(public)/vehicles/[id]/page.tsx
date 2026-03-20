@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db/prisma'
-import { PublicVehicleDetail } from '@/features/vehicles/components/public-vehicle-detail'
+import { VehicleDetailPage } from '@/features/vehicles/components/detail/vehicle-detail-page'
 import { getResidualRate } from '@/features/pricing/actions/residual-rate'
+import { getKoreanVehicleName } from '@/lib/utils/format'
 import type { Metadata } from 'next'
-import type { VehicleWithDetails } from '@/features/vehicles/types'
+import type { VehicleDetailData, VehicleWithDetails } from '@/features/vehicles/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,11 +22,13 @@ const vehicleInclude = {
       },
     },
   },
-  images: true,
+  images: {
+    orderBy: [{ category: 'asc' as const }, { order: 'asc' as const }],
+  },
   dealer: {
     select: { id: true, name: true, email: true, phone: true },
   },
-} as const
+}
 
 type PageProps = {
   params: Promise<{ id: string }>
@@ -50,7 +53,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return { title, description }
 }
 
-export default async function VehicleDetailPage({ params }: PageProps) {
+export default async function VehicleDetailServerPage({ params }: PageProps) {
   const { id } = await params
   const vehicle = await prisma.vehicle.findUnique({
     where: {
@@ -65,17 +68,50 @@ export default async function VehicleDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  const residualRate = await getResidualRate(
-    vehicle.trim.generation.carModel.brand.id,
-    vehicle.trim.generation.carModel.id,
-    vehicle.year
-  )
+  // Parallel fetching: residualRate + similarVehicles (per CLAUDE.md performance rules)
+  const [residualRate, similarVehicles] = await Promise.all([
+    getResidualRate(
+      vehicle.trim.generation.carModel.brand.id,
+      vehicle.trim.generation.carModel.id,
+      vehicle.year,
+    ),
+    prisma.vehicle.findMany({
+      where: {
+        id: { not: vehicle.id },
+        approvalStatus: 'APPROVED',
+        status: { not: 'HIDDEN' },
+        OR: [
+          {
+            trim: {
+              generation: {
+                carModel: {
+                  brandId: vehicle.trim.generation.carModel.brandId,
+                },
+              },
+            },
+          },
+          {
+            price: {
+              gte: Math.floor(vehicle.price * 0.8),
+              lte: Math.ceil(vehicle.price * 1.2),
+            },
+          },
+        ],
+      },
+      include: vehicleInclude,
+      take: 8,
+    }),
+  ])
+
+  const vehicleName = getKoreanVehicleName(vehicle)
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-      <PublicVehicleDetail
-        vehicle={vehicle as unknown as VehicleWithDetails}
+    <div className="pb-safe">
+      <VehicleDetailPage
+        vehicle={vehicle as unknown as VehicleDetailData}
         residualRate={residualRate}
+        vehicleName={vehicleName}
+        similarVehicles={similarVehicles as unknown as VehicleWithDetails[]}
       />
     </div>
   )

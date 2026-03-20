@@ -75,6 +75,13 @@ enum InquiryStatus {
   COMPLETED
 }
 
+enum ImageCategory {
+  EXTERIOR
+  INTERIOR
+  ENGINE
+  OTHER
+}
+
 // ─── Models ──────────────────────────────────────────────
 
 model Profile {
@@ -182,6 +189,10 @@ model Vehicle {
   approvedAt      DateTime?      @map("approved_at")
   createdAt       DateTime       @default(now()) @map("created_at")
   updatedAt       DateTime       @updatedAt @map("updated_at")
+  inspectionData  Json?          @map("inspection_data")
+  historyData     Json?          @map("history_data")
+  warrantyEndDate DateTime?      @map("warranty_end_date")
+  warrantyMileage Int?           @map("warranty_mileage")
 
   // Relations
   trim            Trim             @relation(fields: [trimId], references: [id])
@@ -202,8 +213,9 @@ model VehicleImage {
   vehicleId String   @map("vehicle_id") @db.Uuid
   url       String
   order     Int      @default(0)
-  isPrimary Boolean  @default(false) @map("is_primary")
-  createdAt DateTime @default(now()) @map("created_at")
+  isPrimary Boolean       @default(false) @map("is_primary")
+  category  ImageCategory @default(OTHER)
+  createdAt DateTime      @default(now()) @map("created_at")
 
   // Relations
   vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)

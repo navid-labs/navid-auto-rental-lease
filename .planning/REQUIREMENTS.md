@@ -23,7 +23,7 @@
 - [x] **DETAIL-07**: 보증 타임라인 — 제조사 보증 → 연장 보증 타임라인 바 + 보증 기간/주행거리 표시
 - [x] **DETAIL-08**: 홈서비스 구매 안내 — 온라인 주문/결제 → 배송 → 3일 환불 플로우 + 직영점 방문 예약
 - [x] **DETAIL-09**: 구매 후기 + FAQ — 고객 리뷰 캐러셀 + FAQ 아코디언
-- [ ] **DETAIL-10**: Sticky 사이드바 — 차량명, 구매비용 계산기, 비용 항목 분류, CTA 버튼 (구매/방문예약/찜/비교/공유)
+- [x] **DETAIL-10**: Sticky 사이드바 — 차량명, 구매비용 계산기, 비용 항목 분류, CTA 버튼 (구매/방문예약/찜/비교/공유)
 - [x] **DETAIL-11**: 차량평가사 추천 섹션 — 평가사 프로필 (소속, 사원증) + 추천 코멘트
 - [x] **DETAIL-12**: Prisma 스키마에 차량 진단 데이터 JSONB 컬럼 추가 (inspectionData, historyData)
 
@@ -99,7 +99,7 @@
 | DETAIL-07 | Phase 14 | Complete |
 | DETAIL-08 | Phase 14 | Complete |
 | DETAIL-09 | Phase 14 | Complete |
-| DETAIL-10 | Phase 14 | Pending |
+| DETAIL-10 | Phase 14 | Complete |
 | DETAIL-11 | Phase 14 | Complete |
 | DETAIL-12 | Phase 14 | Complete |
 | SEARCH-01 | Phase 15 | Pending |

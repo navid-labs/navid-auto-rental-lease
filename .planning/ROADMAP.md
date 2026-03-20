@@ -32,7 +32,7 @@
 
 </details>
 
-### 🚧 v2.0 K Car Style Redesign (Phases 13-17)
+### v2.0 K Car Style Redesign (Phases 13-17)
 
 **Milestone Goal:** K Car(kcar.com) 디자인과 페이지 구조를 완전히 카피하여 프로덕션급 UI/UX로 전환
 
@@ -56,8 +56,8 @@
 **Plans**: 2 plans
 
 Plans:
-- [ ] 13-01-PLAN.md -- Install npm packages (Embla plugins, YARL, IO) + 13 shadcn/ui components + verification tests
-- [ ] 13-02-PLAN.md -- Supplementary design tokens + getKoreanVehicleName/formatKoreanDate utilities + tests
+- [x] 13-01-PLAN.md -- Install npm packages (Embla plugins, YARL, IO) + 13 shadcn/ui components + verification tests
+- [x] 13-02-PLAN.md -- Supplementary design tokens + getKoreanVehicleName/formatKoreanDate utilities + tests
 
 ### Phase 14: Vehicle Detail Page
 **Goal**: 투자자와 고객이 가장 먼저 보는 차량 상세 페이지를 K Car 수준의 정보 밀도와 신뢰감을 주는 UI로 재구축
@@ -69,12 +69,14 @@ Plans:
   3. 진단결과, 과거이력, 보증 타임라인 섹션이 아코디언/탭으로 펼쳐지며 각 카테고리별 정보가 표시됨
   4. 스크롤 시 Sticky 사이드바에 차량명, 구매비용, CTA 버튼(구매/방문예약/찜/비교/공유)이 고정 노출됨
   5. 기존 렌탈/리스 계약 신청 CTA 버튼이 정상 동작하여 계약 위자드로 진입 가능
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] 14-01: TBD
-- [ ] 14-02: TBD
-- [ ] 14-03: TBD
+- [ ] 14-01-PLAN.md -- Prisma schema extension (JSONB, ImageCategory enum) + Zod schemas + diagnosis grade util + seed data
+- [ ] 14-02-PLAN.md -- Image gallery (Embla dual-instance + YARL lightbox) + SVG body diagram (5-direction)
+- [ ] 14-03-PLAN.md -- Price, Basic Info, Options, Diagnosis, History sections
+- [ ] 14-04-PLAN.md -- Warranty, Home Service, Reviews/FAQ, Evaluator sections
+- [ ] 14-05-PLAN.md -- Page orchestrator + Sticky sidebar + Tab nav + Server Component wiring + visual checkpoint
 
 ### Phase 15: Search & Listing Page
 **Goal**: 고객이 원하는 차량을 빠르게 찾을 수 있도록 K Car 수준의 필터링, 무한스크롤, 비교 기능을 갖춘 검색 페이지 제공
@@ -141,8 +143,8 @@ Plans:
 | 10. Inventory Data & Table UI | v1.1 | 2/2 | Complete | 2026-03-09 |
 | 11. Quote Generation Engine | v1.1 | 3/3 | Complete | 2026-03-09 |
 | 12. Settings Management & Polish | v1.1 | 3/3 | Complete | 2026-03-10 |
-| 13. Component Foundation | 2/2 | Complete    | 2026-03-19 | - |
-| 14. Vehicle Detail Page | v2.0 | 0/? | Not started | - |
+| 13. Component Foundation | v2.0 | 2/2 | Complete | 2026-03-19 |
+| 14. Vehicle Detail Page | v2.0 | 0/5 | Not started | - |
 | 15. Search & Listing Page | v2.0 | 0/? | Not started | - |
 | 16. Homepage & Navigation | v2.0 | 0/? | Not started | - |
 | 17. Admin Refresh & Polish | v2.0 | 0/? | Not started | - |

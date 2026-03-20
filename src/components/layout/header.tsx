@@ -71,7 +71,7 @@ export async function Header() {
           <nav className="hidden items-center gap-10 md:flex">
             {navLinks.map((link) => (
               <Link
-                key={link.href}
+                key={link.label}
                 href={link.href}
                 className="text-[15px] font-medium text-[#555555] transition-colors hover:text-[#0D0D0D]"
               >

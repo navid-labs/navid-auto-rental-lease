@@ -34,7 +34,7 @@
 - [ ] **SEARCH-03**: 무한 스크롤 — Intersection Observer 센티널 + 스켈레톤 로딩 + SEO용 페이지네이션 fallback
 - [x] **SEARCH-04**: 그리드/리스트 뷰 토글 — Toggle Group 기반 보기 모드 전환
 - [x] **SEARCH-05**: 비교함 기능 — 플로팅 비교 버튼 + 최대 3대 차량 비교 + 스펙 나란히 비교 테이블
-- [ ] **SEARCH-06**: 퀵 필터 뱃지 — 무료배송, 위클리특가, 3D, 렌트가능 토글 뱃지
+- [x] **SEARCH-06**: 퀵 필터 뱃지 — 무료배송, 위클리특가, 3D, 렌트가능 토글 뱃지
 - [x] **SEARCH-07**: 정렬 드롭다운 — 기본정렬, 연식순, 주행거리순, 가격순 (9개 옵션)
 - [ ] **SEARCH-08**: 모바일 접이식 필터 — Collapsible/Sheet 기반 모바일 필터 UI
 
@@ -107,7 +107,7 @@
 | SEARCH-03 | Phase 15 | Pending |
 | SEARCH-04 | Phase 15 | Complete |
 | SEARCH-05 | Phase 15 | Complete |
-| SEARCH-06 | Phase 15 | Pending |
+| SEARCH-06 | Phase 15 | Complete |
 | SEARCH-07 | Phase 15 | Complete |
 | SEARCH-08 | Phase 15 | Pending |
 | HOME-01 | Phase 16 | Pending |

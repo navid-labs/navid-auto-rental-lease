@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: K Car Style Redesign
 status: executing
-stopped_at: Completed 15-04-PLAN.md
-last_updated: "2026-03-22T12:17:45Z"
-last_activity: 2026-03-22 -- Completed Phase 15 Plan 04 page assembly
+stopped_at: Completed 15-05-PLAN.md
+last_updated: "2026-03-22T12:38:27Z"
+last_activity: 2026-03-22 -- Completed Phase 15 Plan 05 vehicle type filter wiring (gap closure)
 progress:
   total_phases: 5
   completed_phases: 3
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 12
+  completed_plans: 12
   percent: 82
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** K Car 수준의 프로덕션급 UI/UX로 전환하여 투자자/고객 신뢰도 확보
-**Current focus:** Phase 15 COMPLETE -- Search & Listing Page fully assembled
+**Current focus:** Phase 15 COMPLETE -- Search & Listing Page fully assembled with gap closure
 
 ## Current Position
 
 Phase: 15 of 17 (Search & Listing Page)
-Plan: 4 of 4 (15-04 complete -- Phase 15 DONE)
+Plan: 5 of 5 (15-05 complete -- Phase 15 gap closure DONE)
 Status: Phase Complete
-Last activity: 2026-03-22 -- Completed Phase 15 Plan 04 page assembly
+Last activity: 2026-03-22 -- Completed Phase 15 Plan 05 vehicle type filter wiring
 
 Progress: [██████████] 100% (Phase 15)
 
@@ -53,6 +53,7 @@ Progress: [██████████] 100% (Phase 15)
 | 15-01 | 2 | 4min | 2.0min |
 | 15-03 | 2 | 5min | 2.5min |
 | 15-04 | 2 | 4min | 2.0min |
+| 15-05 | 1 | 4min | 4.0min |
 
 *Updated after each plan completion*
 
@@ -99,6 +100,8 @@ Recent decisions affecting current work:
 - [15-04]: vehicleInclude extracted to shared lib -- use server files cannot export non-async values
 - [15-04]: base-ui ToggleGroup value is string array -- ViewToggle wraps with single-select semantics
 - [15-04]: CompareDialog spec rows limited to VehicleSummary fields (price/year/mileage/rental/lease)
+- [15-05]: Body type uses model-name lookup map (no DB migration) -- body type is model property, not vehicle property
+- [15-05]: vehicleType filter merges with brand/model trimWhere accumulator for composable WHERE clauses
 
 ### Pending Todos
 
@@ -112,6 +115,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T12:17:45Z
-Stopped at: Completed 15-04-PLAN.md
+Last session: 2026-03-22T12:38:27Z
+Stopped at: Completed 15-05-PLAN.md
 Resume file: None

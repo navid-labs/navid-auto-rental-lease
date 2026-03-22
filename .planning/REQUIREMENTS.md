@@ -49,8 +49,8 @@
 
 ### Admin Refresh (ADMIN)
 
-- [ ] **ADMIN-01**: 어드민 대시보드 디자인 언어 통일 — 새로운 색상/타이포그래피 토큰 적용
-- [ ] **ADMIN-02**: 차량 비교 테이블 개선 — 나란히 스펙 비교 + 시각적 차이 하이라이팅
+- [x] **ADMIN-01**: 어드민 대시보드 디자인 언어 통일 — 새로운 색상/타이포그래피 토큰 적용
+- [x] **ADMIN-02**: 차량 비교 테이블 개선 — 나란히 스펙 비교 + 시각적 차이 하이라이팅
 - [ ] **ADMIN-03**: 전체 리디자인 페이지 모바일 반응형 검증 (375px viewport)
 - [ ] **ADMIN-04**: 데모 플로우 재검증 — 계약 신청 → PDF 생성 전체 흐름 리그레션 테스트
 
@@ -116,8 +116,8 @@
 | HOME-04 | Phase 16 | Complete |
 | HOME-05 | Phase 16 | Complete |
 | HOME-06 | Phase 16 | Complete |
-| ADMIN-01 | Phase 17 | Pending |
-| ADMIN-02 | Phase 17 | Pending |
+| ADMIN-01 | Phase 17 | Complete |
+| ADMIN-02 | Phase 17 | Complete |
 | ADMIN-03 | Phase 17 | Pending |
 | ADMIN-04 | Phase 17 | Pending |
 

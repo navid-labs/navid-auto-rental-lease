@@ -151,4 +151,4 @@ Plans:
 | 14. Vehicle Detail Page | v2.0 | 5/5 | Complete | 2026-03-20 |
 | 15. Search & Listing Page | v2.0 | 5/5 | Complete | 2026-03-22 |
 | 16. Homepage & Navigation | v2.0 | 4/4 | Complete | 2026-03-22 |
-| 17. Admin Refresh & Polish | v2.0 | 0/2 | Not started | - |
+| 17. Admin Refresh & Polish | 1/2 | In Progress|  | - |

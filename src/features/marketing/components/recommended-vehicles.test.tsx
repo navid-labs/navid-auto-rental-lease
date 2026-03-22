@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi, afterEach } from 'vitest'
+import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 
 // Mock next/link
 vi.mock('next/link', () => ({
@@ -16,6 +16,10 @@ vi.mock('@/features/vehicles/components/vehicle-card', () => ({
 }))
 
 import { RecommendedVehiclesTabs } from './recommended-vehicles-tabs'
+
+afterEach(() => {
+  cleanup()
+})
 
 const mockVehicle = (id: string) =>
   ({

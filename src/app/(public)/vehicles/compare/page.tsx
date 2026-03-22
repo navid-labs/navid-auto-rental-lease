@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useVehicleInteractionStore } from '@/lib/stores/vehicle-interaction-store'
 import { formatKRW, formatDistance, formatYearModel } from '@/lib/utils/format'
+import { getBestIndex, getCompareHighlightClass } from '@/features/vehicles/lib/compare-utils'
 import { BreadcrumbNav } from '@/components/layout/breadcrumb-nav'
 import {
   ArrowLeft,
@@ -15,26 +16,29 @@ import {
 import { useEffect, useState } from 'react'
 
 const COMPARE_FIELDS = [
-  { key: 'year', label: '연식', format: (v: number) => formatYearModel(v) },
+  { key: 'year', label: '연식', format: (v: number) => formatYearModel(v), betterIs: 'higher' as const },
   {
     key: 'mileage',
     label: '주행거리',
     format: (v: number) => formatDistance(v, { compact: true }),
+    betterIs: 'lower' as const,
   },
-  { key: 'price', label: '차량가격', format: (v: number) => formatKRW(v) },
+  { key: 'price', label: '차량가격', format: (v: number) => formatKRW(v), betterIs: 'lower' as const },
   {
     key: 'monthlyRental',
     label: '월 렌탈료',
     format: (v: number | null | undefined) =>
       v ? formatKRW(v, { monthly: true }) : '-',
+    betterIs: 'lower' as const,
   },
   {
     key: 'monthlyLease',
     label: '월 리스료',
     format: (v: number | null | undefined) =>
       v ? formatKRW(v, { monthly: true }) : '-',
+    betterIs: 'lower' as const,
   },
-] as const
+]
 
 export default function ComparePage() {
   const [mounted, setMounted] = useState(false)
@@ -161,7 +165,7 @@ export default function ComparePage() {
                 </th>
               ))}
               {/* Add more slot */}
-              {comparison.length < 4 && (
+              {comparison.length < 3 /* MAX_COMPARISON */ && (
                 <th className="px-4 py-4">
                   <Link
                     href="/vehicles"
@@ -181,36 +185,36 @@ export default function ComparePage() {
 
           {/* Comparison rows */}
           <tbody>
-            {COMPARE_FIELDS.map((field, idx) => (
-              <tr
-                key={field.key}
-                className={idx % 2 === 0 ? 'bg-muted/20' : ''}
-              >
-                <td className="px-4 py-3 text-sm font-medium text-muted-foreground">
-                  {field.label}
-                </td>
-                {comparison.map((vehicle) => {
-                  const value = vehicle[field.key as keyof typeof vehicle]
-                  const isPrice =
-                    field.key === 'monthlyRental' || field.key === 'monthlyLease'
+            {COMPARE_FIELDS.map((field, idx) => {
+              const values = comparison.map(
+                (v) => v[field.key as keyof typeof v] as string | number | null,
+              )
+              const bestIdx = getBestIndex(values, field.betterIs)
 
-                  return (
-                    <td key={vehicle.id} className="px-4 py-3 text-center">
-                      <span
-                        className={`text-sm ${
-                          isPrice && value
-                            ? 'font-bold text-accent'
-                            : 'font-medium'
-                        }`}
-                      >
-                        {field.format(value as never)}
-                      </span>
-                    </td>
-                  )
-                })}
-                {comparison.length < 4 && <td />}
-              </tr>
-            ))}
+              return (
+                <tr
+                  key={field.key}
+                  className={idx % 2 === 0 ? 'bg-muted/20' : ''}
+                >
+                  <td className="px-4 py-3 text-sm font-medium text-muted-foreground">
+                    {field.label}
+                  </td>
+                  {comparison.map((vehicle, vIdx) => {
+                    const value = values[vIdx]
+                    const hl = getCompareHighlightClass(vIdx, bestIdx, value)
+
+                    return (
+                      <td key={vehicle.id} className={`px-4 py-3 text-center ${hl.cell}`}>
+                        <span className={`text-sm ${hl.text || 'font-medium'}`}>
+                          {field.format(value as never)}
+                        </span>
+                      </td>
+                    )
+                  })}
+                  {comparison.length < 3 /* MAX_COMPARISON */ && <td />}
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>

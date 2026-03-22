@@ -11,6 +11,7 @@ import {
   type VehicleSummary,
 } from '@/lib/stores/vehicle-interaction-store'
 import { formatKRW, formatDistance } from '@/lib/utils/format'
+import { getBestIndex, getCompareHighlightClass } from '@/features/vehicles/lib/compare-utils'
 import Image from 'next/image'
 import Link from 'next/link'
 import { X } from 'lucide-react'
@@ -71,27 +72,6 @@ function formatSpecValue(key: string, value: string | number | null): string {
     default:
       return String(value)
   }
-}
-
-// Determine which value is "best" in a row for highlighting
-function getBestIndex(
-  values: (string | number | null)[],
-  betterIs?: 'lower' | 'higher',
-): number | null {
-  if (!betterIs) return null
-  const numericValues = values.map((v) =>
-    typeof v === 'number' ? v : null,
-  )
-  const validValues = numericValues.filter((v): v is number => v !== null)
-  if (validValues.length < 2) return null
-
-  // Only highlight if values actually differ
-  const unique = new Set(validValues)
-  if (unique.size <= 1) return null
-
-  const bestValue =
-    betterIs === 'lower' ? Math.min(...validValues) : Math.max(...validValues)
-  return numericValues.indexOf(bestValue)
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -198,18 +178,17 @@ export function CompareDialog() {
                     </div>
 
                     {/* Value columns */}
-                    {comparison.map((vehicle, idx) => (
-                      <div
-                        key={vehicle.id}
-                        className={`flex-1 px-3 py-2.5 text-center text-sm ${
-                          bestIdx === idx
-                            ? 'bg-accent/5 font-semibold text-accent'
-                            : 'text-foreground'
-                        }`}
-                      >
-                        {formatSpecValue(row.key, values[idx])}
-                      </div>
-                    ))}
+                    {comparison.map((vehicle, idx) => {
+                      const hl = getCompareHighlightClass(idx, bestIdx, values[idx])
+                      return (
+                        <div
+                          key={vehicle.id}
+                          className={`flex-1 px-3 py-2.5 text-center text-sm ${hl.cell} ${hl.text || 'text-foreground'}`}
+                        >
+                          {formatSpecValue(row.key, values[idx])}
+                        </div>
+                      )
+                    })}
                   </div>
                 )
               })}

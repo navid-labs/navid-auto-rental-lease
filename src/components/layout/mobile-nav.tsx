@@ -12,19 +12,20 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { Separator } from '@/components/ui/separator'
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from '@/components/ui/accordion'
 import { LogoutButton } from '@/features/auth/components/logout-button'
-
-interface NavLink {
-  href: string
-  label: string
-}
+import { MENU_DATA } from './mega-menu-data'
 
 interface MobileNavProps {
-  links: NavLink[]
   user?: { name: string | null; email: string } | null
 }
 
-export function MobileNav({ links, user }: MobileNavProps) {
+export function MobileNav({ user }: MobileNavProps) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -36,69 +37,105 @@ export function MobileNav({ links, user }: MobileNavProps) {
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="w-[280px] bg-sidebar-background text-sidebar-foreground p-0"
+        className="w-[300px] overflow-y-auto bg-white p-0"
       >
-        <SheetHeader className="border-b border-sidebar-border p-4">
+        <SheetHeader className="border-b border-[#E8E8E8] p-4">
           <SheetTitle className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1A6DFF]">
-              <span className="text-[14px] font-extrabold leading-none text-white">N</span>
+              <span className="text-[14px] font-extrabold leading-none text-white">
+                N
+              </span>
             </div>
-            <span className="text-[18px] font-bold text-[#0D0D0D]">Navid Auto</span>
+            <span className="text-[18px] font-bold text-[#0D0D0D]">
+              Navid Auto
+            </span>
           </SheetTitle>
         </SheetHeader>
 
-        <nav className="flex flex-col gap-1 p-4">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setOpen(false)}
-              className="rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent/10 hover:text-sidebar-accent"
-            >
-              {link.label}
-            </Link>
-          ))}
+        <nav className="flex flex-col gap-0 p-2">
+          {/* Menu items with optional accordion */}
+          {MENU_DATA.map((category) =>
+            category.hasMegaMenu && category.sections ? (
+              <Accordion key={category.label} defaultValue={[]}>
+                <AccordionItem value={category.label} className="border-0">
+                  <AccordionTrigger className="rounded-lg px-3 py-2.5 text-sm font-medium text-[#0D0D0D] hover:bg-[#F5F5F5] hover:no-underline">
+                    {category.label}
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-1">
+                    {category.sections.map((section) => (
+                      <div key={section.title} className="px-3 py-1">
+                        <p className="mb-1 px-3 text-[11px] font-bold uppercase text-[#999999]">
+                          {section.title}
+                        </p>
+                        {section.links.map((link) => (
+                          <Link
+                            key={link.href}
+                            href={link.href}
+                            onClick={() => setOpen(false)}
+                            className="block rounded-md px-3 py-1.5 text-[13px] text-[#555555] transition-colors hover:bg-[#F5F5F5] hover:text-[#1A6DFF]"
+                          >
+                            {link.label}
+                          </Link>
+                        ))}
+                      </div>
+                    ))}
+                    {/* "All" link */}
+                    <Link
+                      href={category.href}
+                      onClick={() => setOpen(false)}
+                      className="block rounded-md px-6 py-2 text-[13px] font-medium text-[#1A6DFF] transition-colors hover:bg-[#EBF3FF]"
+                    >
+                      전체보기 &rarr;
+                    </Link>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            ) : (
+              <Link
+                key={category.label}
+                href={category.href}
+                onClick={() => setOpen(false)}
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-[#0D0D0D] transition-colors hover:bg-[#F5F5F5]"
+              >
+                {category.label}
+              </Link>
+            ),
+          )}
 
-          <Separator className="my-2 bg-sidebar-border" />
+          <Separator className="my-2 bg-[#E8E8E8]" />
 
+          {/* User section */}
           {user ? (
-            <div className="space-y-2 px-3">
-              <p className="text-sm font-medium text-sidebar-foreground">
+            <div className="space-y-1 px-3 py-2">
+              <p className="text-sm font-medium text-[#0D0D0D]">
                 {user.name || user.email}
               </p>
               <Link
                 href="/mypage"
                 onClick={() => setOpen(false)}
-                className="block rounded-lg py-2 text-sm text-sidebar-foreground transition-colors hover:text-sidebar-accent"
+                className="block rounded-md py-1.5 text-sm text-[#555555] transition-colors hover:text-[#1A6DFF]"
               >
                 마이페이지
               </Link>
               <LogoutButton />
             </div>
           ) : (
-            <>
+            <div className="flex flex-col gap-1 px-1">
               <Link
                 href="/login"
                 onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-[#1A6DFF] transition-colors hover:bg-[#1A6DFF]/10"
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-[#1A6DFF] transition-colors hover:bg-[#EBF3FF]"
               >
                 로그인
               </Link>
               <Link
                 href="/signup"
                 onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent/10"
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-[#555555] transition-colors hover:bg-[#F5F5F5]"
               >
                 회원가입
               </Link>
-              <Link
-                href="/inquiry?type=support"
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent/10"
-              >
-                고객센터
-              </Link>
-            </>
+            </div>
           )}
         </nav>
       </SheetContent>

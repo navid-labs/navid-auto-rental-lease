@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 
 // Mock next/navigation
 const mockPush = vi.fn()
@@ -16,6 +16,11 @@ vi.mock('next/link', () => ({
 
 import { HeaderSearch } from './header-search'
 import { MegaMenu } from './mega-menu'
+
+// Global cleanup after each test
+afterEach(() => {
+  cleanup()
+})
 
 describe('HeaderSearch', () => {
   beforeEach(() => {

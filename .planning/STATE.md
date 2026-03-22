@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: K Car Style Redesign
-status: completed
-stopped_at: Phase 16 context gathered
-last_updated: "2026-03-22T12:49:33.759Z"
-last_activity: 2026-03-22 -- Completed Phase 15 Plan 05 vehicle type filter wiring
+status: in-progress
+stopped_at: Completed 16-02-PLAN.md
+last_updated: "2026-03-22T13:25:34Z"
+last_activity: 2026-03-22 -- Completed Phase 16 Plan 02 recommended vehicles + promo/partner sections
 progress:
   total_phases: 5
   completed_phases: 3
-  total_plans: 12
-  completed_plans: 12
-  percent: 100
+  total_plans: 16
+  completed_plans: 13
+  percent: 81
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** K Car 수준의 프로덕션급 UI/UX로 전환하여 투자자/고객 신뢰도 확보
-**Current focus:** Phase 15 COMPLETE -- Search & Listing Page fully assembled with gap closure
+**Current focus:** Phase 16 IN PROGRESS -- Homepage & Navigation, Plan 02 complete
 
 ## Current Position
 
-Phase: 15 of 17 (Search & Listing Page)
-Plan: 5 of 5 (15-05 complete -- Phase 15 gap closure DONE)
-Status: Phase Complete
-Last activity: 2026-03-22 -- Completed Phase 15 Plan 05 vehicle type filter wiring
+Phase: 16 of 17 (Homepage & Navigation)
+Plan: 2 of 4 (16-02 complete -- recommended vehicles + promo/partner sections)
+Status: In Progress
+Last activity: 2026-03-22 -- Completed Phase 16 Plan 02 recommended vehicles + promo/partner sections
 
-Progress: [██████████] 100% (Phase 15)
+Progress: [████████░░] 81% (Phase 16: 2/4 plans)
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Progress: [██████████] 100% (Phase 15)
 | 15-03 | 2 | 5min | 2.5min |
 | 15-04 | 2 | 4min | 2.0min |
 | 15-05 | 1 | 4min | 4.0min |
+| 16-02 | 3 | 4min | 1.3min |
 
 *Updated after each plan completion*
 
@@ -102,6 +103,11 @@ Recent decisions affecting current work:
 - [15-04]: CompareDialog spec rows limited to VehicleSummary fields (price/year/mileage/rental/lease)
 - [15-05]: Body type uses model-name lookup map (no DB migration) -- body type is model property, not vehicle property
 - [15-05]: vehicleType filter merges with brand/model trimWhere accumulator for composable WHERE clauses
+- [16-02]: Popular tab uses approvedAt desc (no viewCount in schema)
+- [16-02]: Newest tab uses createdAt desc (differentiates from popular)
+- [16-02]: Deals tab uses price asc for lowest-price-first
+- [16-02]: RentSubscription content integrated via deal tab + promo banner rent CTA (not separate section)
+- [16-02]: PartnerLogos uses initial-letter placeholders (real logos in v3.0)
 
 ### Pending Todos
 

@@ -1,19 +1,41 @@
 import { describe, it, expect } from 'vitest'
 import { buildWhereClause, buildOrderBy } from './search-query'
+import type { SearchFilters } from './search-query'
+
+// Helper to create a full SearchFilters with defaults
+function makeFilters(overrides: Partial<SearchFilters> = {}): SearchFilters {
+  return {
+    brand: '',
+    model: '',
+    gen: '',
+    yearMin: null,
+    yearMax: null,
+    priceMin: null,
+    priceMax: null,
+    mileMin: null,
+    mileMax: null,
+    fuel: null,
+    transmission: null,
+    color: null,
+    seats: null,
+    driveType: null,
+    options: null,
+    region: null,
+    salesType: null,
+    keyword: null,
+    monthlyMin: null,
+    monthlyMax: null,
+    homeService: null,
+    timeDeal: null,
+    noAccident: null,
+    hasRental: null,
+    ...overrides,
+  }
+}
 
 describe('buildWhereClause', () => {
   it('with no filters returns base visibility filter', () => {
-    const where = buildWhereClause({
-      brand: '',
-      model: '',
-      gen: '',
-      yearMin: null,
-      yearMax: null,
-      priceMin: null,
-      priceMax: null,
-      mileMin: null,
-      mileMax: null,
-    })
+    const where = buildWhereClause(makeFilters())
 
     expect(where).toEqual({
       approvalStatus: 'APPROVED',
@@ -22,17 +44,7 @@ describe('buildWhereClause', () => {
   })
 
   it('with brand filter returns nested trim relation match', () => {
-    const where = buildWhereClause({
-      brand: 'brand-id-1',
-      model: '',
-      gen: '',
-      yearMin: null,
-      yearMax: null,
-      priceMin: null,
-      priceMax: null,
-      mileMin: null,
-      mileMax: null,
-    })
+    const where = buildWhereClause(makeFilters({ brand: 'brand-id-1' }))
 
     expect(where.trim).toEqual({
       generation: {
@@ -44,17 +56,9 @@ describe('buildWhereClause', () => {
   })
 
   it('with brand+model returns nested match for both', () => {
-    const where = buildWhereClause({
-      brand: 'brand-id-1',
-      model: 'model-id-1',
-      gen: '',
-      yearMin: null,
-      yearMax: null,
-      priceMin: null,
-      priceMax: null,
-      mileMin: null,
-      mileMax: null,
-    })
+    const where = buildWhereClause(
+      makeFilters({ brand: 'brand-id-1', model: 'model-id-1' }),
+    )
 
     expect(where.trim).toEqual({
       generation: {
@@ -67,17 +71,9 @@ describe('buildWhereClause', () => {
   })
 
   it('with brand+model+generation returns full nested match', () => {
-    const where = buildWhereClause({
-      brand: 'brand-id-1',
-      model: 'model-id-1',
-      gen: 'gen-id-1',
-      yearMin: null,
-      yearMax: null,
-      priceMin: null,
-      priceMax: null,
-      mileMin: null,
-      mileMax: null,
-    })
+    const where = buildWhereClause(
+      makeFilters({ brand: 'brand-id-1', model: 'model-id-1', gen: 'gen-id-1' }),
+    )
 
     expect(where.trim).toEqual({
       generation: {
@@ -91,61 +87,35 @@ describe('buildWhereClause', () => {
   })
 
   it('with yearMin/yearMax returns year gte/lte', () => {
-    const where = buildWhereClause({
-      brand: '',
-      model: '',
-      gen: '',
-      yearMin: 2020,
-      yearMax: 2024,
-      priceMin: null,
-      priceMax: null,
-      mileMin: null,
-      mileMax: null,
-    })
+    const where = buildWhereClause(makeFilters({ yearMin: 2020, yearMax: 2024 }))
 
     expect(where.year).toEqual({ gte: 2020, lte: 2024 })
   })
 
-  it('with priceMin/priceMax returns monthlyRental gte/lte', () => {
-    const where = buildWhereClause({
-      brand: '',
-      model: '',
-      gen: '',
-      yearMin: null,
-      yearMax: null,
-      priceMin: 200000,
-      priceMax: 500000,
-      mileMin: null,
-      mileMax: null,
-    })
+  it('with priceMin/priceMax returns price gte/lte', () => {
+    const where = buildWhereClause(
+      makeFilters({ priceMin: 200000, priceMax: 500000 }),
+    )
 
-    expect(where.monthlyRental).toEqual({ gte: 200000, lte: 500000 })
+    expect(where.price).toEqual({ gte: 200000, lte: 500000 })
   })
 
   it('with mileageMin/mileageMax returns mileage gte/lte', () => {
-    const where = buildWhereClause({
-      brand: '',
-      model: '',
-      gen: '',
-      yearMin: null,
-      yearMax: null,
-      priceMin: null,
-      priceMax: null,
-      mileMin: 10000,
-      mileMax: 50000,
-    })
+    const where = buildWhereClause(
+      makeFilters({ mileMin: 10000, mileMax: 50000 }),
+    )
 
     expect(where.mileage).toEqual({ gte: 10000, lte: 50000 })
   })
 })
 
 describe('buildOrderBy', () => {
-  it('price-asc returns monthlyRental asc', () => {
-    expect(buildOrderBy('price-asc')).toEqual({ monthlyRental: 'asc' })
+  it('price-asc returns price asc', () => {
+    expect(buildOrderBy('price-asc')).toEqual({ price: 'asc' })
   })
 
-  it('price-desc returns monthlyRental desc', () => {
-    expect(buildOrderBy('price-desc')).toEqual({ monthlyRental: 'desc' })
+  it('price-desc returns price desc', () => {
+    expect(buildOrderBy('price-desc')).toEqual({ price: 'desc' })
   })
 
   it('year-desc returns year desc', () => {
@@ -160,11 +130,11 @@ describe('buildOrderBy', () => {
     expect(buildOrderBy('mileage-asc')).toEqual({ mileage: 'asc' })
   })
 
-  it('newest returns approvedAt desc', () => {
-    expect(buildOrderBy('newest')).toEqual({ approvedAt: 'desc' })
+  it('newest returns createdAt desc', () => {
+    expect(buildOrderBy('newest')).toEqual({ createdAt: 'desc' })
   })
 
-  it('defaults to newest', () => {
+  it('defaults to recommended (approvedAt desc)', () => {
     expect(buildOrderBy('unknown')).toEqual({ approvedAt: 'desc' })
     expect(buildOrderBy('')).toEqual({ approvedAt: 'desc' })
   })

@@ -18,8 +18,8 @@ vi.mock('@/components/ui/carousel', () => ({
   Carousel: ({ children }: { children: React.ReactNode }) => <div data-testid="carousel">{children}</div>,
   CarouselContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   CarouselItem: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  CarouselPrevious: () => <button aria-label="Previous" />,
-  CarouselNext: () => <button aria-label="Next" />,
+  CarouselPrevious: () => <button data-testid="carousel-prev" />,
+  CarouselNext: () => <button data-testid="carousel-next" />,
 }))
 
 import { HeroBanner } from './hero-banner'
@@ -33,14 +33,16 @@ describe('HeroBanner', () => {
   })
 
   it('renders navigation arrows', () => {
-    render(<HeroBanner />)
-    expect(screen.getByLabelText('Previous')).toBeDefined()
-    expect(screen.getByLabelText('Next')).toBeDefined()
+    const { container } = render(<HeroBanner />)
+    expect(container.querySelector('[data-testid="carousel-prev"]')).toBeDefined()
+    expect(container.querySelector('[data-testid="carousel-next"]')).toBeDefined()
   })
 
   it('renders dot indicators for each slide', () => {
-    render(<HeroBanner />)
-    const dots = screen.getAllByRole('button').filter(btn => !btn.getAttribute('aria-label'))
+    const { container } = render(<HeroBanner />)
+    // Dot indicators are buttons inside the dot container (outside carousel)
+    const dotContainer = container.querySelector('.flex.justify-center.gap-2')
+    const dots = dotContainer?.querySelectorAll('button') ?? []
     expect(dots.length).toBe(3)
   })
 

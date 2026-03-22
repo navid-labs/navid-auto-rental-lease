@@ -1,9 +1,12 @@
-import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { afterEach, describe, it, expect } from 'vitest'
+import { cleanup, render, screen } from '@testing-library/react'
 
 import { Footer } from './footer'
 
 describe('Footer', () => {
+  afterEach(() => {
+    cleanup()
+  })
   it('renders SNS links for Instagram, YouTube, Blog, Kakao', () => {
     render(<Footer />)
     expect(screen.getByLabelText('인스타그램')).toBeDefined()

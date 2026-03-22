@@ -1,10 +1,11 @@
 import Link from 'next/link'
+import { Instagram, Youtube, PenLine, MessageCircle, Smartphone } from 'lucide-react'
 
 const SERVICE_LINKS = [
-  { label: '내차사기', href: '/buy' },
+  { label: '내차사기', href: '/vehicles' },
   { label: '내차팔기', href: '/sell' },
-  { label: '렌트/구독', href: '/rental' },
-  { label: '금융사전용관', href: '/finance' },
+  { label: '렌트/구독', href: '/rental-lease' },
+  { label: '금융계산기', href: '/calculator' },
 ]
 
 const SUPPORT_LINKS = [
@@ -14,11 +15,18 @@ const SUPPORT_LINKS = [
   { label: '1:1 문의', href: '/inquiry' },
 ]
 
-const COMPANY_LINKS = [
+const COMPANY_LINKS: { label: string; href: string; bold?: boolean }[] = [
   { label: '회사소개', href: '/about' },
   { label: '이용약관', href: '/terms' },
-  { label: '개인정보처리방침', href: '/privacy' },
+  { label: '개인정보처리방침', href: '/privacy', bold: true },
   { label: '채용정보', href: '/careers' },
+]
+
+const SNS_LINKS = [
+  { label: '인스타그램', href: 'https://instagram.com', Icon: Instagram },
+  { label: '유튜브', href: 'https://youtube.com', Icon: Youtube },
+  { label: '블로그', href: 'https://blog.naver.com', Icon: PenLine },
+  { label: '카카오', href: 'https://pf.kakao.com', Icon: MessageCircle },
 ]
 
 function FooterLinkColumn({
@@ -26,17 +34,17 @@ function FooterLinkColumn({
   links,
 }: {
   title: string
-  links: { label: string; href: string }[]
+  links: { label: string; href: string; bold?: boolean }[]
 }) {
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm font-semibold text-white">{title}</p>
       <ul className="flex flex-col gap-[14px]">
-        {links.map(({ label, href }) => (
+        {links.map(({ label, href, bold }) => (
           <li key={href}>
             <Link
               href={href}
-              className="footer-link text-[13px] leading-none"
+              className={`footer-link text-[13px] leading-none${bold ? ' !font-bold !text-white' : ''}`}
             >
               {label}
             </Link>
@@ -50,7 +58,7 @@ function FooterLinkColumn({
 export function Footer() {
   return (
     <>
-      {/* Scoped styles for footer link hover — avoids 'use client' */}
+      {/* Scoped styles for footer link hover -- avoids 'use client' */}
       <style>{`
         .footer-link { color: #8888AA; transition: color 0.15s; }
         .footer-link:hover { color: #AAAACC; }
@@ -87,6 +95,50 @@ export function Footer() {
               <FooterLinkColumn title="고객지원" links={SUPPORT_LINKS} />
               <FooterLinkColumn title="회사" links={COMPANY_LINKS} />
             </div>
+          </div>
+
+          {/* SNS Links */}
+          <div className="mt-8 flex items-center justify-center gap-6">
+            {SNS_LINKS.map(({ label, href, Icon }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex size-10 items-center justify-center rounded-full border border-white/20 text-white/60 transition-colors hover:border-white/40 hover:text-white/80"
+                aria-label={label}
+              >
+                <Icon className="size-[18px]" />
+              </a>
+            ))}
+          </div>
+
+          {/* Awards / Certification */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-8">
+            <div className="flex items-center gap-2">
+              <div className="flex size-8 items-center justify-center rounded bg-white/10 text-[11px] font-bold text-white/70">
+                1st
+              </div>
+              <span className="text-[12px] text-[#8888AA]">고객만족도 1위 (2025)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex size-8 items-center justify-center rounded bg-white/10 text-[11px] font-bold text-white/70">
+                7yr
+              </div>
+              <span className="text-[12px] text-[#8888AA]">브랜드 대상 7년 연속</span>
+            </div>
+          </div>
+
+          {/* App Download Badges (placeholder) */}
+          <div className="mt-6 flex items-center justify-center gap-3">
+            <span className="flex items-center gap-1.5 rounded-lg border border-white/20 px-3 py-1.5 text-[12px] text-white/60">
+              <Smartphone className="size-4" />
+              App Store
+            </span>
+            <span className="flex items-center gap-1.5 rounded-lg border border-white/20 px-3 py-1.5 text-[12px] text-white/60">
+              <Smartphone className="size-4" />
+              Google Play
+            </span>
           </div>
         </div>
 

@@ -1,41 +1,54 @@
 import { Suspense } from 'react'
-import { HeroSection } from '@/features/marketing/components/hero-section'
-import { QuickMenu } from '@/features/marketing/components/quick-menu'
-import { FeaturedVehicles } from '@/features/marketing/components/featured-vehicles'
-import { EventBanners } from '@/features/marketing/components/event-banners'
-import { RentSubscription } from '@/features/marketing/components/rent-subscription'
-import { FinancePartners } from '@/features/marketing/components/finance-partners'
+import { HeroBanner } from '@/features/marketing/components/hero-banner'
+import { HeroSearchBox } from '@/features/marketing/components/hero-search-box'
+import { QuickLinks } from '@/features/marketing/components/quick-links'
+import { RecommendedVehicles } from '@/features/marketing/components/recommended-vehicles'
+import { PromoBanners } from '@/features/marketing/components/promo-banners'
+import { PartnerLogos } from '@/features/marketing/components/partner-logos'
 
 export const dynamic = 'force-dynamic'
 
 export default function HomePage() {
   return (
     <>
-      <HeroSection />
-      <QuickMenu />
-      <Suspense fallback={<SectionSkeleton />}>
-        <FeaturedVehicles />
+      {/* 1. Hero Banner Carousel */}
+      <HeroBanner />
+
+      {/* 2. Search Box (extracted from old hero) */}
+      <HeroSearchBox />
+
+      {/* 3. Quick Links Icon Bar */}
+      <QuickLinks />
+
+      {/* 4. Recommended Vehicles (Server Component with Suspense) */}
+      <Suspense fallback={<SectionSkeleton title="추천 차량" />}>
+        <RecommendedVehicles />
       </Suspense>
-      <EventBanners />
-      <Suspense fallback={<SectionSkeleton />}>
-        <RentSubscription />
-      </Suspense>
-      <FinancePartners />
+
+      {/* 5. Promo Banners */}
+      <PromoBanners />
+
+      {/* 6. Partner Logos */}
+      <PartnerLogos />
     </>
   )
 }
 
-function SectionSkeleton() {
+function SectionSkeleton({ title }: { title: string }) {
   return (
-    <div className="py-12 md:py-16">
+    <div className="bg-[#F9FAFB] py-10 md:py-12">
       <div className="mx-auto max-w-7xl px-4">
-        <div className="h-8 w-40 animate-pulse rounded bg-muted" />
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-48 animate-pulse rounded-xl bg-muted"
-            />
+        <div className="mb-6 flex items-center gap-6">
+          <div className="h-7 w-28 animate-pulse rounded bg-muted" />
+          <div className="flex gap-1">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-8 w-20 animate-pulse rounded-full bg-muted" />
+            ))}
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-64 animate-pulse rounded-xl bg-muted" />
           ))}
         </div>
       </div>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { BreadcrumbNav } from '@/components/layout/breadcrumb-nav'
 import {
   SellHeroSection,
   BonusSection,
@@ -15,6 +16,9 @@ export const metadata: Metadata = {
 export default function SellPage() {
   return (
     <>
+      <div className="mx-auto max-w-7xl px-4 pt-6">
+        <BreadcrumbNav items={[{ label: '내차팔기' }]} />
+      </div>
       <SellHeroSection />
       <BonusSection />
       <ProcessSection />

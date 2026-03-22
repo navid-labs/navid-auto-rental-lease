@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { BreadcrumbNav } from '@/components/layout/breadcrumb-nav'
 import { GeneralInquiryForm } from '@/features/inquiry/components/general-inquiry-form'
 import { MessageCircle, Phone, Mail, MapPin } from 'lucide-react'
 
@@ -10,6 +11,8 @@ export const metadata: Metadata = {
 export default function InquiryPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 md:px-6">
+      <BreadcrumbNav items={[{ label: '문의하기' }]} />
+
       <div className="mb-10 text-center">
         <h1 className="text-3xl font-bold">문의하기</h1>
         <p className="mt-2 text-muted-foreground">

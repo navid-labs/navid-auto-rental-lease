@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { afterEach, describe, it, expect, vi } from 'vitest'
+import { cleanup, render, screen } from '@testing-library/react'
 
 // Mock next/link
 vi.mock('next/link', () => ({
@@ -11,6 +11,9 @@ vi.mock('next/link', () => ({
 import { BreadcrumbNav } from './breadcrumb-nav'
 
 describe('BreadcrumbNav', () => {
+  afterEach(() => {
+    cleanup()
+  })
   it('always renders home link as first item', () => {
     render(<BreadcrumbNav items={[{ label: '내차사기' }]} />)
     const homeLink = screen.getByText('홈')

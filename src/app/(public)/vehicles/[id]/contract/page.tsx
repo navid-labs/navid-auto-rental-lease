@@ -2,6 +2,7 @@ import { redirect, notFound } from 'next/navigation'
 import { prisma } from '@/lib/db/prisma'
 import { getCurrentUser } from '@/lib/auth/helpers'
 import { getResidualRate } from '@/features/pricing/actions/residual-rate'
+import { BreadcrumbNav } from '@/components/layout/breadcrumb-nav'
 import { ContractWizard } from '@/features/contracts/components/contract-wizard'
 import type { VehicleWithDetails } from '@/features/contracts/types'
 import type { Metadata } from 'next'
@@ -69,6 +70,12 @@ export default async function ContractPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
+      <BreadcrumbNav
+        items={[
+          { label: '내차사기', href: '/vehicles' },
+          { label: '계약 신청' },
+        ]}
+      />
       <ContractWizard
         vehicle={vehicle as unknown as VehicleWithDetails}
         residualRate={residualRate}

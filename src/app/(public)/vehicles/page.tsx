@@ -7,6 +7,7 @@ import { VehicleListClient } from '@/features/vehicles/components/vehicle-list-c
 import { SearchFilters } from '@/features/vehicles/components/search-filters'
 import { VehicleSearchBar } from '@/features/vehicles/components/vehicle-search-bar'
 import type { Metadata } from 'next'
+import { BreadcrumbNav } from '@/components/layout/breadcrumb-nav'
 import type { VehicleWithDetails } from '@/features/vehicles/types/index'
 
 export const dynamic = 'force-dynamic'
@@ -40,6 +41,11 @@ export default async function VehiclesPage({
     <div className="min-h-screen bg-background">
       {/* Search bar section */}
       <VehicleSearchBar />
+
+      {/* Breadcrumb */}
+      <div className="mx-auto max-w-[1440px] px-4 pt-4 lg:px-8 xl:px-[120px]">
+        <BreadcrumbNav items={[{ label: '내차사기' }]} />
+      </div>
 
       {/* Main content: sidebar + grid */}
       <div className="mx-auto max-w-[1440px] px-4 py-6 lg:px-8 xl:px-[120px]">

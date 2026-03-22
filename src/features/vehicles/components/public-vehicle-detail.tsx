@@ -15,7 +15,6 @@ import {
   ImageIcon,
   MessageCircle,
   FileText,
-  ChevronRight,
   ChevronDown,
   Heart,
   GitCompare,
@@ -39,6 +38,7 @@ import {
   Building2,
   Banknote,
 } from 'lucide-react'
+import { BreadcrumbNav } from '@/components/layout/breadcrumb-nav'
 import { InquiryForm } from './inquiry-form'
 import { useVehicleInteractionStore } from '@/lib/stores/vehicle-interaction-store'
 import type { VehicleWithDetails } from '@/features/vehicles/types'
@@ -180,17 +180,12 @@ export function PublicVehicleDetail({ vehicle, residualRate }: PublicVehicleDeta
   return (
     <div className="space-y-0">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-1 text-[13px] text-[#7A7A7A] mb-4">
-        <Link href="/" className="hover:text-[#0D0D0D] transition-colors">홈</Link>
-        <ChevronRight className="size-3.5 shrink-0" />
-        <Link href="/vehicles" className="hover:text-[#0D0D0D] transition-colors">내차사기</Link>
-        <ChevronRight className="size-3.5 shrink-0" />
-        <Link href={`/vehicles?brand=${brand.id}`} className="hover:text-[#0D0D0D] transition-colors">
-          {brand.nameKo || brand.name}
-        </Link>
-        <ChevronRight className="size-3.5 shrink-0" />
-        <span className="text-[#0D0D0D] font-medium truncate">{model.nameKo || model.name}</span>
-      </nav>
+      <BreadcrumbNav
+        items={[
+          { label: '내차사기', href: '/vehicles' },
+          { label: `${brand.nameKo || brand.name} ${model.nameKo || model.name}` },
+        ]}
+      />
 
       {/* 2-column layout */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr] lg:items-start">

@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useVehicleInteractionStore } from '@/lib/stores/vehicle-interaction-store'
 import { formatKRW, formatDistance, formatYearModel } from '@/lib/utils/format'
+import { BreadcrumbNav } from '@/components/layout/breadcrumb-nav'
 import {
   ArrowLeft,
   ImageIcon,
@@ -44,9 +45,19 @@ export default function ComparePage() {
     setMounted(true)
   }, [])
 
+  const breadcrumb = (
+    <BreadcrumbNav
+      items={[
+        { label: '내차사기', href: '/vehicles' },
+        { label: '비교하기' },
+      ]}
+    />
+  )
+
   if (!mounted) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-8">
+        {breadcrumb}
         <div className="h-96 animate-pulse rounded-xl bg-muted" />
       </div>
     )
@@ -55,6 +66,7 @@ export default function ComparePage() {
   if (comparison.length === 0) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-8">
+        {breadcrumb}
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <GitCompareArrows className="mb-4 size-16 text-muted-foreground/30" />
           <h2 className="text-xl font-bold">비교할 차량이 없습니다</h2>
@@ -75,6 +87,8 @@ export default function ComparePage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
+      {breadcrumb}
+
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">

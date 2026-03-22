@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { BreadcrumbNav } from '@/components/layout/breadcrumb-nav'
 import { PricingCalculator } from '@/features/pricing/components/pricing-calculator'
 
 export const dynamic = 'force-dynamic'
@@ -11,6 +12,8 @@ export const metadata: Metadata = {
 export default function CalculatorPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
+      <BreadcrumbNav items={[{ label: '금융계산기' }]} />
+
       {/* Page header */}
       <div className="mb-8 rounded-2xl bg-gradient-to-r from-[#0f1e3c] to-[#1a3a6e] px-8 py-10 text-white">
         <div className="flex items-start justify-between gap-6">

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: K Car Style Redesign
 status: executing
-stopped_at: Completed 16-03-PLAN.md
-last_updated: "2026-03-22T13:28:05.506Z"
-last_activity: 2026-03-22 -- Completed Phase 16 Plan 03 header redesign with mega menu
+stopped_at: Completed 16-04-PLAN.md
+last_updated: "2026-03-22T13:36:34Z"
+last_activity: 2026-03-22 -- Completed Phase 16 Plan 04 footer/breadcrumb/homepage
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 16
-  completed_plans: 15
-  percent: 88
+  completed_plans: 16
+  percent: 100
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 16 of 17 (Homepage & Navigation)
-Plan: 3 of 4 (16-03 complete -- header mega menu + search bar + accordion mobile nav)
-Status: In Progress
-Last activity: 2026-03-22 -- Completed Phase 16 Plan 03 header redesign with mega menu
+Phase: 16 of 17 (Homepage & Navigation) -- COMPLETE
+Plan: 4 of 4 (16-04 complete -- footer, breadcrumb, homepage assembly)
+Status: Phase 16 Complete
+Last activity: 2026-03-22 -- Completed Phase 16 Plan 04 footer/breadcrumb/homepage
 
-Progress: [█████████░] 88% (Phase 16: 3/4 plans)
+Progress: [██████████] 100% (Phase 16: 4/4 plans)
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [█████████░] 88% (Phase 16: 3/4 plans)
 | 16-02 | 3 | 4min | 1.3min |
 | 16-01 | 4 | 6min | 1.5min |
 | 16-03 | 3 | 5min | 1.7min |
+| 16-04 | 4 | 6min | 1.5min |
 
 *Updated after each plan completion*
 
@@ -117,6 +118,11 @@ Recent decisions affecting current work:
 - [Phase 16-03]: base-ui Accordion uses defaultValue={[]} instead of Radix type=single/collapsible
 - [Phase 16-03]: Role comparisons use uppercase ADMIN/DEALER to match Prisma enum
 - [Phase 16-03]: MENU_DATA shared between MegaMenu (desktop hover) and MobileNav (accordion) as single source of truth
+- [Phase 16-04]: BreadcrumbNav uses explicit per-page items (not auto-derived from pathname)
+- [Phase 16-04]: Skip /rental-lease breadcrumb (redirect-only page, never renders UI)
+- [Phase 16-04]: Footer SNS uses Lucide icons (Instagram, Youtube, PenLine, MessageCircle) for consistency
+- [Phase 16-04]: Privacy link in footer bold per K Car pattern
+- [Phase 16-04]: Old marketing components preserved (not deleted) -- may be referenced by tests or other pages
 
 ### Pending Todos
 

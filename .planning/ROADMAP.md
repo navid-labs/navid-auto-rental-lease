@@ -39,7 +39,7 @@
 - [x] **Phase 13: Component Foundation** - 신규 패키지 설치, shadcn 컴포넌트 추가, K Car 디자인 토큰 적용, 한국어 유틸리티 (completed 2026-03-19)
 - [x] **Phase 14: Vehicle Detail Page** - K Car 스타일 차량 상세 페이지 전면 재구축 (갤러리, 진단, 이력, 보증, Sticky 사이드바) (completed 2026-03-20)
 - [x] **Phase 15: Search & Listing Page** - K Car 스타일 검색/목록 페이지 (15개 필터, 무한스크롤, 카드 리디자인, 비교함) (gap closure in progress) (completed 2026-03-22)
-- [ ] **Phase 16: Homepage & Navigation** - K Car 스타일 홈페이지, 글로벌 헤더/푸터, 브레드크럼 네비게이션
+- [x] **Phase 16: Homepage & Navigation** - K Car 스타일 홈페이지, 글로벌 헤더/푸터, 브레드크럼 네비게이션 (completed 2026-03-22)
 - [ ] **Phase 17: Admin Refresh & Polish** - 어드민 디자인 통일, 비교 테이블, 모바일 반응형 검증, 리그레션 테스트
 
 ## Phase Details
@@ -150,5 +150,5 @@ Plans:
 | 13. Component Foundation | v2.0 | 2/2 | Complete | 2026-03-19 |
 | 14. Vehicle Detail Page | v2.0 | 5/5 | Complete | 2026-03-20 |
 | 15. Search & Listing Page | v2.0 | 5/5 | Complete | 2026-03-22 |
-| 16. Homepage & Navigation | 3/4 | In Progress|  | - |
+| 16. Homepage & Navigation | 4/4 | Complete   | 2026-03-22 | - |
 | 17. Admin Refresh & Polish | v2.0 | 0/? | Not started | - |

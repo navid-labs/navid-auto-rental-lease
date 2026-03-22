@@ -17,8 +17,8 @@ describe('searchParamsParsers', () => {
     expect(keys).toContain('page')
   })
 
-  it('has 27 parser keys total', () => {
-    expect(Object.keys(searchParamsParsers)).toHaveLength(27)
+  it('has 28 parser keys total', () => {
+    expect(Object.keys(searchParamsParsers)).toHaveLength(28)
   })
 
   it('PAGE_SIZE is 12', () => {

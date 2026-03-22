@@ -39,6 +39,9 @@ export const searchParamsParsers = {
 
   // View mode
   view: parseAsString.withDefault('grid'),
+
+  // Vehicle body type filter
+  vehicleType: parseAsString.withDefault(''),  // 'sedan', 'suv', 'mpv', etc.
 }
 
 export const searchParamsCache = createSearchParamsCache(searchParamsParsers)

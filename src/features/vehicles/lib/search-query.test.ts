@@ -29,6 +29,7 @@ function makeFilters(overrides: Partial<SearchFilters> = {}): SearchFilters {
     timeDeal: null,
     noAccident: null,
     hasRental: null,
+    vehicleType: null,
     ...overrides,
   }
 }

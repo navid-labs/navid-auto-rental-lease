@@ -1,4 +1,6 @@
 import type { Prisma } from '@prisma/client'
+import { getModelNamesByBodyType } from './vehicle-body-type'
+import type { BodyType } from './vehicle-body-type'
 
 export type SearchFilters = {
   brand: string | null
@@ -25,6 +27,7 @@ export type SearchFilters = {
   timeDeal: string | null
   noAccident: string | null
   hasRental: string | null
+  vehicleType: string | null
 }
 
 export function buildWhereClause(filters: SearchFilters): Prisma.VehicleWhereInput {
@@ -50,6 +53,25 @@ export function buildWhereClause(filters: SearchFilters): Prisma.VehicleWhereInp
     }
 
     trimWhere.generation = generationWhere
+  }
+
+  // Vehicle type (body type) - filter by model names matching the body type
+  if (filters.vehicleType) {
+    const bodyType = filters.vehicleType as BodyType
+    const modelNames = getModelNamesByBodyType(bodyType)
+    if (modelNames.length > 0) {
+      if (!trimWhere.generation) {
+        trimWhere.generation = {
+          carModel: { name: { in: modelNames } },
+        }
+      } else {
+        // Brand/model filter already set -- add model name constraint
+        const existingGenWhere = trimWhere.generation as Record<string, unknown>
+        const existingCarModelWhere = (existingGenWhere.carModel ?? {}) as Record<string, unknown>
+        existingCarModelWhere.name = { in: modelNames }
+        existingGenWhere.carModel = existingCarModelWhere
+      }
+    }
   }
 
   // Fuel type (multi-select, comma-separated)

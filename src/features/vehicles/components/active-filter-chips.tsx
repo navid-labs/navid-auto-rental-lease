@@ -56,6 +56,15 @@ const COLOR_LABELS: Record<string, string> = {
   other: '기타',
 }
 
+const VEHICLE_TYPE_LABELS: Record<string, string> = {
+  sedan: '세단',
+  suv: 'SUV',
+  mpv: 'MPV',
+  coupe: '쿠페',
+  hatchback: '해치백',
+  truck: '트럭',
+}
+
 const SALES_LABELS: Record<string, string> = {
   rental: '렌탈',
   lease: '리스',
@@ -89,6 +98,14 @@ function buildChips(
       key: 'gen',
       label: labels.genName,
       clearValue: { gen: '' },
+    })
+  }
+
+  if (filters.vehicleType) {
+    chips.push({
+      key: 'vehicleType',
+      label: VEHICLE_TYPE_LABELS[filters.vehicleType as string] ?? (filters.vehicleType as string),
+      clearValue: { vehicleType: '' },
     })
   }
 
@@ -303,6 +320,7 @@ export function ActiveFilterChips({ labels }: ActiveFilterChipsProps = {}) {
       brand: '',
       model: '',
       gen: '',
+      vehicleType: '',
       priceMin: null,
       priceMax: null,
       monthlyMin: null,

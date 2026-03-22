@@ -27,6 +27,7 @@ import {
 } from '@/features/vehicles/actions/get-cascade-data'
 import { DualRangeSlider } from './dual-range-slider'
 import { ColorFilter } from './color-filter'
+import { BODY_TYPE_LABELS } from '../lib/vehicle-body-type'
 
 type BrandOption = { id: string; name: string; nameKo: string | null; logoUrl: string | null }
 type ModelOption = { id: string; name: string; nameKo: string | null }
@@ -228,6 +229,7 @@ export function FilterContent({ totalCount }: { totalCount?: number }) {
       brand: '',
       model: '',
       gen: '',
+      vehicleType: '',
       yearMin: null,
       yearMax: null,
       priceMin: null,
@@ -264,6 +266,7 @@ export function FilterContent({ totalCount }: { totalCount?: number }) {
     filters.brand,
     filters.model,
     filters.gen,
+    filters.vehicleType,
     filters.priceMin != null,
     filters.priceMax != null,
     filters.monthlyMin != null,
@@ -304,14 +307,27 @@ export function FilterContent({ totalCount }: { totalCount?: number }) {
       {/* 1. 차종 */}
       <FilterSection title="차종">
         <div className="flex flex-wrap gap-2">
-          {VEHICLE_TYPES.map((type) => (
-            <PillButton
-              key={type}
-              label={type}
-              active={type === '전체'}
-              onClick={() => {/* Vehicle type filtering - placeholder for future */}}
-            />
-          ))}
+          {VEHICLE_TYPES.map((type) => {
+            const isAll = type === '전체'
+            const bodyTypeValue = isAll ? '' : (BODY_TYPE_LABELS[type] ?? '')
+            const active = isAll
+              ? !filters.vehicleType
+              : filters.vehicleType === bodyTypeValue
+
+            return (
+              <PillButton
+                key={type}
+                label={type}
+                active={active}
+                onClick={() =>
+                  setFilters({
+                    vehicleType: isAll ? '' : bodyTypeValue,
+                    page: 1,
+                  })
+                }
+              />
+            )
+          })}
         </div>
       </FilterSection>
 
@@ -589,6 +605,7 @@ export function SearchFilters({ totalCount }: SearchFiltersProps = {}) {
     filters.brand,
     filters.model,
     filters.gen,
+    filters.vehicleType,
     filters.priceMin != null,
     filters.priceMax != null,
     filters.monthlyMin != null,

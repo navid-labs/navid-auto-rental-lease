@@ -75,6 +75,7 @@ export function VehicleListClient({ initialVehicles, totalCount }: Props) {
         timeDeal: filters.timeDeal || null,
         noAccident: filters.noAccident || null,
         hasRental: filters.hasRental || null,
+        vehicleType: filters.vehicleType || null,
       }
 
       const newVehicles = await loadMoreVehicles(

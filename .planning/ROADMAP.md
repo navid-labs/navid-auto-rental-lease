@@ -112,7 +112,7 @@ Plans:
 - [x] 16-01-PLAN.md -- Hero banner carousel (Embla autoplay) + search box extraction + quick links icon bar
 - [x] 16-02-PLAN.md -- Recommended vehicles tabs (Server/Client split, VehicleCard reuse) + promo banners + partner logos
 - [x] 16-03-PLAN.md -- Global header redesign (mega menu + centered search bar) + mobile nav accordion
-- [ ] 16-04-PLAN.md -- Footer enhancement (SNS, awards, app download) + breadcrumb navigation + homepage assembly
+- [x] 16-04-PLAN.md -- Footer enhancement (SNS, awards, app download) + breadcrumb navigation + homepage assembly
 
 ### Phase 17: Admin Refresh & Polish
 **Goal**: 리디자인된 모든 페이지가 K Car 디자인 언어와 일관되고, 모바일에서 정상 동작하며, 기존 데모 플로우가 깨지지 않음을 보장
@@ -123,11 +123,11 @@ Plans:
   2. 차량 비교 테이블에서 2-3대 차량 스펙을 나란히 비교할 때 차이점이 시각적으로 하이라이팅됨
   3. 모든 리디자인 페이지가 375px 모바일 뷰포트에서 깨짐 없이 표시됨
   4. 차량 검색 -> 상세 -> 계약 신청 -> PDF 생성 전체 데모 플로우가 정상 동작
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 17-01: TBD
-- [ ] 17-02: TBD
+- [ ] 17-01-PLAN.md -- Admin token unification (semantic tokens for 5 admin files) + comparison highlighting (shared utility + green/red cells) + max vehicle fix
+- [ ] 17-02-PLAN.md -- Mobile 375px viewport audit (Playwright e2e) + full regression verification (vitest + build + type-check) + visual checkpoint
 
 ## Progress
 
@@ -150,5 +150,5 @@ Plans:
 | 13. Component Foundation | v2.0 | 2/2 | Complete | 2026-03-19 |
 | 14. Vehicle Detail Page | v2.0 | 5/5 | Complete | 2026-03-20 |
 | 15. Search & Listing Page | v2.0 | 5/5 | Complete | 2026-03-22 |
-| 16. Homepage & Navigation | 4/4 | Complete    | 2026-03-22 | - |
-| 17. Admin Refresh & Polish | v2.0 | 0/? | Not started | - |
+| 16. Homepage & Navigation | v2.0 | 4/4 | Complete | 2026-03-22 |
+| 17. Admin Refresh & Polish | v2.0 | 0/2 | Not started | - |

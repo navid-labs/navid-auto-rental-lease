@@ -105,6 +105,10 @@ Recent decisions affecting current work:
 - [15-04]: CompareDialog spec rows limited to VehicleSummary fields (price/year/mileage/rental/lease)
 - [15-05]: Body type uses model-name lookup map (no DB migration) -- body type is model property, not vehicle property
 - [15-05]: vehicleType filter merges with brand/model trimWhere accumulator for composable WHERE clauses
+- [16-01]: shadcn Carousel wrapper (not raw useEmblaCarousel) for hero banner -- simpler API for single-instance
+- [16-01]: Dot indicators sync via api.selectedScrollSnap() callback on select event
+- [16-01]: HeroSearchBox extracted as logic copy from hero-section.tsx -- old file untouched until Plan 04
+- [16-01]: QuickLinks is Server Component (no 'use client') -- all content is static links
 - [16-02]: Popular tab uses approvedAt desc (no viewCount in schema)
 - [16-02]: Newest tab uses createdAt desc (differentiates from popular)
 - [16-02]: Deals tab uses price asc for lowest-price-first

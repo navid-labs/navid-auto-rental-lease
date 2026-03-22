@@ -109,9 +109,9 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 16-01-PLAN.md -- Hero banner carousel (Embla autoplay) + search box extraction + quick links icon bar
-- [ ] 16-02-PLAN.md -- Recommended vehicles tabs (Server/Client split, VehicleCard reuse) + promo banners + partner logos
-- [ ] 16-03-PLAN.md -- Global header redesign (mega menu + centered search bar) + mobile nav accordion
+- [x] 16-01-PLAN.md -- Hero banner carousel (Embla autoplay) + search box extraction + quick links icon bar
+- [x] 16-02-PLAN.md -- Recommended vehicles tabs (Server/Client split, VehicleCard reuse) + promo banners + partner logos
+- [x] 16-03-PLAN.md -- Global header redesign (mega menu + centered search bar) + mobile nav accordion
 - [ ] 16-04-PLAN.md -- Footer enhancement (SNS, awards, app download) + breadcrumb navigation + homepage assembly
 
 ### Phase 17: Admin Refresh & Polish

@@ -38,7 +38,7 @@
 
 - [x] **Phase 13: Component Foundation** - 신규 패키지 설치, shadcn 컴포넌트 추가, K Car 디자인 토큰 적용, 한국어 유틸리티 (completed 2026-03-19)
 - [x] **Phase 14: Vehicle Detail Page** - K Car 스타일 차량 상세 페이지 전면 재구축 (갤러리, 진단, 이력, 보증, Sticky 사이드바) (completed 2026-03-20)
-- [ ] **Phase 15: Search & Listing Page** - K Car 스타일 검색/목록 페이지 (14개 필터, 무한스크롤, 카드 리디자인, 비교함)
+- [ ] **Phase 15: Search & Listing Page** - K Car 스타일 검색/목록 페이지 (15개 필터, 무한스크롤, 카드 리디자인, 비교함)
 - [ ] **Phase 16: Homepage & Navigation** - K Car 스타일 홈페이지, 글로벌 헤더/푸터, 브레드크럼 네비게이션
 - [ ] **Phase 17: Admin Refresh & Polish** - 어드민 디자인 통일, 비교 테이블, 모바일 반응형 검증, 리그레션 테스트
 
@@ -72,28 +72,29 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 14-01-PLAN.md -- Prisma schema extension (JSONB, ImageCategory enum) + Zod schemas + diagnosis grade util + seed data
-- [ ] 14-02-PLAN.md -- Image gallery (Embla dual-instance + YARL lightbox) + SVG body diagram (5-direction)
-- [ ] 14-03-PLAN.md -- Price, Basic Info, Options, Diagnosis, History sections
-- [ ] 14-04-PLAN.md -- Warranty, Home Service, Reviews/FAQ, Evaluator sections
-- [ ] 14-05-PLAN.md -- Page orchestrator + Sticky sidebar + Tab nav + Server Component wiring + visual checkpoint
+- [x] 14-01-PLAN.md -- Prisma schema extension (JSONB, ImageCategory enum) + Zod schemas + diagnosis grade util + seed data
+- [x] 14-02-PLAN.md -- Image gallery (Embla dual-instance + YARL lightbox) + SVG body diagram (5-direction)
+- [x] 14-03-PLAN.md -- Price, Basic Info, Options, Diagnosis, History sections
+- [x] 14-04-PLAN.md -- Warranty, Home Service, Reviews/FAQ, Evaluator sections
+- [x] 14-05-PLAN.md -- Page orchestrator + Sticky sidebar + Tab nav + Server Component wiring + visual checkpoint
 
 ### Phase 15: Search & Listing Page
 **Goal**: 고객이 원하는 차량을 빠르게 찾을 수 있도록 K Car 수준의 필터링, 무한스크롤, 비교 기능을 갖춘 검색 페이지 제공
 **Depends on**: Phase 14
 **Requirements**: SEARCH-01, SEARCH-02, SEARCH-03, SEARCH-04, SEARCH-05, SEARCH-06, SEARCH-07, SEARCH-08
 **Success Criteria** (what must be TRUE):
-  1. 14개 필터 사이드바에서 차종/제조사/연식/가격 등을 선택하면 차량 목록이 실시간 필터링됨
+  1. 15개 필터 사이드바에서 차종/제조사/연식/가격 등을 선택하면 차량 목록이 실시간 필터링됨
   2. 차량 카드에 배지 오버레이, 보증 바, 가격+할부, 스펙라인이 K Car 스타일로 표시됨
   3. 스크롤 하단 도달 시 추가 차량이 자동 로딩되고 스켈레톤 UI가 표시됨
   4. 최대 3대 차량을 비교함에 담아 나란히 스펙 비교 테이블로 확인 가능
   5. 모바일(375px)에서 접이식 필터 시트가 열리고 그리드/리스트 뷰 전환이 가능
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 15-01: TBD
-- [ ] 15-02: TBD
-- [ ] 15-03: TBD
+- [ ] 15-01-PLAN.md -- Data layer: extended search params (15 filters), WHERE/ORDERBY builders, loadMore server action, store update, design token
+- [ ] 15-02-PLAN.md -- Vehicle card redesign: K Car style grid/list cards, preview dialog, badge/tag utilities, skeleton cards
+- [ ] 15-03-PLAN.md -- Filter system: 15-filter sidebar with dual sliders, color chips, quick badges, active chips, sort extension
+- [ ] 15-04-PLAN.md -- Page orchestrator: hybrid Server/Client infinite scroll, grid/list toggle, compare bar/dialog, back-to-top
 
 ### Phase 16: Homepage & Navigation
 **Goal**: K Car 스타일의 홈페이지와 글로벌 네비게이션으로 사이트 전체의 첫인상과 탐색 경험을 통일
@@ -144,7 +145,7 @@ Plans:
 | 11. Quote Generation Engine | v1.1 | 3/3 | Complete | 2026-03-09 |
 | 12. Settings Management & Polish | v1.1 | 3/3 | Complete | 2026-03-10 |
 | 13. Component Foundation | v2.0 | 2/2 | Complete | 2026-03-19 |
-| 14. Vehicle Detail Page | 5/5 | Complete    | 2026-03-20 | - |
-| 15. Search & Listing Page | v2.0 | 0/? | Not started | - |
+| 14. Vehicle Detail Page | v2.0 | 5/5 | Complete | 2026-03-20 |
+| 15. Search & Listing Page | v2.0 | 0/4 | Planned | - |
 | 16. Homepage & Navigation | v2.0 | 0/? | Not started | - |
 | 17. Admin Refresh & Polish | v2.0 | 0/? | Not started | - |

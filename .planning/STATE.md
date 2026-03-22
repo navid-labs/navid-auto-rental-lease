@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: K Car Style Redesign
-status: completed
-stopped_at: Phase 15 UI-SPEC approved
-last_updated: "2026-03-22T06:38:33.805Z"
-last_activity: 2026-03-20 -- Completed Phase 14 page orchestrator + sticky sidebar
+status: executing
+stopped_at: Completed 15-01-PLAN.md
+last_updated: "2026-03-22T12:03:23.617Z"
+last_activity: 2026-03-22 -- Completed Phase 15 Plan 01 data layer foundation
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
-  percent: 100
+  total_plans: 11
+  completed_plans: 8
+  percent: 25
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** K Car 수준의 프로덕션급 UI/UX로 전환하여 투자자/고객 신뢰도 확보
-**Current focus:** Phase 14 complete -- ready for Phase 15 (Search & Listing) or Phase 16 (Homepage & Navigation)
+**Current focus:** Phase 15 in progress -- Search & Listing Page data layer complete, UI components next
 
 ## Current Position
 
-Phase: 14 of 17 (Vehicle Detail Page) -- COMPLETE
-Plan: 5 of 5 (14-05 complete)
-Status: Phase Complete
-Last activity: 2026-03-20 -- Completed Phase 14 page orchestrator + sticky sidebar
+Phase: 15 of 17 (Search & Listing Page)
+Plan: 1 of 4 (15-01 complete)
+Status: In Progress
+Last activity: 2026-03-22 -- Completed Phase 15 Plan 01 data layer foundation
 
-Progress: [██████████] 100% (Phase 14)
+Progress: [███-------] 25% (Phase 15)
 
 ## Performance Metrics
 
@@ -50,6 +50,7 @@ Progress: [██████████] 100% (Phase 14)
 | 14-03 | 2 | 3min | 1.5min |
 | 14-04 | 2 | 4min | 2.0min |
 | 14-05 | 3 | 5min | 1.7min |
+| 15-01 | 2 | 4min | 2.0min |
 
 *Updated after each plan completion*
 
@@ -85,6 +86,10 @@ Recent decisions affecting current work:
 - [14-05]: IntersectionObserver rootMargin '-80px 0px -60% 0px' for scroll-spy section detection
 - [14-05]: Promise.all for parallel residualRate + similarVehicles queries in Server Component
 - [14-05]: Visual verification deferred (Supabase paused) -- approved on code-level (type-check, build, 362 tests)
+- [15-01]: Price filter changed from monthlyRental to price field (bug fix)
+- [15-01]: Sort 'newest' uses createdAt to differentiate from 'recommended' (approvedAt)
+- [15-01]: trimWhere accumulator pattern merges brand/model/gen + fuel/transmission into single trim relation
+- [15-01]: Comparison MAX reduced from 4 to 3 per K Car pattern alignment
 
 ### Pending Todos
 
@@ -98,6 +103,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T06:38:33.802Z
-Stopped at: Phase 15 UI-SPEC approved
-Resume file: .planning/phases/15-search-listing-page/15-UI-SPEC.md
+Last session: 2026-03-22T12:03:23.614Z
+Stopped at: Completed 15-01-PLAN.md
+Resume file: None

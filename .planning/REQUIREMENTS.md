@@ -29,13 +29,13 @@
 
 ### Search & Listing Page (SEARCH)
 
-- [ ] **SEARCH-01**: 14개 필터 사이드바 — 차종, 제조사/모델 cascade, 연식 범위, 주행거리 범위, 가격 슬라이더, 색상 칩, 옵션, 지역/직영점, 연료, 변속기, 인승, 구동방식, 판매구분, 키워드 태그
+- [x] **SEARCH-01**: 14개 필터 사이드바 — 차종, 제조사/모델 cascade, 연식 범위, 주행거리 범위, 가격 슬라이더, 색상 칩, 옵션, 지역/직영점, 연료, 변속기, 인승, 구동방식, 판매구분, 키워드 태그
 - [ ] **SEARCH-02**: 차량 카드 리디자인 — 이미지 배지 오버레이(타임딜/무료배송/3D), 보증 배지 바, 차량명, 가격+할부, 스펙라인, 태그 칩
 - [ ] **SEARCH-03**: 무한 스크롤 — Intersection Observer 센티널 + 스켈레톤 로딩 + SEO용 페이지네이션 fallback
 - [ ] **SEARCH-04**: 그리드/리스트 뷰 토글 — Toggle Group 기반 보기 모드 전환
-- [ ] **SEARCH-05**: 비교함 기능 — 플로팅 비교 버튼 + 최대 3대 차량 비교 + 스펙 나란히 비교 테이블
+- [x] **SEARCH-05**: 비교함 기능 — 플로팅 비교 버튼 + 최대 3대 차량 비교 + 스펙 나란히 비교 테이블
 - [ ] **SEARCH-06**: 퀵 필터 뱃지 — 무료배송, 위클리특가, 3D, 렌트가능 토글 뱃지
-- [ ] **SEARCH-07**: 정렬 드롭다운 — 기본정렬, 연식순, 주행거리순, 가격순 (9개 옵션)
+- [x] **SEARCH-07**: 정렬 드롭다운 — 기본정렬, 연식순, 주행거리순, 가격순 (9개 옵션)
 - [ ] **SEARCH-08**: 모바일 접이식 필터 — Collapsible/Sheet 기반 모바일 필터 UI
 
 ### Homepage & Navigation (HOME)
@@ -102,13 +102,13 @@
 | DETAIL-10 | Phase 14 | Complete |
 | DETAIL-11 | Phase 14 | Complete |
 | DETAIL-12 | Phase 14 | Complete |
-| SEARCH-01 | Phase 15 | Pending |
+| SEARCH-01 | Phase 15 | Complete |
 | SEARCH-02 | Phase 15 | Pending |
 | SEARCH-03 | Phase 15 | Pending |
 | SEARCH-04 | Phase 15 | Pending |
-| SEARCH-05 | Phase 15 | Pending |
+| SEARCH-05 | Phase 15 | Complete |
 | SEARCH-06 | Phase 15 | Pending |
-| SEARCH-07 | Phase 15 | Pending |
+| SEARCH-07 | Phase 15 | Complete |
 | SEARCH-08 | Phase 15 | Pending |
 | HOME-01 | Phase 16 | Pending |
 | HOME-02 | Phase 16 | Pending |

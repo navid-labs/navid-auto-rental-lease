@@ -3,10 +3,11 @@
 import { useEffect } from 'react'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
+import { toast } from 'sonner'
 
 const STORAGE_KEY = 'navid-vehicle-interactions'
 const MAX_RECENTLY_VIEWED = 20
-const MAX_COMPARISON = 4
+const MAX_COMPARISON = 3
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -36,12 +37,16 @@ type VehicleInteractionState = {
   isWishlisted: (vehicleId: string) => boolean
   clearWishlist: () => void
 
-  // Comparison (max 4)
+  // Comparison (max 3)
   comparison: VehicleSummary[]
   toggleComparison: (vehicle: VehicleSummary) => void
   isInComparison: (vehicleId: string) => boolean
   removeFromComparison: (vehicleId: string) => void
   clearComparison: () => void
+
+  // Comparison dialog
+  comparisonDialogOpen: boolean
+  setComparisonDialogOpen: (open: boolean) => void
 }
 
 // ─── SSR-safe localStorage storage ───────────────────────────────────────────
@@ -124,10 +129,7 @@ export const useVehicleInteractionStore = create<VehicleInteractionState>()(
           }
 
           if (state.comparison.length >= MAX_COMPARISON) {
-            // Warn instead of silently dropping — callers can surface this to the UI
-            console.warn(
-              `[Navid] 비교함은 최대 ${MAX_COMPARISON}대까지만 추가할 수 있습니다.`,
-            )
+            toast.warning(`비교함은 최대 ${MAX_COMPARISON}대까지 가능합니다`)
             return state
           }
 
@@ -146,6 +148,12 @@ export const useVehicleInteractionStore = create<VehicleInteractionState>()(
       },
 
       clearComparison: () => set({ comparison: [] }),
+
+      // ── Comparison Dialog ─────────────────────────────────────────────────────
+
+      comparisonDialogOpen: false,
+
+      setComparisonDialogOpen: (open) => set({ comparisonDialogOpen: open }),
     }),
     {
       name: STORAGE_KEY,

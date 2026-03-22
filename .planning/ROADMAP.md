@@ -95,7 +95,7 @@ Plans:
 - [x] 15-02-PLAN.md -- Vehicle card redesign: K Car style grid/list cards, preview dialog, badge/tag utilities, skeleton cards
 - [x] 15-03-PLAN.md -- Filter system: 15-filter sidebar with dual sliders, color chips, quick badges, active chips, sort extension
 - [x] 15-04-PLAN.md -- Page orchestrator: hybrid Server/Client infinite scroll, grid/list toggle, compare bar/dialog, back-to-top
-- [ ] 15-05-PLAN.md -- Gap closure: wire vehicle type (차종) filter end-to-end with body type lookup map
+- [x] 15-05-PLAN.md -- Gap closure: wire vehicle type (차종) filter end-to-end with body type lookup map
 
 ### Phase 16: Homepage & Navigation
 **Goal**: K Car 스타일의 홈페이지와 글로벌 네비게이션으로 사이트 전체의 첫인상과 탐색 경험을 통일
@@ -106,11 +106,13 @@ Plans:
   2. 추천 차량(인기/최신/특가) 섹션이 Phase 15의 차량 카드 디자인과 동일한 스타일로 표시됨
   3. 글로벌 헤더에 중앙 검색바와 메가메뉴 네비게이션이 동작하며 기존 역할별 메뉴가 보존됨
   4. 전체 페이지에 일관된 브레드크럼 내비게이션이 표시되고 글로벌 푸터에 회사정보/고객센터가 포함됨
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 16-01: TBD
-- [ ] 16-02: TBD
+- [ ] 16-01-PLAN.md -- Hero banner carousel (Embla autoplay) + search box extraction + quick links icon bar
+- [ ] 16-02-PLAN.md -- Recommended vehicles tabs (Server/Client split, VehicleCard reuse) + promo banners + partner logos
+- [ ] 16-03-PLAN.md -- Global header redesign (mega menu + centered search bar) + mobile nav accordion
+- [ ] 16-04-PLAN.md -- Footer enhancement (SNS, awards, app download) + breadcrumb navigation + homepage assembly
 
 ### Phase 17: Admin Refresh & Polish
 **Goal**: 리디자인된 모든 페이지가 K Car 디자인 언어와 일관되고, 모바일에서 정상 동작하며, 기존 데모 플로우가 깨지지 않음을 보장
@@ -147,6 +149,6 @@ Plans:
 | 12. Settings Management & Polish | v1.1 | 3/3 | Complete | 2026-03-10 |
 | 13. Component Foundation | v2.0 | 2/2 | Complete | 2026-03-19 |
 | 14. Vehicle Detail Page | v2.0 | 5/5 | Complete | 2026-03-20 |
-| 15. Search & Listing Page | 5/5 | Complete    | 2026-03-22 | - |
-| 16. Homepage & Navigation | v2.0 | 0/? | Not started | - |
+| 15. Search & Listing Page | v2.0 | 5/5 | Complete | 2026-03-22 |
+| 16. Homepage & Navigation | v2.0 | 0/4 | Planned | - |
 | 17. Admin Refresh & Polish | v2.0 | 0/? | Not started | - |

@@ -192,18 +192,18 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
         <div className="overflow-hidden rounded-lg border shadow-sm">
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader className="bg-slate-50">
-                <TableRow className="hover:bg-slate-50">
-                  <TableHead className="text-xs font-medium uppercase tracking-wide text-slate-500">차량</TableHead>
-                  <TableHead className="text-xs font-medium uppercase tracking-wide text-slate-500">연식</TableHead>
-                  <TableHead className="text-xs font-medium uppercase tracking-wide text-slate-500">주행거리</TableHead>
-                  <TableHead className="text-xs font-medium uppercase tracking-wide text-slate-500">가격</TableHead>
-                  <TableHead className="text-xs font-medium uppercase tracking-wide text-slate-500">상태</TableHead>
-                  <TableHead className="text-xs font-medium uppercase tracking-wide text-slate-500">승인</TableHead>
+              <TableHeader className="bg-muted/50">
+                <TableRow className="hover:bg-muted/50">
+                  <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">차량</TableHead>
+                  <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">연식</TableHead>
+                  <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">주행거리</TableHead>
+                  <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">가격</TableHead>
+                  <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">상태</TableHead>
+                  <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">승인</TableHead>
                   {userRole === 'ADMIN' && (
-                    <TableHead className="text-xs font-medium uppercase tracking-wide text-slate-500">딜러</TableHead>
+                    <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">딜러</TableHead>
                   )}
-                  <TableHead className="text-right text-xs font-medium uppercase tracking-wide text-slate-500">관리</TableHead>
+                  <TableHead className="text-right text-xs font-medium uppercase tracking-wide text-muted-foreground">관리</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -217,7 +217,7 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
                   return (
                     <TableRow
                       key={vehicle.id}
-                      className="cursor-pointer hover:bg-slate-50"
+                      className="cursor-pointer hover:bg-muted/50"
                       onClick={() => handleRowClick(vehicle)}
                     >
                       <TableCell>
@@ -231,8 +231,8 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
                               className="size-12 rounded-md object-cover shrink-0"
                             />
                           ) : (
-                            <div className="flex size-12 shrink-0 items-center justify-center rounded-md bg-slate-100">
-                              <Car className="size-5 text-slate-400" />
+                            <div className="flex size-12 shrink-0 items-center justify-center rounded-md bg-muted">
+                              <Car className="size-5 text-muted-foreground" />
                             </div>
                           )}
                           <div>
@@ -313,8 +313,8 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between border-t bg-slate-50 px-4 py-3">
-              <p className="text-xs text-slate-500">
+            <div className="flex items-center justify-between border-t bg-muted/50 px-4 py-3">
+              <p className="text-xs text-muted-foreground">
                 {filteredVehicles.length}대 중 {(safePage - 1) * PAGE_SIZE + 1}–
                 {Math.min(safePage * PAGE_SIZE, filteredVehicles.length)}대 표시
               </p>
@@ -328,7 +328,7 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
                 >
                   <ChevronLeft className="size-4" />
                 </Button>
-                <span className="min-w-[5rem] text-center text-xs text-slate-600">
+                <span className="min-w-[5rem] text-center text-xs text-muted-foreground">
                   {safePage} / {totalPages}
                 </span>
                 <Button

@@ -67,11 +67,11 @@ export function RecentActivity({ activities }: RecentActivityProps) {
           {activities.map((item, index) => (
             <li
               key={`${item.contractType}-${item.id}`}
-              className={index % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}
+              className={index % 2 === 0 ? 'bg-card' : 'bg-muted/30'}
             >
               <Link
                 href="/admin/contracts"
-                className="flex items-center gap-3 px-6 py-3.5 transition-colors hover:bg-blue-50/40"
+                className="flex items-center gap-3 px-6 py-3.5 transition-colors hover:bg-accent/5"
               >
                 {/* Contract type badge */}
                 <span

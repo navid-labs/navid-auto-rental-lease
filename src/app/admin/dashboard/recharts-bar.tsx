@@ -23,25 +23,25 @@ export default function RechartsBar({ data }: RechartsBarProps) {
   return (
     <ResponsiveContainer width="100%" height={280}>
       <BarChart data={data} barCategoryGap="30%">
-        <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" vertical={false} />
         <XAxis
           dataKey="month"
-          tick={{ fontSize: 11, fill: '#94A3B8' }}
+          tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
           allowDecimals={false}
-          tick={{ fontSize: 11, fill: '#94A3B8' }}
+          tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
           axisLine={false}
           tickLine={false}
           width={28}
         />
         <Tooltip
-          cursor={{ fill: '#F1F5F9' }}
+          cursor={{ fill: 'hsl(var(--muted))' }}
           contentStyle={{
             borderRadius: '8px',
-            border: '1px solid #E2E8F0',
+            border: '1px solid hsl(var(--border))',
             backgroundColor: '#FFFFFF',
             boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
             fontSize: '12px',

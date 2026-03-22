@@ -24,10 +24,10 @@ describe('QuickLinks', () => {
   })
 
   it('renders correct hrefs for each link', () => {
-    render(<QuickLinks />)
-    const links = screen.getAllByRole('link')
+    const { container } = render(<QuickLinks />)
+    const links = container.querySelectorAll('a')
     expect(links.length).toBe(8)
-    const hrefs = links.map(link => link.getAttribute('href'))
+    const hrefs = Array.from(links).map(link => link.getAttribute('href'))
     expect(hrefs).toContain('/vehicles')
     expect(hrefs).toContain('/inquiry?type=sell')
   })

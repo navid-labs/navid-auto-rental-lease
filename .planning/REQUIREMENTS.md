@@ -43,7 +43,7 @@
 - [ ] **HOME-01**: 히어로 배너 캐러셀 — Embla autoplay 전체 너비 프로모션 배너 슬라이더
 - [ ] **HOME-02**: 퀵링크 아이콘 바 — 무료배송, 위클리특가, 기획전, 렌트특가, 테마기획전
 - [x] **HOME-03**: 추천 차량 섹션 — 인기/최신/특가 차량 카드 그리드
-- [ ] **HOME-04**: 글로벌 헤더 리디자인 — K Car 스타일 로고 + 중앙 검색바 + 로그인/회원가입 + 메가메뉴 네비게이션
+- [x] **HOME-04**: 글로벌 헤더 리디자인 — K Car 스타일 로고 + 중앙 검색바 + 로그인/회원가입 + 메가메뉴 네비게이션
 - [ ] **HOME-05**: 글로벌 푸터 리디자인 — 회사정보, 고객센터, SNS 링크, 수상내역, 앱 다운로드
 - [ ] **HOME-06**: 브레드크럼 내비게이션 — 전체 페이지에 일관된 브레드크럼 적용
 
@@ -113,7 +113,7 @@
 | HOME-01 | Phase 16 | Pending |
 | HOME-02 | Phase 16 | Pending |
 | HOME-03 | Phase 16 | Complete |
-| HOME-04 | Phase 16 | Pending |
+| HOME-04 | Phase 16 | Complete |
 | HOME-05 | Phase 16 | Pending |
 | HOME-06 | Phase 16 | Pending |
 | ADMIN-01 | Phase 17 | Pending |

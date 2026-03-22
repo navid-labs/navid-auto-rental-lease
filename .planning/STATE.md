@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: K Car Style Redesign
 status: executing
-stopped_at: Completed 15-03-PLAN.md
-last_updated: "2026-03-22T12:10:01Z"
-last_activity: 2026-03-22 -- Completed Phase 15 Plan 03 filter UI components
+stopped_at: Completed 15-04-PLAN.md
+last_updated: "2026-03-22T12:17:45Z"
+last_activity: 2026-03-22 -- Completed Phase 15 Plan 04 page assembly
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 11
-  completed_plans: 10
-  percent: 75
+  completed_plans: 11
+  percent: 82
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** K Car 수준의 프로덕션급 UI/UX로 전환하여 투자자/고객 신뢰도 확보
-**Current focus:** Phase 15 in progress -- Filter UI components complete, page assembly next
+**Current focus:** Phase 15 COMPLETE -- Search & Listing Page fully assembled
 
 ## Current Position
 
 Phase: 15 of 17 (Search & Listing Page)
-Plan: 3 of 4 (15-03 complete)
-Status: In Progress
-Last activity: 2026-03-22 -- Completed Phase 15 Plan 03 filter UI components
+Plan: 4 of 4 (15-04 complete -- Phase 15 DONE)
+Status: Phase Complete
+Last activity: 2026-03-22 -- Completed Phase 15 Plan 04 page assembly
 
-Progress: [███████---] 75% (Phase 15)
+Progress: [██████████] 100% (Phase 15)
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Progress: [███████---] 75% (Phase 15)
 | 14-05 | 3 | 5min | 1.7min |
 | 15-01 | 2 | 4min | 2.0min |
 | 15-03 | 2 | 5min | 2.5min |
+| 15-04 | 2 | 4min | 2.0min |
 
 *Updated after each plan completion*
 
@@ -95,6 +96,9 @@ Recent decisions affecting current work:
 - [15-03]: FilterContent accepts optional totalCount prop for mobile apply button rendering
 - [15-03]: Semantic tokens replace all hardcoded hex colors in filter sidebar
 - [15-03]: Mobile Sheet opens from left (K Car style) with active filter count badge
+- [15-04]: vehicleInclude extracted to shared lib -- use server files cannot export non-async values
+- [15-04]: base-ui ToggleGroup value is string array -- ViewToggle wraps with single-select semantics
+- [15-04]: CompareDialog spec rows limited to VehicleSummary fields (price/year/mileage/rental/lease)
 
 ### Pending Todos
 
@@ -108,6 +112,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T12:10:01Z
-Stopped at: Completed 15-03-PLAN.md
+Last session: 2026-03-22T12:17:45Z
+Stopped at: Completed 15-04-PLAN.md
 Resume file: None

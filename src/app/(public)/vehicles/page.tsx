@@ -2,11 +2,9 @@ import { Suspense } from 'react'
 import { prisma } from '@/lib/db/prisma'
 import { searchParamsCache, PAGE_SIZE } from '@/features/vehicles/lib/search-params'
 import { buildWhereClause, buildOrderBy } from '@/features/vehicles/lib/search-query'
+import { vehicleInclude } from '@/features/vehicles/lib/vehicle-include'
+import { VehicleListClient } from '@/features/vehicles/components/vehicle-list-client'
 import { SearchFilters } from '@/features/vehicles/components/search-filters'
-import { SearchSort } from '@/features/vehicles/components/search-sort'
-import { PopularSearches } from '@/features/vehicles/components/popular-searches'
-import { VehicleGrid } from '@/features/vehicles/components/vehicle-grid'
-import { Pagination } from '@/features/vehicles/components/pagination'
 import { VehicleSearchBar } from '@/features/vehicles/components/vehicle-search-bar'
 import type { Metadata } from 'next'
 import type { VehicleWithDetails } from '@/features/vehicles/types/index'
@@ -17,26 +15,6 @@ export const metadata: Metadata = {
   title: '차량 검색 | Navid Auto',
   description: '렌탈, 리스 차량을 검색하고 비교해 보세요',
 }
-
-const vehicleInclude = {
-  trim: {
-    include: {
-      generation: {
-        include: {
-          carModel: {
-            include: {
-              brand: true,
-            },
-          },
-        },
-      },
-    },
-  },
-  images: true,
-  dealer: {
-    select: { id: true, name: true, email: true, phone: true },
-  },
-} as const
 
 export default async function VehiclesPage({
   searchParams,
@@ -51,7 +29,7 @@ export default async function VehiclesPage({
     prisma.vehicle.findMany({
       where,
       orderBy,
-      skip: (params.page - 1) * PAGE_SIZE,
+      skip: 0, // Always first page -- infinite scroll offset is client-only
       take: PAGE_SIZE,
       include: vehicleInclude,
     }),
@@ -59,43 +37,24 @@ export default async function VehiclesPage({
   ])
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       {/* Search bar section */}
       <VehicleSearchBar />
 
-      {/* Sort bar */}
-      <div className="border-b border-[#E4E4E7] bg-white px-4 py-3 lg:px-[120px]">
-        <Suspense fallback={null}>
-          <SearchSort totalCount={totalCount} />
-        </Suspense>
-      </div>
-
       {/* Main content: sidebar + grid */}
-      <div className="px-4 py-6 lg:px-[120px]">
-        <div className="flex gap-6">
-          {/* Filter sidebar */}
+      <div className="mx-auto max-w-[1440px] px-4 py-6 lg:px-8 xl:px-[120px]">
+        <div className="flex gap-8">
+          {/* Filter sidebar (desktop) + Sheet (mobile via SearchFilters) */}
           <Suspense fallback={null}>
-            <SearchFilters />
+            <SearchFilters totalCount={totalCount} />
           </Suspense>
 
           {/* Grid area */}
           <div className="min-w-0 flex-1">
-            {/* Mobile filter button row */}
-            <div className="mb-4 flex items-center justify-between lg:hidden">
-              <Suspense fallback={null}>
-                <SearchSort totalCount={totalCount} />
-              </Suspense>
-            </div>
-
-            <div className="mb-4">
-              <PopularSearches />
-            </div>
-
-            <VehicleGrid vehicles={vehicles as unknown as VehicleWithDetails[]} />
-
-            <Suspense fallback={null}>
-              <Pagination totalCount={totalCount} pageSize={PAGE_SIZE} />
-            </Suspense>
+            <VehicleListClient
+              initialVehicles={vehicles as unknown as VehicleWithDetails[]}
+              totalCount={totalCount}
+            />
           </div>
         </div>
       </div>

@@ -38,7 +38,7 @@
 
 - [x] **Phase 13: Component Foundation** - 신규 패키지 설치, shadcn 컴포넌트 추가, K Car 디자인 토큰 적용, 한국어 유틸리티 (completed 2026-03-19)
 - [x] **Phase 14: Vehicle Detail Page** - K Car 스타일 차량 상세 페이지 전면 재구축 (갤러리, 진단, 이력, 보증, Sticky 사이드바) (completed 2026-03-20)
-- [x] **Phase 15: Search & Listing Page** - K Car 스타일 검색/목록 페이지 (15개 필터, 무한스크롤, 카드 리디자인, 비교함) (completed 2026-03-22)
+- [ ] **Phase 15: Search & Listing Page** - K Car 스타일 검색/목록 페이지 (15개 필터, 무한스크롤, 카드 리디자인, 비교함) (gap closure in progress)
 - [ ] **Phase 16: Homepage & Navigation** - K Car 스타일 홈페이지, 글로벌 헤더/푸터, 브레드크럼 네비게이션
 - [ ] **Phase 17: Admin Refresh & Polish** - 어드민 디자인 통일, 비교 테이블, 모바일 반응형 검증, 리그레션 테스트
 
@@ -88,13 +88,14 @@ Plans:
   3. 스크롤 하단 도달 시 추가 차량이 자동 로딩되고 스켈레톤 UI가 표시됨
   4. 최대 3대 차량을 비교함에 담아 나란히 스펙 비교 테이블로 확인 가능
   5. 모바일(375px)에서 접이식 필터 시트가 열리고 그리드/리스트 뷰 전환이 가능
-**Plans**: 4 plans
+**Plans**: 5 plans
 
 Plans:
-- [ ] 15-01-PLAN.md -- Data layer: extended search params (15 filters), WHERE/ORDERBY builders, loadMore server action, store update, design token
-- [ ] 15-02-PLAN.md -- Vehicle card redesign: K Car style grid/list cards, preview dialog, badge/tag utilities, skeleton cards
-- [ ] 15-03-PLAN.md -- Filter system: 15-filter sidebar with dual sliders, color chips, quick badges, active chips, sort extension
-- [ ] 15-04-PLAN.md -- Page orchestrator: hybrid Server/Client infinite scroll, grid/list toggle, compare bar/dialog, back-to-top
+- [x] 15-01-PLAN.md -- Data layer: extended search params (15 filters), WHERE/ORDERBY builders, loadMore server action, store update, design token
+- [x] 15-02-PLAN.md -- Vehicle card redesign: K Car style grid/list cards, preview dialog, badge/tag utilities, skeleton cards
+- [x] 15-03-PLAN.md -- Filter system: 15-filter sidebar with dual sliders, color chips, quick badges, active chips, sort extension
+- [x] 15-04-PLAN.md -- Page orchestrator: hybrid Server/Client infinite scroll, grid/list toggle, compare bar/dialog, back-to-top
+- [ ] 15-05-PLAN.md -- Gap closure: wire vehicle type (차종) filter end-to-end with body type lookup map
 
 ### Phase 16: Homepage & Navigation
 **Goal**: K Car 스타일의 홈페이지와 글로벌 네비게이션으로 사이트 전체의 첫인상과 탐색 경험을 통일
@@ -146,6 +147,6 @@ Plans:
 | 12. Settings Management & Polish | v1.1 | 3/3 | Complete | 2026-03-10 |
 | 13. Component Foundation | v2.0 | 2/2 | Complete | 2026-03-19 |
 | 14. Vehicle Detail Page | v2.0 | 5/5 | Complete | 2026-03-20 |
-| 15. Search & Listing Page | 4/4 | Complete   | 2026-03-22 | - |
+| 15. Search & Listing Page | v2.0 | 4/5 | Gap closure | - |
 | 16. Homepage & Navigation | v2.0 | 0/? | Not started | - |
 | 17. Admin Refresh & Polish | v2.0 | 0/? | Not started | - |

@@ -16,10 +16,10 @@
 
 ### 검색 페이지
 
-- [ ] **SRCH-01**: 차량 카드 그리드 gap을 16px에서 24px로 확대
-- [ ] **SRCH-02**: 검색바→브레드크럼→필터/카드 콘텐츠 간 전환 여백 24px 이상으로 확대
-- [ ] **SRCH-03**: 차량 카드 내부 이미지→텍스트 전환 영역 패딩 확대 (12px → 16px+)
-- [ ] **SRCH-04**: 퀵필터 pill 영역 상하 여백 16px 추가
+- [x] **SRCH-01**: 차량 카드 그리드 gap을 16px에서 24px로 확대
+- [x] **SRCH-02**: 검색바→브레드크럼→필터/카드 콘텐츠 간 전환 여백 24px 이상으로 확대
+- [x] **SRCH-03**: 차량 카드 내부 이미지→텍스트 전환 영역 패딩 확대 (12px → 16px+)
+- [x] **SRCH-04**: 퀵필터 pill 영역 상하 여백 16px 추가
 
 ### 상세 페이지
 
@@ -58,10 +58,10 @@ _(v3.0에서 다룰 항목)_
 | HOME-02 | Phase 19 | Pending |
 | HOME-03 | Phase 19 | Pending |
 | HOME-04 | Phase 19 | Pending |
-| SRCH-01 | Phase 19 | Pending |
-| SRCH-02 | Phase 19 | Pending |
-| SRCH-03 | Phase 19 | Pending |
-| SRCH-04 | Phase 19 | Pending |
+| SRCH-01 | Phase 19 | Complete |
+| SRCH-02 | Phase 19 | Complete |
+| SRCH-03 | Phase 19 | Complete |
+| SRCH-04 | Phase 19 | Complete |
 | DETL-01 | Phase 20 | Pending |
 | DETL-02 | Phase 20 | Pending |
 | DETL-03 | Phase 20 | Pending |

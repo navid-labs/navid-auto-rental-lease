@@ -36,7 +36,7 @@ export function MegaMenu() {
           >
             <Link
               href={category.href}
-              className={`flex h-12 items-center px-5 text-[14px] font-medium transition-colors ${
+              className={`flex h-[52px] items-center px-5 text-[14px] font-medium transition-colors ${
                 activeMenu === category.label
                   ? 'border-b-2 border-[#1A6DFF] text-[#1A6DFF]'
                   : 'text-[#555555] hover:text-[#0D0D0D]'

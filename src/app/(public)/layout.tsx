@@ -16,7 +16,7 @@ export default function PublicLayout({
       <StoreHydration />
       <div className="flex min-h-screen flex-col">
         <Header />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 pt-6">{children}</main>
         <Footer />
       </div>
       <FloatingCTA />

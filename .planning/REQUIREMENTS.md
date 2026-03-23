@@ -9,10 +9,10 @@
 
 ### 홈페이지
 
-- [ ] **HOME-01**: 홈페이지 주요 섹션(히어로, 검색, 퀵링크, 추천차량, 프로모션, 파트너) 간 세로 여백을 80px 이상으로 확대
-- [ ] **HOME-02**: 추천차량 그리드를 4열에서 3열로 변경하여 카드 간 여유 확보
-- [ ] **HOME-03**: "어떤 차를 찾으세요?" 검색 섹션 내부 패딩 확대 (타이틀↔탭↔인풋 간격 40px+)
-- [ ] **HOME-04**: 프로모션 카드(홈서비스, 위클리특가, 렌트) 간 gap을 24px로 확대
+- [x] **HOME-01**: 홈페이지 주요 섹션(히어로, 검색, 퀵링크, 추천차량, 프로모션, 파트너) 간 세로 여백을 80px 이상으로 확대
+- [x] **HOME-02**: 추천차량 그리드를 4열에서 3열로 변경하여 카드 간 여유 확보
+- [x] **HOME-03**: "어떤 차를 찾으세요?" 검색 섹션 내부 패딩 확대 (타이틀↔탭↔인풋 간격 40px+)
+- [x] **HOME-04**: 프로모션 카드(홈서비스, 위클리특가, 렌트) 간 gap을 24px로 확대
 
 ### 검색 페이지
 
@@ -54,10 +54,10 @@ _(v3.0에서 다룰 항목)_
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HOME-01 | Phase 19 | Pending |
-| HOME-02 | Phase 19 | Pending |
-| HOME-03 | Phase 19 | Pending |
-| HOME-04 | Phase 19 | Pending |
+| HOME-01 | Phase 19 | Complete |
+| HOME-02 | Phase 19 | Complete |
+| HOME-03 | Phase 19 | Complete |
+| HOME-04 | Phase 19 | Complete |
 | SRCH-01 | Phase 19 | Complete |
 | SRCH-02 | Phase 19 | Complete |
 | SRCH-03 | Phase 19 | Complete |

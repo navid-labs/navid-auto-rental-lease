@@ -100,4 +100,4 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 18. Global Spacing Foundation | v2.1 | Complete    | 2026-03-23 | 2026-03-23 |
 | 19. Homepage & Search Spacing | 2/2 | Complete    | 2026-03-23 | - |
-| 20. Detail Page Spacing | 1/1 | Complete   | 2026-03-23 | - |
+| 20. Detail Page Spacing | 1/1 | Complete    | 2026-03-23 | - |

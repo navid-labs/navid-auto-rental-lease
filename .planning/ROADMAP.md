@@ -98,6 +98,6 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 18. Global Spacing Foundation | v2.1 | 1/1 | Complete | 2026-03-23 |
+| 18. Global Spacing Foundation | v2.1 | Complete    | 2026-03-23 | 2026-03-23 |
 | 19. Homepage & Search Spacing | v2.1 | 0/? | Not started | - |
 | 20. Detail Page Spacing | v2.1 | 0/? | Not started | - |

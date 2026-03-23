@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Visual Polish
 status: completed
-stopped_at: Completed 19-01-PLAN.md (SUMMARY created retroactively)
-last_updated: "2026-03-23T14:14:38.204Z"
-last_activity: 2026-03-23 -- Phase 19 Plan 02 completed (search page spacing)
+stopped_at: Completed 20-01-PLAN.md
+last_updated: "2026-03-23T14:34:15.971Z"
+last_activity: 2026-03-23 -- Phase 20 Plan 01 completed (detail page spacing)
 progress:
   total_phases: 3
-  completed_phases: 2
-  total_plans: 3
-  completed_plans: 3
-  percent: 67
+  completed_phases: 3
+  total_plans: 4
+  completed_plans: 4
+  percent: 100
 ---
 
 # Project State
@@ -21,21 +21,21 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** 고객이 중고차를 온라인에서 검색하고, 비교하고, 비대면으로 렌탈/리스 계약까지 완료할 수 있는 원스톱 경험
-**Current focus:** v2.1 Visual Polish -- Phase 19 Plan 02 complete, search page spacing done
+**Current focus:** v2.1 Visual Polish -- Phase 20 Plan 01 complete, all 14 requirements done
 
 ## Current Position
 
-Phase: 19 of 20 (Homepage & Search Spacing)
-Plan: 2/2 complete
-Status: Phase 19 Plan 02 done (search page spacing)
-Last activity: 2026-03-23 -- Phase 19 Plan 02 completed (search page spacing)
+Phase: 20 of 20 (Detail Page Spacing)
+Plan: 1/1 complete
+Status: Phase 20 Plan 01 done (detail page spacing -- milestone complete)
+Last activity: 2026-03-23 -- Phase 20 Plan 01 completed (detail page spacing)
 
-Progress: [███████░░░] 67%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity (v1.0 + v1.1 + v2.0 + v2.1 baseline):**
-- Total plans completed: 49
+- Total plans completed: 50
 - Average duration: ~3.5min per plan
 - Total execution time: ~2.9 hours
 
@@ -44,6 +44,7 @@ Progress: [███████░░░] 67%
 | 18 | 01 | 8min | 3 | 9 |
 | 19 | 01 | 3min | 1 | 6 |
 | 19 | 02 | 1min | 1 | 4 |
+| 20 | 01 | 2min | 2 | 2 |
 
 *Updated after each plan completion*
 
@@ -62,6 +63,7 @@ Recent decisions affecting current work:
 - [Phase 18]: Negative margin (-mt-6) pattern for edge-to-edge sections (hero, gallery) counteracting layout padding
 - [Phase 19-01]: mt-10 wrapper on HeroSearchBox for precise 92px hero-to-search gap (12+40+40)
 - [Phase 19-01]: 3-col grid for featured vehicles matching K Car density standard
+- [Phase 20]: Removed -mt-6 edge-to-edge override on detail page to make breadcrumb visible
 
 ### Pending Todos
 
@@ -74,6 +76,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T14:11:14.122Z
-Stopped at: Completed 19-01-PLAN.md (SUMMARY created retroactively)
+Last session: 2026-03-23T14:34:15.969Z
+Stopped at: Completed 20-01-PLAN.md
 Resume file: None

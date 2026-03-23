@@ -23,9 +23,9 @@
 
 ### 상세 페이지
 
-- [ ] **DETL-01**: 갤러리 탭↔네비게이션 바 사이에 브레드크럼과 적절한 여백(24px) 추가
-- [ ] **DETL-02**: 비슷한 차량 추천 그리드를 4열에서 3열로 변경
-- [ ] **DETL-03**: 상세 페이지 각 정보 섹션 카드 간 세로 간격을 32px로 통일
+- [x] **DETL-01**: 갤러리 탭↔네비게이션 바 사이에 브레드크럼과 적절한 여백(24px) 추가
+- [x] **DETL-02**: 비슷한 차량 추천 그리드를 4열에서 3열로 변경
+- [x] **DETL-03**: 상세 페이지 각 정보 섹션 카드 간 세로 간격을 32px로 통일
 
 ### 글로벌 공통
 
@@ -62,9 +62,9 @@ _(v3.0에서 다룰 항목)_
 | SRCH-02 | Phase 19 | Complete |
 | SRCH-03 | Phase 19 | Complete |
 | SRCH-04 | Phase 19 | Complete |
-| DETL-01 | Phase 20 | Pending |
-| DETL-02 | Phase 20 | Pending |
-| DETL-03 | Phase 20 | Pending |
+| DETL-01 | Phase 20 | Complete |
+| DETL-02 | Phase 20 | Complete |
+| DETL-03 | Phase 20 | Complete |
 | GLBL-01 | Phase 18 | Complete |
 | GLBL-02 | Phase 18 | Complete |
 | GLBL-03 | Phase 18 | Complete |

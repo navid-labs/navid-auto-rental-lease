@@ -1,5 +1,26 @@
 # Milestones
 
+## v2.1 Visual Polish (Shipped: 2026-03-23)
+
+**Phases:** 3 | **Plans:** 4 | **Tasks:** 7 | **Requirements:** 14/14
+**Timeline:** ~1.5 hours (2026-03-23)
+**Source changes:** 18 files, +38/-23 lines
+
+**Key accomplishments:**
+1. Navigation bar height increased to 52px with global 24px content breathing room across all page layouts
+2. Homepage sections spaced 80px+ apart with 3-column featured vehicle grid (was 4-column)
+3. Search section internal padding increased to 40px+ with 24px promo card gaps
+4. Search page vehicle card grid gap increased to 24px with 16px card internal padding
+5. Breadcrumb navigation added to vehicle detail page (홈 > 내차사기 > 브랜드 모델)
+6. Similar vehicles grid normalized to 3-column/6-item and all section cards spaced at uniform 32px
+
+**Known tech debt:**
+- Server fetches 8 similar vehicles but renders only 6 (take: 8 vs slice(0,6))
+
+**Archive:** `.planning/milestones/v2.1-ROADMAP.md`
+
+---
+
 ## v2.0 K Car Style Redesign (Shipped: 2026-03-23)
 
 **Phases completed:** 5 phases, 18 plans, 0 tasks

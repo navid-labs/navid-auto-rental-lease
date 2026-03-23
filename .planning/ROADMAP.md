@@ -5,7 +5,7 @@
 - ✅ **v1.0 Demo MVP** -- Phases 1-9 (shipped 2026-03-10)
 - ✅ **v1.1 Inventory Admin** -- Phases 10-12 (shipped 2026-03-10)
 - ✅ **v2.0 K Car Style Redesign** -- Phases 13-17 (shipped 2026-03-23)
-- 🚧 **v2.1 Visual Polish** -- Phases 18-20 (in progress)
+- ✅ **v2.1 Visual Polish** -- Phases 18-20 (shipped 2026-03-23)
 
 ## Phases
 
@@ -44,60 +44,11 @@
 
 </details>
 
-### v2.1 Visual Polish (In Progress)
+<details>
+<summary>✅ v2.1 Visual Polish (Phases 18-20) -- SHIPPED 2026-03-23</summary>
 
-- [x] **Phase 18: Global Spacing Foundation** - Nav bar height, content top margins, admin spacing rules (completed 2026-03-23)
-- [x] **Phase 19: Homepage & Search Spacing** - Section gaps, card grids, filter area padding (completed 2026-03-23)
-- [x] **Phase 20: Detail Page Spacing** - Gallery breadcrumb, section card gaps, similar vehicles grid (completed 2026-03-23)
+- [x] Phase 18: Global Spacing Foundation (1/1 plans) -- completed 2026-03-23
+- [x] Phase 19: Homepage & Search Spacing (2/2 plans) -- completed 2026-03-23
+- [x] Phase 20: Detail Page Spacing (1/1 plans) -- completed 2026-03-23
 
-## Phase Details
-
-### Phase 18: Global Spacing Foundation
-**Goal**: All pages share consistent navigation height and content start margins
-**Depends on**: Nothing (first phase of v2.1)
-**Requirements**: GLBL-01, GLBL-02, GLBL-03
-**Success Criteria** (what must be TRUE):
-  1. Navigation bar across all pages renders at 52px height (up from 44px)
-  2. Every page's content starts with 24-32px of breathing room below the navigation
-  3. Admin dashboard pages follow the same spacing rules as public pages
-**Plans**: 1 plan
-
-Plans:
-- [x] 18-01-PLAN.md -- Nav height, layout padding, per-page de-duplication, visual verification (completed 2026-03-23)
-
-### Phase 19: Homepage & Search Spacing
-**Goal**: Homepage sections and search results feel spacious with generous gaps between elements
-**Depends on**: Phase 18
-**Requirements**: HOME-01, HOME-02, HOME-03, HOME-04, SRCH-01, SRCH-02, SRCH-03, SRCH-04
-**Success Criteria** (what must be TRUE):
-  1. Homepage sections (hero, search, quick links, featured, promos, partners) have visible breathing room between them (80px+ gaps)
-  2. Homepage featured vehicles display in a 3-column grid instead of 4, with each card having more horizontal space
-  3. Homepage search section and promotion cards have generous internal padding and inter-card gaps
-  4. Search results page shows vehicle cards with 24px gaps, and the search bar / breadcrumb / filter transitions have clear spacing
-  5. Vehicle cards on the search page have increased internal padding between image and text content
-**Plans**: 2 plans
-
-Plans:
-- [x] 19-01-PLAN.md -- Homepage section spacing, 3-col grid, search box padding, promo gaps (completed 2026-03-23)
-- [x] 19-02-PLAN.md -- Search page grid gap, breadcrumb spacing, card padding, filter pill margins (completed 2026-03-23)
-
-### Phase 20: Detail Page Spacing
-**Goal**: Vehicle detail page has proper visual hierarchy with breadcrumb navigation and consistent section spacing
-**Depends on**: Phase 18
-**Requirements**: DETL-01, DETL-02, DETL-03
-**Success Criteria** (what must be TRUE):
-  1. A breadcrumb trail appears between the navigation bar and the gallery, with 24px of spacing separating them
-  2. Similar vehicles recommendation section displays in a 3-column grid (matching homepage pattern)
-  3. All information section cards on the detail page are separated by a uniform 32px vertical gap
-**Plans**: 1 plan
-
-Plans:
-- [ ] 20-01-PLAN.md -- Breadcrumb navigation, 3-col similar vehicles grid, uniform 32px section gaps
-
-## Progress
-
-| Phase | Milestone | Plans Complete | Status | Completed |
-|-------|-----------|----------------|--------|-----------|
-| 18. Global Spacing Foundation | v2.1 | Complete    | 2026-03-23 | 2026-03-23 |
-| 19. Homepage & Search Spacing | 2/2 | Complete    | 2026-03-23 | - |
-| 20. Detail Page Spacing | 1/1 | Complete    | 2026-03-23 | - |
+</details>

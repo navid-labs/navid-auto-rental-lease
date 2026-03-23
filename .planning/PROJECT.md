@@ -39,17 +39,18 @@
 - ✓ 어드민 디자인 토큰 통일 + 비교 하이라이팅 — v2.0
 - ✓ 모바일 375px 반응형 검증 + 리그레션 테스트 (439 tests) — v2.0
 
+### Validated (v2.1 Visual Polish — 2026-03-23)
+
+- ✓ 네비게이션 바 52px 높이 + 전 페이지 24px 상단 여백 통일 — v2.1
+- ✓ 홈페이지 섹션 간 80px+ 여백 + 추천차량 3열 그리드 — v2.1
+- ✓ 검색 섹션 패딩 40px+ 확대 + 프로모션 카드 24px 간격 — v2.1
+- ✓ 검색 페이지 차량 카드 gap 24px + 내부 패딩 16px — v2.1
+- ✓ 상세 페이지 브레드크럼 내비게이션 + 24px 여백 — v2.1
+- ✓ 비슷한 차량 3열 그리드 + 섹션 카드 32px 균일 간격 — v2.1
+
 ### Active
 
-## Current Milestone: v2.1 Visual Polish — 여백/미적 개선
-
-**Goal:** K Car 수준의 여백과 시각적 완성도를 전 페이지에 적용하여 빡빡한 레이아웃을 개선
-
-**Target features:**
-- 홈페이지 섹션 간 여백 확대 + 추천차량 3열 + 검색섹션 패딩
-- 검색 페이지 카드 gap/여백 확대
-- 상세 페이지 갤러리 상단 여백 + 브레드크럼 + 추천차량 3열
-- 글로벌 네비 바 높이 + 페이지 시작 여백 통일
+_(No active requirements — next milestone pending)_
 
 ### Out of Scope
 
@@ -103,19 +104,29 @@
 | 계약 데이터 | 13건 (7개 상태 전부 커버) |
 | 총 개발 시간 | ~1.05시간 (Plan 실행 기준) |
 
+## Key Decisions (v2.1)
+
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| Layout-level pt-6 패턴 | 페이지별 padding 중복 제거, 단일 소스 | ✅ 전 페이지 24px 통일 |
+| -mt-6 edge-to-edge 오버라이드 | 히어로/갤러리는 네비 바에 붙어야 함 | ✅ 선택적 적용 |
+| 3-col 그리드 통일 | K Car 스타일 적정 밀도, 시각적 일관성 | ✅ 홈/검색/상세 동일 |
+
 ## Current State
 
+**v2.1 Visual Polish shipped 2026-03-23.**
+- 20 phases total (v1.0: 9, v1.1: 3, v2.0: 5, v2.1: 3), 52 plans executed
+- 18 source files modified, +38/-23 lines in v2.1 (spacing-only CSS changes)
+- 439 tests across 50 files, type-check clean
+- 14/14 v2.1 requirements satisfied, 1 minor tech debt item
+
 **v2.0 K Car Style Redesign shipped 2026-03-23.**
-- 17 phases total (v1.0: 9, v1.1: 3, v2.0: 5), 48 plans executed
-- 166 files modified, +25,221 lines in v2.0
-- 439 tests across 50 files, type-check clean, build clean
-- Demo seed: 12 accounts, 26 contracts, 267 vehicles (8 brands)
+- 166 files modified, +25,221 lines
 - K Car 수준의 검색/상세/홈 UI 완성, 비교 기능, 모바일 반응형
 
 **v1.0 Demo MVP shipped 2026-03-10.**
 - 9 phases, 22 plans, 213 source files, 18,276 LOC TypeScript
-- 264 tests across 30 files
 
 ---
 
-*Last updated: 2026-03-23 after v2.1 milestone start*
+*Last updated: 2026-03-23 after v2.1 milestone completion*

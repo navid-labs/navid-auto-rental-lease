@@ -1,5 +1,14 @@
 # Milestones
 
+## v2.0 K Car Style Redesign (Shipped: 2026-03-23)
+
+**Phases completed:** 5 phases, 18 plans, 0 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+
 ## v1.0 Demo MVP (Shipped: 2026-03-10)
 
 **Phases:** 9 | **Plans:** 22 | **Commits:** 153 | **LOC:** 18,276

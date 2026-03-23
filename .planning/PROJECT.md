@@ -28,23 +28,20 @@
 - [x] 잔존가치 자동 산정 — 브랜드/모델/연식별 관리자 테이블 (Phase 6)
 - [x] 반응형 웹 디자인 — 모바일 카드 레이아웃, skeleton loading (Phase 9)
 
+### Validated (v2.0 K Car Style Redesign — 2026-03-23)
+
+- ✓ K Car 스타일 차량 검색 페이지 (15개 필터 + 무한스크롤 + 비교함) — v2.0
+- ✓ K Car 스타일 차량 상세 페이지 (10개 정보 섹션 + Sticky 사이드바) — v2.0
+- ✓ K Car 스타일 차량 카드 디자인 (배지, 보증 바, 스펙라인, 태그) — v2.0
+- ✓ K Car 스타일 홈페이지 (히어로 배너, 퀵링크, 추천 차량) — v2.0
+- ✓ K Car 스타일 글로벌 네비게이션 + 푸터 + 브레드크럼 — v2.0
+- ✓ 차량 진단결과/과거이력/보증 타임라인 UI — v2.0
+- ✓ 어드민 디자인 토큰 통일 + 비교 하이라이팅 — v2.0
+- ✓ 모바일 375px 반응형 검증 + 리그레션 테스트 (439 tests) — v2.0
+
 ### Active
 
-## Current Milestone: v2.0 K Car Style Redesign
-
-**Goal:** K Car(kcar.com) 디자인과 페이지 구조를 완전히 카피하여 프로덕션급 UI/UX로 전환. 특히 차량 상세 페이지의 진단/이력/보증 정보 구조, 검색 필터 사이드바, 차량 카드 디자인을 K Car 수준으로 재구축.
-
-**Target features:**
-- K Car 스타일 차량 검색 페이지 (14개 필터 사이드바 + 3열 카드 그리드)
-- K Car 스타일 차량 상세 페이지 (10개 정보 섹션 + Sticky 사이드바)
-- K Car 스타일 차량 카드 디자인 (배지, 보증 바, 스펙라인, 태그)
-- K Car 스타일 홈페이지 (히어로 배너, 퀵링크, 프로모션)
-- K Car 스타일 렌트 페이지 (필터 + 렌트비 계산)
-- K Car 스타일 글로벌 네비게이션 + 푸터
-- 차량 진단결과 UI (외부 패널 도면, 진단 카테고리)
-- 차량 과거이력 UI (사고, 소유주변경, 주의이력)
-- K Car Warranty 스타일 보증 타임라인
-- 구매비용 계산기 (Sticky 사이드바)
+_(Next milestone requirements will be defined via `/gsd:new-milestone`)_
 
 ### Out of Scope
 
@@ -100,11 +97,18 @@
 
 ## Current State
 
+**v2.0 K Car Style Redesign shipped 2026-03-23.**
+- 17 phases total (v1.0: 9, v1.1: 3, v2.0: 5), 48 plans executed
+- 166 files modified, +25,221 lines in v2.0
+- 439 tests across 50 files, type-check clean, build clean
+- Demo seed: 12 accounts, 26 contracts, 267 vehicles (8 brands)
+- K Car 수준의 검색/상세/홈 UI 완성, 비교 기능, 모바일 반응형
+
 **v1.0 Demo MVP shipped 2026-03-10.**
 - 9 phases, 22 plans, 213 source files, 18,276 LOC TypeScript
 - 264 tests across 30 files
-- Demo seed: 9 accounts, 13 contracts, 50+ vehicles
-- Tech debt: 10 items tracked in `.planning/milestones/v1.0-MILESTONE-AUDIT.md`
 
 ---
+
+*Last updated: 2026-03-23 after v2.0 milestone*
 *Last updated: 2026-03-19 after v2.0 milestone start*

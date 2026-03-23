@@ -17,7 +17,9 @@ export default function HomePage() {
       </div>
 
       {/* 2. Search Box (extracted from old hero) */}
-      <HeroSearchBox />
+      <div className="mt-10">
+        <HeroSearchBox />
+      </div>
 
       {/* 3. Quick Links Icon Bar */}
       <QuickLinks />
@@ -48,7 +50,7 @@ function SectionSkeleton({ title }: { title: string }) {
             ))}
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="h-64 animate-pulse rounded-xl bg-muted" />
           ))}

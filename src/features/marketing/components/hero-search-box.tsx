@@ -71,9 +71,9 @@ export function HeroSearchBox() {
   }
 
   return (
-    <section className="bg-white py-6 md:py-8">
+    <section className="bg-white py-10 md:py-12">
       <div className="mx-auto max-w-3xl px-4">
-        <h2 className="mb-4 text-center text-[18px] font-bold text-[#0D0D0D]">
+        <h2 className="mb-8 text-center text-[18px] font-bold text-[#0D0D0D]">
           어떤 차를 찾으세요?
         </h2>
         <div className="rounded-2xl border border-[#E8E8E8] bg-white shadow-sm">
@@ -99,7 +99,7 @@ export function HeroSearchBox() {
           </div>
 
           {/* Filter area */}
-          <div className="flex flex-col gap-3 px-6 py-5 sm:flex-row sm:items-center">
+          <div className="flex flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center">
             {/* Brand/Model tab */}
             {activeTab === '제조사/모델' && (
               <>

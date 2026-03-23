@@ -43,7 +43,7 @@ export function PromoBanners() {
     <section className="bg-white py-10 md:py-12">
       <div className="mx-auto max-w-7xl px-4">
         <h2 className="mb-5 text-[24px] font-bold text-[#0D0D0D]">서비스</h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {PROMOS.map((promo) => (
             <Link
               key={promo.tag}

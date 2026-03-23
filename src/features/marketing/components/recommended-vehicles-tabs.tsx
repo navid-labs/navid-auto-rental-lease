@@ -57,7 +57,7 @@ export function RecommendedVehiclesTabs({ popular, newest, deals }: Props) {
 
       {/* Vehicle grid: 4-col desktop, 2-col mobile */}
       {vehicles.length > 0 ? (
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
           {vehicles.map((vehicle) => (
             <VehicleCard key={vehicle.id} vehicle={vehicle} />
           ))}

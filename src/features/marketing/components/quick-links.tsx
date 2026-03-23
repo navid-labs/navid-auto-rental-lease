@@ -17,7 +17,7 @@ const QUICK_LINKS: QuickLink[] = [
 
 export function QuickLinks() {
   return (
-    <section className="bg-white py-6">
+    <section className="bg-white py-8">
       <div className="mx-auto max-w-7xl px-4">
         {/* Desktop: evenly spread, Mobile: horizontal scroll */}
         <div className="flex items-start gap-4 overflow-x-auto scrollbar-hide md:justify-between md:overflow-visible">

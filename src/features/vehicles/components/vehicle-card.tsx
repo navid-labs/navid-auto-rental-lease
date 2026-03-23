@@ -185,7 +185,7 @@ export function VehicleCard({ vehicle }: { vehicle: VehicleWithDetails }) {
         </div>
 
         {/* Info section */}
-        <div className="p-3.5">
+        <div className="p-4">
           {/* Spec line */}
           <p className="text-xs text-muted-foreground">
             {vehicle.year}.01 | {formatDistance(vehicle.mileage)} |{' '}

@@ -9,7 +9,7 @@ const PARTNERS = [
 
 export function PartnerLogos() {
   return (
-    <section className="border-t border-[#F0F0F0] bg-white py-8">
+    <section className="border-t border-[#F0F0F0] bg-white py-10">
       <div className="mx-auto max-w-7xl px-4">
         <p className="mb-4 text-center text-[13px] font-medium text-[#7A7A7A]">금융 파트너사</p>
         <div className="flex items-center justify-center gap-8 md:gap-12">

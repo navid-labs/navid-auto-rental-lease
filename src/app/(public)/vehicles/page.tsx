@@ -43,7 +43,7 @@ export default async function VehiclesPage({
       <VehicleSearchBar />
 
       {/* Breadcrumb */}
-      <div className="mx-auto max-w-[1440px] px-4 lg:px-8 xl:px-[120px]">
+      <div className="mx-auto max-w-[1440px] px-4 pt-6 lg:px-8 xl:px-[120px]">
         <BreadcrumbNav items={[{ label: '내차사기' }]} />
       </div>
 

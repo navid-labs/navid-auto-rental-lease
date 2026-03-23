@@ -1,4 +1,4 @@
-# Requirements: Navid Auto — v2.1 Visual Polish
+# Requirements: Navid Auto -- v2.1 Visual Polish
 
 **Defined:** 2026-03-23
 **Core Value:** K Car 수준의 여백과 시각적 완성도를 전 페이지에 적용
@@ -37,7 +37,7 @@
 
 _(v3.0에서 다룰 항목)_
 
-- 섹션 간 배경색 분리 (grey/white 교차) — K Car 패턴
+- 섹션 간 배경색 분리 (grey/white 교차) -- K Car 패턴
 - 어드민 대시보드 전면 리디자인
 - 모바일 375px 여백 별도 최적화
 
@@ -54,26 +54,26 @@ _(v3.0에서 다룰 항목)_
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HOME-01 | TBD | Pending |
-| HOME-02 | TBD | Pending |
-| HOME-03 | TBD | Pending |
-| HOME-04 | TBD | Pending |
-| SRCH-01 | TBD | Pending |
-| SRCH-02 | TBD | Pending |
-| SRCH-03 | TBD | Pending |
-| SRCH-04 | TBD | Pending |
-| DETL-01 | TBD | Pending |
-| DETL-02 | TBD | Pending |
-| DETL-03 | TBD | Pending |
-| GLBL-01 | TBD | Pending |
-| GLBL-02 | TBD | Pending |
-| GLBL-03 | TBD | Pending |
+| HOME-01 | Phase 19 | Pending |
+| HOME-02 | Phase 19 | Pending |
+| HOME-03 | Phase 19 | Pending |
+| HOME-04 | Phase 19 | Pending |
+| SRCH-01 | Phase 19 | Pending |
+| SRCH-02 | Phase 19 | Pending |
+| SRCH-03 | Phase 19 | Pending |
+| SRCH-04 | Phase 19 | Pending |
+| DETL-01 | Phase 20 | Pending |
+| DETL-02 | Phase 20 | Pending |
+| DETL-03 | Phase 20 | Pending |
+| GLBL-01 | Phase 18 | Pending |
+| GLBL-02 | Phase 18 | Pending |
+| GLBL-03 | Phase 18 | Pending |
 
 **Coverage:**
 - v2.1 requirements: 14 total
-- Mapped to phases: 0
-- Unmapped: 14 ⚠️
+- Mapped to phases: 14
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-23*
-*Last updated: 2026-03-23 after visual audit*
+*Last updated: 2026-03-23 after roadmap creation*

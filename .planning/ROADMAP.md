@@ -78,8 +78,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 19-01-PLAN.md -- Homepage section spacing, 3-col grid, search box padding, promo gaps
-- [ ] 19-02-PLAN.md -- Search page grid gap, breadcrumb spacing, card padding, filter pill margins
+- [x] 19-01-PLAN.md -- Homepage section spacing, 3-col grid, search box padding, promo gaps (completed 2026-03-23)
+- [x] 19-02-PLAN.md -- Search page grid gap, breadcrumb spacing, card padding, filter pill margins (completed 2026-03-23)
 
 ### Phase 20: Detail Page Spacing
 **Goal**: Vehicle detail page has proper visual hierarchy with breadcrumb navigation and consistent section spacing
@@ -89,10 +89,10 @@ Plans:
   1. A breadcrumb trail appears between the navigation bar and the gallery, with 24px of spacing separating them
   2. Similar vehicles recommendation section displays in a 3-column grid (matching homepage pattern)
   3. All information section cards on the detail page are separated by a uniform 32px vertical gap
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 20-01: TBD
+- [ ] 20-01-PLAN.md -- Breadcrumb navigation, 3-col similar vehicles grid, uniform 32px section gaps
 
 ## Progress
 
@@ -100,4 +100,4 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 18. Global Spacing Foundation | v2.1 | Complete    | 2026-03-23 | 2026-03-23 |
 | 19. Homepage & Search Spacing | 2/2 | Complete    | 2026-03-23 | - |
-| 20. Detail Page Spacing | v2.1 | 0/? | Not started | - |
+| 20. Detail Page Spacing | v2.1 | 0/1 | Not started | - |

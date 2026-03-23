@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/prisma'
 import { VehicleDetailPage } from '@/features/vehicles/components/detail/vehicle-detail-page'
 import { getResidualRate } from '@/features/pricing/actions/residual-rate'
 import { getKoreanVehicleName } from '@/lib/utils/format'
+import { BreadcrumbNav } from '@/components/layout/breadcrumb-nav'
 import type { Metadata } from 'next'
 import type { VehicleDetailData, VehicleWithDetails } from '@/features/vehicles/types'
 
@@ -104,9 +105,19 @@ export default async function VehicleDetailServerPage({ params }: PageProps) {
   ])
 
   const vehicleName = getKoreanVehicleName(vehicle)
+  const brand = vehicle.trim.generation.carModel.brand
+  const model = vehicle.trim.generation.carModel
 
   return (
-    <div className="-mt-6 pb-safe">
+    <div className="pb-safe">
+      <div className="mx-auto max-w-7xl px-4 lg:px-0">
+        <BreadcrumbNav
+          items={[
+            { label: '내차사기', href: '/vehicles' },
+            { label: `${brand.nameKo || brand.name} ${model.nameKo || model.name}` },
+          ]}
+        />
+      </div>
       <VehicleDetailPage
         vehicle={vehicle as unknown as VehicleDetailData}
         residualRate={residualRate}

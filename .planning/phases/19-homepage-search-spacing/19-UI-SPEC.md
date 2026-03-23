@@ -1,7 +1,8 @@
 ---
 phase: 19
 slug: homepage-search-spacing
-status: draft
+status: approved
+reviewed_at: 2026-03-23
 shadcn_initialized: true
 preset: base-nova
 created: 2026-03-23

@@ -75,11 +75,11 @@ Plans:
   3. Homepage search section and promotion cards have generous internal padding and inter-card gaps
   4. Search results page shows vehicle cards with 24px gaps, and the search bar / breadcrumb / filter transitions have clear spacing
   5. Vehicle cards on the search page have increased internal padding between image and text content
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 19-01: TBD
-- [ ] 19-02: TBD
+- [ ] 19-01-PLAN.md -- Homepage section spacing, 3-col grid, search box padding, promo gaps
+- [ ] 19-02-PLAN.md -- Search page grid gap, breadcrumb spacing, card padding, filter pill margins
 
 ### Phase 20: Detail Page Spacing
 **Goal**: Vehicle detail page has proper visual hierarchy with breadcrumb navigation and consistent section spacing
@@ -99,5 +99,5 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 18. Global Spacing Foundation | v2.1 | Complete    | 2026-03-23 | 2026-03-23 |
-| 19. Homepage & Search Spacing | v2.1 | 0/? | Not started | - |
+| 19. Homepage & Search Spacing | v2.1 | 0/2 | Planned | - |
 | 20. Detail Page Spacing | v2.1 | 0/? | Not started | - |

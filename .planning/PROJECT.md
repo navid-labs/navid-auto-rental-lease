@@ -41,7 +41,15 @@
 
 ### Active
 
-_(Next milestone requirements will be defined via `/gsd:new-milestone`)_
+## Current Milestone: v2.1 Visual Polish — 여백/미적 개선
+
+**Goal:** K Car 수준의 여백과 시각적 완성도를 전 페이지에 적용하여 빡빡한 레이아웃을 개선
+
+**Target features:**
+- 홈페이지 섹션 간 여백 확대 + 추천차량 3열 + 검색섹션 패딩
+- 검색 페이지 카드 gap/여백 확대
+- 상세 페이지 갤러리 상단 여백 + 브레드크럼 + 추천차량 3열
+- 글로벌 네비 바 높이 + 페이지 시작 여백 통일
 
 ### Out of Scope
 
@@ -110,5 +118,4 @@ _(Next milestone requirements will be defined via `/gsd:new-milestone`)_
 
 ---
 
-*Last updated: 2026-03-23 after v2.0 milestone*
-*Last updated: 2026-03-19 after v2.0 milestone start*
+*Last updated: 2026-03-23 after v2.1 milestone start*

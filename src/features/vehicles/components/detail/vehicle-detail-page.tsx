@@ -111,7 +111,7 @@ export function VehicleDetailPage({
       {/* Content + Sidebar: 7:3 split */}
       <div className="flex gap-8 px-4 lg:gap-10 lg:px-0">
         {/* Main content: 70% */}
-        <div className="min-w-0 flex-1 space-y-8 py-6 lg:space-y-10">
+        <div className="min-w-0 flex-1 space-y-8 py-6">
           <section id="price">
             <SectionPrice
               price={vehicle.price}
@@ -195,8 +195,8 @@ export function VehicleDetailPage({
           <h2 className="mb-4 text-lg font-semibold">
             비슷한 차량 추천
           </h2>
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {similarVehicles.slice(0, 8).map((v) => (
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+            {similarVehicles.slice(0, 6).map((v) => (
               <VehicleCard key={v.id} vehicle={v} />
             ))}
           </div>

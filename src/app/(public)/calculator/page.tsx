@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function CalculatorPage() {
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
+    <div className="mx-auto max-w-4xl px-4 pb-10">
       <BreadcrumbNav items={[{ label: '금융계산기' }]} />
 
       {/* Page header */}

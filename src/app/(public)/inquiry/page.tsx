@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function InquiryPage() {
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12 md:px-6">
+    <div className="mx-auto max-w-4xl px-4 pb-12 md:px-6">
       <BreadcrumbNav items={[{ label: '문의하기' }]} />
 
       <div className="mb-10 text-center">

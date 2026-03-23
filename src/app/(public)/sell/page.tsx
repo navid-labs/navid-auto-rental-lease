@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default function SellPage() {
   return (
     <>
-      <div className="mx-auto max-w-7xl px-4 pt-6">
+      <div className="mx-auto max-w-7xl px-4">
         <BreadcrumbNav items={[{ label: '내차팔기' }]} />
       </div>
       <SellHeroSection />

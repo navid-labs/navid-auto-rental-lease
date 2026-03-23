@@ -106,7 +106,7 @@ export default async function VehicleDetailServerPage({ params }: PageProps) {
   const vehicleName = getKoreanVehicleName(vehicle)
 
   return (
-    <div className="pb-safe">
+    <div className="-mt-6 pb-safe">
       <VehicleDetailPage
         vehicle={vehicle as unknown as VehicleDetailData}
         residualRate={residualRate}

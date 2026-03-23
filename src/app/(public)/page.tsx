@@ -12,7 +12,9 @@ export default function HomePage() {
   return (
     <>
       {/* 1. Hero Banner Carousel */}
-      <HeroBanner />
+      <div className="-mt-6">
+        <HeroBanner />
+      </div>
 
       {/* 2. Search Box (extracted from old hero) */}
       <HeroSearchBox />

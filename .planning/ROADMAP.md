@@ -60,11 +60,10 @@
   1. Navigation bar across all pages renders at 52px height (up from 44px)
   2. Every page's content starts with 24-32px of breathing room below the navigation
   3. Admin dashboard pages follow the same spacing rules as public pages
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 18-01: TBD
-- [ ] 18-02: TBD
+- [ ] 18-01-PLAN.md -- Nav height, layout padding, per-page de-duplication, visual verification
 
 ### Phase 19: Homepage & Search Spacing
 **Goal**: Homepage sections and search results feel spacious with generous gaps between elements
@@ -99,6 +98,6 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 18. Global Spacing Foundation | v2.1 | 0/? | Not started | - |
+| 18. Global Spacing Foundation | v2.1 | 0/1 | Planning complete | - |
 | 19. Homepage & Search Spacing | v2.1 | 0/? | Not started | - |
 | 20. Detail Page Spacing | v2.1 | 0/? | Not started | - |

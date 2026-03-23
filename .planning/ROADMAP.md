@@ -4,7 +4,7 @@
 
 - ✅ **v1.0 Demo MVP** -- Phases 1-9 (shipped 2026-03-10)
 - ✅ **v1.1 Inventory Admin** -- Phases 10-12 (shipped 2026-03-10)
-- 🚧 **v2.0 K Car Style Redesign** -- Phases 13-17 (in progress)
+- ✅ **v2.0 K Car Style Redesign** -- Phases 13-17 (shipped 2026-03-23)
 
 ## Phases
 
@@ -40,7 +40,7 @@
 - [x] **Phase 14: Vehicle Detail Page** - K Car 스타일 차량 상세 페이지 전면 재구축 (갤러리, 진단, 이력, 보증, Sticky 사이드바) (completed 2026-03-20)
 - [x] **Phase 15: Search & Listing Page** - K Car 스타일 검색/목록 페이지 (15개 필터, 무한스크롤, 카드 리디자인, 비교함) (gap closure in progress) (completed 2026-03-22)
 - [x] **Phase 16: Homepage & Navigation** - K Car 스타일 홈페이지, 글로벌 헤더/푸터, 브레드크럼 네비게이션 (completed 2026-03-22)
-- [ ] **Phase 17: Admin Refresh & Polish** - 어드민 디자인 통일, 비교 테이블, 모바일 반응형 검증, 리그레션 테스트
+- [x] **Phase 17: Admin Refresh & Polish** - 어드민 디자인 통일, 비교 테이블, 모바일 반응형 검증, 리그레션 테스트 (completed 2026-03-23)
 
 ## Phase Details
 
@@ -126,8 +126,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 17-01-PLAN.md -- Admin token unification (semantic tokens for 5 admin files) + comparison highlighting (shared utility + green/red cells) + max vehicle fix
-- [ ] 17-02-PLAN.md -- Mobile 375px viewport audit (Playwright e2e) + full regression verification (vitest + build + type-check) + visual checkpoint
+- [x] 17-01-PLAN.md -- Admin token unification (semantic tokens for 5 admin files) + comparison highlighting (shared utility + green/red cells) + max vehicle fix
+- [x] 17-02-PLAN.md -- Mobile 375px viewport audit (Playwright e2e) + full regression verification (vitest + build + type-check) + visual checkpoint
 
 ## Progress
 
@@ -151,4 +151,4 @@ Plans:
 | 14. Vehicle Detail Page | v2.0 | 5/5 | Complete | 2026-03-20 |
 | 15. Search & Listing Page | v2.0 | 5/5 | Complete | 2026-03-22 |
 | 16. Homepage & Navigation | v2.0 | 4/4 | Complete | 2026-03-22 |
-| 17. Admin Refresh & Polish | 1/2 | In Progress|  | - |
+| 17. Admin Refresh & Polish | v2.0 | 2/2 | Complete | 2026-03-23 |

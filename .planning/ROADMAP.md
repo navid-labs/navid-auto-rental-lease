@@ -46,7 +46,7 @@
 
 ### v2.1 Visual Polish (In Progress)
 
-- [ ] **Phase 18: Global Spacing Foundation** - Nav bar height, content top margins, admin spacing rules
+- [x] **Phase 18: Global Spacing Foundation** - Nav bar height, content top margins, admin spacing rules (completed 2026-03-23)
 - [ ] **Phase 19: Homepage & Search Spacing** - Section gaps, card grids, filter area padding
 - [ ] **Phase 20: Detail Page Spacing** - Gallery breadcrumb, section card gaps, similar vehicles grid
 
@@ -63,7 +63,7 @@
 **Plans**: 1 plan
 
 Plans:
-- [ ] 18-01-PLAN.md -- Nav height, layout padding, per-page de-duplication, visual verification
+- [x] 18-01-PLAN.md -- Nav height, layout padding, per-page de-duplication, visual verification (completed 2026-03-23)
 
 ### Phase 19: Homepage & Search Spacing
 **Goal**: Homepage sections and search results feel spacious with generous gaps between elements
@@ -98,6 +98,6 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 18. Global Spacing Foundation | v2.1 | 0/1 | Planning complete | - |
+| 18. Global Spacing Foundation | v2.1 | 1/1 | Complete | 2026-03-23 |
 | 19. Homepage & Search Spacing | v2.1 | 0/? | Not started | - |
 | 20. Detail Page Spacing | v2.1 | 0/? | Not started | - |

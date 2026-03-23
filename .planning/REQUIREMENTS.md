@@ -29,9 +29,9 @@
 
 ### 글로벌 공통
 
-- [ ] **GLBL-01**: 네비게이션 바 높이를 44px에서 52px로 확대
-- [ ] **GLBL-02**: 모든 페이지의 콘텐츠 시작 상단 여백을 24-32px로 통일
-- [ ] **GLBL-03**: 어드민 대시보드에 동일한 여백 규칙 일괄 적용
+- [x] **GLBL-01**: 네비게이션 바 높이를 44px에서 52px로 확대
+- [x] **GLBL-02**: 모든 페이지의 콘텐츠 시작 상단 여백을 24-32px로 통일
+- [x] **GLBL-03**: 어드민 대시보드에 동일한 여백 규칙 일괄 적용
 
 ## Future Requirements
 
@@ -65,9 +65,9 @@ _(v3.0에서 다룰 항목)_
 | DETL-01 | Phase 20 | Pending |
 | DETL-02 | Phase 20 | Pending |
 | DETL-03 | Phase 20 | Pending |
-| GLBL-01 | Phase 18 | Pending |
-| GLBL-02 | Phase 18 | Pending |
-| GLBL-03 | Phase 18 | Pending |
+| GLBL-01 | Phase 18 | Complete |
+| GLBL-02 | Phase 18 | Complete |
+| GLBL-03 | Phase 18 | Complete |
 
 **Coverage:**
 - v2.1 requirements: 14 total

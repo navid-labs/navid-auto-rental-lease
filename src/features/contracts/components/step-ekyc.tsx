@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ekycSchema, type EkycData } from '@/features/contracts/schemas/contract'
-import { sendVerificationCode } from '@/features/contracts/actions/send-verification-code'
+import { postContractsEkycSendCode } from '@/lib/api/generated/contracts/contracts'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -53,11 +53,14 @@ export function StepEkyc({ onSubmit, onBack, isSubmitting }: StepEkycProps) {
   const handleSendCode = async () => {
     if (!phone || phone.length < 10) return
     setSendingCode(true)
-    const result = await sendVerificationCode(phone)
-    setSendingCode(false)
-    if ('sent' in result) {
+    try {
+      await postContractsEkycSendCode({ phone })
       setCodeSent(true)
       setCountdown(180) // 3 minutes
+    } catch {
+      // silently fail — user can retry
+    } finally {
+      setSendingCode(false)
     }
   }
 

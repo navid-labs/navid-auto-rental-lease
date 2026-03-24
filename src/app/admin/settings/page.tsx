@@ -2,8 +2,8 @@ export const dynamic = 'force-dynamic'
 
 import { redirect } from 'next/navigation'
 import { getCurrentUser } from '@/lib/auth/helpers'
-import { getBrands } from '@/features/vehicles/actions/get-cascade-data'
-import { getPromoRates, getDefaultSettings } from '@/features/settings/actions/settings'
+import { getBrands } from '@/features/vehicles/queries/cascade'
+import { getPromoRatesQuery, getDefaultSettingsQuery } from '@/features/settings/queries/settings'
 import { SettingsAuthGate } from '@/features/settings/components/settings-auth-gate'
 import { PromoRateTable } from '@/features/settings/components/promo-rate-table'
 import { PromoRateForm } from '@/features/settings/components/promo-rate-form'
@@ -23,8 +23,8 @@ export default async function AdminSettingsPage({ searchParams }: PageProps) {
   const tab = params.tab ?? 'promo'
 
   const [promoRates, defaultSettings, brands] = await Promise.all([
-    getPromoRates(),
-    getDefaultSettings(),
+    getPromoRatesQuery(),
+    getDefaultSettingsQuery(),
     getBrands(),
   ])
 

@@ -6,8 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StepPlateLookup } from './step-plate-lookup'
 import { StepDetails } from './step-details'
 import { StepPhotos } from './step-photos'
-import { createVehicle } from '@/features/vehicles/actions/create-vehicle'
-import { updateVehicle } from '@/features/vehicles/actions/update-vehicle'
+import {
+  createVehicle as createVehicleApi,
+  updateVehicle as updateVehicleApi,
+} from '@/lib/api/generated/vehicles/vehicles'
+import { ApiError } from '@/lib/api/fetcher'
+import type { CreateVehicle201 } from '@/lib/api/generated/navidAutoRentalLeaseAPI.schemas'
 import type { VehicleFormData, ImageItem } from '@/features/vehicles/types'
 import type { VehicleStep2Data } from '@/features/vehicles/schemas/vehicle'
 import { cn } from '@/lib/utils'
@@ -51,23 +55,23 @@ export function VehicleWizard({ mode, userRole, initialData }: VehicleWizardProp
     startTransition(async () => {
       setError('')
 
-      if (mode === 'edit' && vehicleId) {
-        const result = await updateVehicle(vehicleId, merged)
-        if ('error' in result) {
-          setError(result.error)
-          return
+      try {
+        if (mode === 'edit' && vehicleId) {
+          await updateVehicleApi(vehicleId, merged)
+          // In edit mode, vehicleId is already set; go to photos
+          setCurrentStep(3)
+        } else {
+          const response = await createVehicleApi(merged)
+          // response.data is CreateVehicle201 = { data: { success, vehicleId } }
+          setVehicleId((response.data as CreateVehicle201).data.vehicleId)
+          setCurrentStep(3)
         }
-        // In edit mode, vehicleId is already set; go to photos
-        setCurrentStep(3)
-      } else {
-        const result = await createVehicle(merged)
-        if ('error' in result) {
-          setError(result.error)
-          return
+      } catch (e) {
+        if (e instanceof ApiError) {
+          setError(e.message)
+        } else {
+          setError('요청에 실패했습니다.')
         }
-        // Store vehicleId from creation, then go to photos
-        setVehicleId(result.vehicleId)
-        setCurrentStep(3)
       }
     })
   }

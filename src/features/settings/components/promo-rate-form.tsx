@@ -4,7 +4,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTransition, useState } from 'react'
 import { promoRateSchema, type PromoRateInput } from '../schemas/settings'
-import { upsertPromoRate } from '../actions/settings'
+import { putAdminSettingsPromoRates } from '@/lib/api/generated/settings/settings'
+import { ApiError } from '@/lib/api/fetcher'
 import type { Resolver } from 'react-hook-form'
 
 type BrandOption = { id: string; name: string; nameKo: string | null }
@@ -30,12 +31,15 @@ export function PromoRateForm({ brands }: Props) {
   function onSubmit(data: PromoRateInput) {
     setMessage(null)
     startTransition(async () => {
-      const result = await upsertPromoRate(data)
-      if ('success' in result) {
+      try {
+        await putAdminSettingsPromoRates(data)
         setMessage({ type: 'success', text: '저장되었습니다.' })
         reset()
-      } else {
-        setMessage({ type: 'error', text: result.error })
+      } catch (err) {
+        setMessage({
+          type: 'error',
+          text: err instanceof ApiError ? err.message : '저장에 실패했습니다.',
+        })
       }
     })
   }

@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import type { MonthlyData } from '@/features/admin/actions/get-dashboard-stats'
+import type { MonthlyData } from '@/features/admin/queries/dashboard'
 
 const RechartsBar = dynamic(() => import('./recharts-bar'), { ssr: false })
 const RechartsLine = dynamic(() => import('./recharts-line'), { ssr: false })

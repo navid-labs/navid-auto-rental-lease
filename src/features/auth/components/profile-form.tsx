@@ -4,7 +4,8 @@ import { useTransition, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { profileUpdateSchema, type ProfileUpdateInput } from '@/features/auth/schemas/auth'
-import { updateProfile } from '@/features/auth/actions/profile'
+import { patchAuthProfile } from '@/lib/api/generated/auth/auth'
+import { ApiError } from '@/lib/api/fetcher'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -37,15 +38,17 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
   const onSubmit = (data: ProfileUpdateInput) => {
     setMessage(null)
     startTransition(async () => {
-      const formData = new FormData()
-      formData.set('name', data.name)
-      if (data.phone) formData.set('phone', data.phone)
-
-      const result = await updateProfile(formData)
-      if (result.error) {
-        setMessage({ type: 'error', text: result.error })
-      } else {
+      try {
+        await patchAuthProfile({
+          name: data.name,
+          phone: data.phone || undefined,
+        })
         setMessage({ type: 'success', text: '프로필이 업데이트되었습니다.' })
+      } catch (err) {
+        setMessage({
+          type: 'error',
+          text: err instanceof ApiError ? err.message : '업데이트에 실패했습니다.',
+        })
       }
     })
   }

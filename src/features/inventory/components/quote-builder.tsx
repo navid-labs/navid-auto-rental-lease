@@ -8,7 +8,7 @@ import { LEASE_PERIOD_OPTIONS } from '@/lib/finance'
 import { quoteParamsSchema } from '../schemas/quote-schema'
 import type { QuoteParams, InventoryVehicleForQuote, QuoteGenerationResult } from '../types/quote'
 import type { QuotePDFData } from './quote-pdf'
-import { generateQuote } from '../actions/generate-quote'
+import { postAdminInventoryQuote } from '@/lib/api/generated/inventory/inventory'
 import { QuoteResultCard } from './quote-result-card'
 
 type Props = {
@@ -104,8 +104,8 @@ export function QuoteBuilder({ selectedVehicles, onClose }: Props) {
     setError(null)
     startTransition(async () => {
       try {
-        const result = await generateQuote(selectedVehicles, data)
-        setResults(result)
+        const res = await postAdminInventoryQuote({ vehicles: selectedVehicles as never[], params: data })
+        setResults((res.data as { data: QuoteGenerationResult }).data)
       } catch (e) {
         setError(e instanceof Error ? e.message : '견적 계산 중 오류가 발생했습니다')
       }

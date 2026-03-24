@@ -3,7 +3,11 @@
 import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
-import { upsertResidualRate, deleteResidualRate } from '../actions/residual-rate'
+import {
+  putPricingResidualRates,
+  deletePricingResidualRatesId,
+} from '@/lib/api/generated/pricing/pricing'
+import { ApiError } from '@/lib/api/fetcher'
 import { Pencil, Trash2, Check, X, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -47,18 +51,18 @@ export function ResidualValueTable({ rates }: ResidualValueTableProps) {
     }
 
     startTransition(async () => {
-      const result = await upsertResidualRate({
-        brandId: row.brandId,
-        carModelId: row.carModelId,
-        year: row.year,
-        rate: percentValue / 100,
-      })
-      if ('error' in result) {
-        toast.error(result.error)
-      } else {
+      try {
+        await putPricingResidualRates({
+          brandId: row.brandId,
+          carModelId: row.carModelId,
+          year: row.year,
+          rate: percentValue / 100,
+        })
         setEditingId(null)
         setEditValue('')
         router.refresh()
+      } catch (err) {
+        toast.error(err instanceof ApiError ? err.message : '저장에 실패했습니다.')
       }
     })
   }
@@ -68,13 +72,14 @@ export function ResidualValueTable({ rates }: ResidualValueTableProps) {
 
     setDeletingId(id)
     startTransition(async () => {
-      const result = await deleteResidualRate(id)
-      if ('error' in result) {
-        toast.error(result.error)
-      } else {
+      try {
+        await deletePricingResidualRatesId(id)
         router.refresh()
+      } catch (err) {
+        toast.error(err instanceof ApiError ? err.message : '삭제에 실패했습니다.')
+      } finally {
+        setDeletingId(null)
       }
-      setDeletingId(null)
     })
   }
 

@@ -4,7 +4,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTransition, useState } from 'react'
 import { defaultSettingSchema, type DefaultSettingInput } from '../schemas/settings'
-import { upsertDefaultSetting } from '../actions/settings'
+import { putAdminSettingsDefaults } from '@/lib/api/generated/settings/settings'
+import { ApiError } from '@/lib/api/fetcher'
 import type { Resolver } from 'react-hook-form'
 
 export function SubsidyForm() {
@@ -30,12 +31,15 @@ export function SubsidyForm() {
     }
 
     startTransition(async () => {
-      const result = await upsertDefaultSetting(prefixedData)
-      if ('success' in result) {
+      try {
+        await putAdminSettingsDefaults(prefixedData)
         setMessage({ type: 'success', text: '저장되었습니다.' })
         reset()
-      } else {
-        setMessage({ type: 'error', text: result.error })
+      } catch (err) {
+        setMessage({
+          type: 'error',
+          text: err instanceof ApiError ? err.message : '저장에 실패했습니다.',
+        })
       }
     })
   }

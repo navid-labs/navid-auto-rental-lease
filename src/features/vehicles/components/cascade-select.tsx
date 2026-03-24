@@ -10,16 +10,12 @@ import {
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import {
-  getBrands,
-  getModelsByBrand,
-  getGenerationsByModel,
-  getTrimsByGeneration,
-} from '@/features/vehicles/actions/get-cascade-data'
-
-type BrandOption = { id: string; name: string; nameKo: string | null }
-type ModelOption = { id: string; name: string; nameKo: string | null }
-type GenerationOption = { id: string; name: string; startYear: number; endYear: number | null }
-type TrimOption = { id: string; name: string; fuelType: string; engineCC: number | null; transmission: string }
+  listBrands,
+  listModelsByBrand,
+  listGenerationsByModel,
+  listTrimsByGeneration,
+} from '@/lib/api/generated/vehicles/vehicles'
+import type { Brand, CarModel, Generation, Trim } from '@/lib/api/generated/navidAutoRentalLeaseAPI.schemas'
 
 type CascadeSelectProps = {
   value: {
@@ -33,10 +29,10 @@ type CascadeSelectProps = {
 
 export function CascadeSelect({ value, onChange }: CascadeSelectProps) {
   const [isPending, startTransition] = useTransition()
-  const [brands, setBrands] = useState<BrandOption[]>([])
-  const [models, setModels] = useState<ModelOption[]>([])
-  const [generations, setGenerations] = useState<GenerationOption[]>([])
-  const [trims, setTrims] = useState<TrimOption[]>([])
+  const [brands, setBrands] = useState<Brand[]>([])
+  const [models, setModels] = useState<CarModel[]>([])
+  const [generations, setGenerations] = useState<Generation[]>([])
+  const [trims, setTrims] = useState<Trim[]>([])
 
   // Track which parent IDs data was loaded for
   const [loadedBrandId, setLoadedBrandId] = useState('')
@@ -46,8 +42,8 @@ export function CascadeSelect({ value, onChange }: CascadeSelectProps) {
   // Load brands on mount
   useEffect(() => {
     startTransition(async () => {
-      const data = await getBrands()
-      setBrands(data)
+      const response = await listBrands()
+      setBrands(response.data.data ?? [])
     })
   }, [])
 
@@ -56,8 +52,8 @@ export function CascadeSelect({ value, onChange }: CascadeSelectProps) {
     if (!value.brandId) return
     if (value.brandId === loadedBrandId) return
     startTransition(async () => {
-      const data = await getModelsByBrand(value.brandId)
-      setModels(data)
+      const response = await listModelsByBrand(value.brandId)
+      setModels(response.data.data ?? [])
       setLoadedBrandId(value.brandId)
     })
   }, [value.brandId, loadedBrandId])
@@ -67,8 +63,8 @@ export function CascadeSelect({ value, onChange }: CascadeSelectProps) {
     if (!value.modelId) return
     if (value.modelId === loadedModelId) return
     startTransition(async () => {
-      const data = await getGenerationsByModel(value.modelId)
-      setGenerations(data)
+      const response = await listGenerationsByModel(value.modelId)
+      setGenerations(response.data.data ?? [])
       setLoadedModelId(value.modelId)
     })
   }, [value.modelId, loadedModelId])
@@ -78,8 +74,8 @@ export function CascadeSelect({ value, onChange }: CascadeSelectProps) {
     if (!value.generationId) return
     if (value.generationId === loadedGenerationId) return
     startTransition(async () => {
-      const data = await getTrimsByGeneration(value.generationId)
-      setTrims(data)
+      const response = await listTrimsByGeneration(value.generationId)
+      setTrims(response.data.data ?? [])
       setLoadedGenerationId(value.generationId)
     })
   }, [value.generationId, loadedGenerationId])

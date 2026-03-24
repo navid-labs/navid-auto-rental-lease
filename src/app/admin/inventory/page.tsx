@@ -1,5 +1,4 @@
-import { getInventoryItems } from '@/features/inventory/actions/load-inventory'
-import { getLastUploadTime } from '@/features/inventory/actions/inventory-upload'
+import { getInventoryItemsQuery, getLastUploadTimeQuery } from '@/features/inventory/queries/inventory'
 import type { InventoryFilter, InventoryCategory } from '@/features/inventory/types'
 import { InventoryPageClient } from './inventory-page-client'
 import { CsvUploadForm } from '@/features/inventory/components/csv-upload-form'
@@ -29,8 +28,8 @@ export default async function InventoryPage({ searchParams }: Props) {
   }
 
   const [{ items, count }, lastUploadTime] = await Promise.all([
-    getInventoryItems(filter),
-    getLastUploadTime(),
+    getInventoryItemsQuery(filter),
+    getLastUploadTimeQuery(),
   ])
 
   return (

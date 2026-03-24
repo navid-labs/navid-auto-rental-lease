@@ -2,8 +2,8 @@ export const dynamic = 'force-dynamic'
 
 import { redirect } from 'next/navigation'
 import { getCurrentUser } from '@/lib/auth/helpers'
-import { getBrands } from '@/features/vehicles/actions/get-cascade-data'
-import { getResidualRates } from '@/features/pricing/actions/residual-rate'
+import { getBrands } from '@/features/vehicles/queries/cascade'
+import { getResidualRatesQuery } from '@/features/pricing/queries/residual-rates'
 import { ResidualValueTable } from '@/features/pricing/components/residual-value-table'
 import { ResidualValueForm } from '@/features/pricing/components/residual-value-form'
 import { BrandFilterClient } from '@/features/pricing/components/brand-filter-client'
@@ -20,7 +20,7 @@ export default async function AdminResidualValuePage({ searchParams }: PageProps
 
   const [brands, rates] = await Promise.all([
     getBrands(),
-    getResidualRates(params.brandId),
+    getResidualRatesQuery(params.brandId),
   ])
 
   const selectedBrandId = params.brandId ?? ''

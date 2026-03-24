@@ -46,3 +46,7 @@ next-env.d.ts
 
 # AI agent local data
 .gemini/
+
+# Generated API client (regenerate with `bun run api:generate`)
+src/lib/api/generated/
+src/openapi/bundled.yaml

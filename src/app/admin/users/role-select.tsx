@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { changeUserRole } from '@/features/auth/actions/profile'
+import { patchAdminUsersIdRole } from '@/lib/api/generated/admin/admin'
 
 const ROLES = [
   { value: 'CUSTOMER', label: '고객' },
@@ -30,7 +30,7 @@ export function RoleSelect({ userId, currentRole }: RoleSelectProps) {
     if (!newRole || newRole === currentRole) return
 
     startTransition(async () => {
-      await changeUserRole(userId, newRole as UserRole)
+      await patchAdminUsersIdRole(userId, { role: newRole as UserRole })
     })
   }
 

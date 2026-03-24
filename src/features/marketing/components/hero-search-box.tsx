@@ -3,10 +3,11 @@
 import { useRouter } from 'next/navigation'
 import { useState, useEffect, useTransition } from 'react'
 import { Search, ChevronDown } from 'lucide-react'
-import { getBrands, getModelsByBrand } from '@/features/vehicles/actions/get-cascade-data'
+import { listBrands, listModelsByBrand } from '@/lib/api/generated/vehicles/vehicles'
+import type { Brand, CarModel } from '@/lib/api/generated/navidAutoRentalLeaseAPI.schemas'
 
-type BrandOption = { id: string; name: string; nameKo: string | null }
-type ModelOption = { id: string; name: string; nameKo: string | null }
+type BrandOption = Brand
+type ModelOption = CarModel
 
 type SearchTab = '제조사/모델' | '예산' | '차종'
 const TABS: SearchTab[] = ['제조사/모델', '예산', '차종']
@@ -32,7 +33,7 @@ export function HeroSearchBox() {
   const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
-    getBrands().then(setBrands)
+    listBrands().then((response) => setBrands(response.data.data ?? []))
   }, [])
 
   function handleBrandChange(brandId: string) {
@@ -41,8 +42,8 @@ export function HeroSearchBox() {
     setModels([])
     if (brandId) {
       startTransition(async () => {
-        const result = await getModelsByBrand(brandId)
-        setModels(result)
+        const response = await listModelsByBrand(brandId)
+        setModels(response.data.data ?? [])
       })
     }
   }

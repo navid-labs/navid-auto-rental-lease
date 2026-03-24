@@ -1,0 +1,396 @@
+paths:
+  /admin/dashboard/stats:
+    get:
+      tags: [admin]
+      summary: Get admin dashboard statistics
+      description: Returns aggregate counts and recent activity for the admin dashboard. Requires ADMIN role.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required:
+                      - vehicleCount
+                      - pendingApprovals
+                      - userCount
+                      - activeContracts
+                      - recentActivity
+                      - monthlyVehicles
+                      - monthlyContracts
+                    properties:
+                      vehicleCount:
+                        type: integer
+                        example: 142
+                      pendingApprovals:
+                        type: integer
+                        example: 7
+                      userCount:
+                        type: integer
+                        example: 320
+                      activeContracts:
+                        type: integer
+                        example: 58
+                      recentActivity:
+                        type: array
+                        items:
+                          type: object
+                          required: [id, type, title, createdAt]
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            type:
+                              type: string
+                              example: VEHICLE_APPROVED
+                            title:
+                              type: string
+                              example: 2022 현대 아반떼 승인됨
+                            createdAt:
+                              type: string
+                              format: date-time
+                      monthlyVehicles:
+                        type: array
+                        items:
+                          type: object
+                          required: [month, count]
+                          properties:
+                            month:
+                              type: string
+                              description: ISO month string (YYYY-MM)
+                              example: "2026-02"
+                            count:
+                              type: integer
+                              example: 24
+                      monthlyContracts:
+                        type: array
+                        items:
+                          type: object
+                          required: [month, count]
+                          properties:
+                            month:
+                              type: string
+                              description: ISO month string (YYYY-MM)
+                              example: "2026-02"
+                            count:
+                              type: integer
+                              example: 11
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions — ADMIN role required
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden
+
+  /admin/vehicles/{id}:
+    patch:
+      tags: [admin]
+      summary: Update vehicle fields (admin override)
+      description: Allows an admin to update mutable vehicle fields without going through the dealer approval flow.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                year:
+                  type: integer
+                  minimum: 1900
+                  maximum: 2100
+                  example: 2022
+                mileage:
+                  type: integer
+                  minimum: 0
+                  example: 45000
+                color:
+                  type: string
+                  example: 흰색
+                price:
+                  type: integer
+                  minimum: 0
+                  example: 18000000
+                description:
+                  type: string
+                  example: 무사고, 1인 소유
+                status:
+                  type: string
+                  enum: [AVAILABLE, RESERVED, RENTED, LEASED, MAINTENANCE, HIDDEN]
+      responses:
+        "200":
+          description: Vehicle updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [success]
+                    properties:
+                      success:
+                        type: boolean
+                        enum: [true]
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error, details]
+                properties:
+                  error:
+                    type: string
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+    delete:
+      tags: [admin]
+      summary: Soft-delete a vehicle
+      description: Marks the vehicle as deleted without removing it from the database. Requires ADMIN role.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Vehicle soft-deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [success]
+                    properties:
+                      success:
+                        type: boolean
+                        enum: [true]
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden
+
+  /admin/users/{id}/role:
+    patch:
+      tags: [admin]
+      summary: Change a user's role
+      description: Updates the role of the specified user. Requires ADMIN role.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role:
+                  type: string
+                  enum: [CUSTOMER, DEALER, ADMIN]
+      responses:
+        "200":
+          description: Role updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [success]
+                    properties:
+                      success:
+                        type: boolean
+                        enum: [true]
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error, details]
+                properties:
+                  error:
+                    type: string
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+
+  /admin/users/{id}/deactivate:
+    post:
+      tags: [admin]
+      summary: Deactivate a user account
+      description: Disables the specified user account. Requires ADMIN role.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: User deactivated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [success]
+                    properties:
+                      success:
+                        type: boolean
+                        enum: [true]
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db/prisma'
 import { VehicleDetailPage } from '@/features/vehicles/components/detail/vehicle-detail-page'
-import { getResidualRate } from '@/features/pricing/actions/residual-rate'
+import { getResidualRateQuery } from '@/features/pricing/queries/residual-rates'
 import { getKoreanVehicleName } from '@/lib/utils/format'
 import { BreadcrumbNav } from '@/components/layout/breadcrumb-nav'
 import type { Metadata } from 'next'
@@ -71,7 +71,7 @@ export default async function VehicleDetailServerPage({ params }: PageProps) {
 
   // Parallel fetching: residualRate + similarVehicles (per CLAUDE.md performance rules)
   const [residualRate, similarVehicles] = await Promise.all([
-    getResidualRate(
+    getResidualRateQuery(
       vehicle.trim.generation.carModel.brand.id,
       vehicle.trim.generation.carModel.id,
       vehicle.year,

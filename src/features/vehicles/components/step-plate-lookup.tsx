@@ -5,7 +5,9 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { CascadeSelect } from './cascade-select'
-import { lookupPlateAction } from '@/features/vehicles/actions/lookup-plate'
+import { lookupPlate } from '@/lib/api/generated/vehicles/vehicles'
+import { ApiError } from '@/lib/api/fetcher'
+import type { PlateResult } from '@/lib/api/generated/navidAutoRentalLeaseAPI.schemas'
 import type { VehicleFormData } from '@/features/vehicles/types'
 
 type StepPlateLookupProps = {
@@ -24,19 +26,21 @@ export function StepPlateLookup({ formData, onChange, onNext }: StepPlateLookupP
     if (!plateNumber.trim()) return
 
     startTransition(async () => {
-      const result = await lookupPlateAction(plateNumber.trim())
-      if ('error' in result) {
-        setPlateMessage(result.error)
-        return
+      try {
+        const response = await lookupPlate({ plateNumber: plateNumber.trim() })
+        // response.data is LookupPlate200 = { data: PlateResult }
+        const plateData = (response.data as { data: PlateResult }).data
+
+        // Auto-fill available fields
+        onChange('licensePlate', plateNumber.trim())
+        if (plateData.color) onChange('color', plateData.color)
+        if (plateData.year) onChange('year', plateData.year)
+
+        setPlateMessage('자동 입력됨 - 차량 정보를 직접 선택해주세요.')
+        setMode('manual')
+      } catch (e) {
+        setPlateMessage(e instanceof ApiError ? e.message : '번호판 조회에 실패했습니다.')
       }
-
-      // Auto-fill available fields
-      onChange('licensePlate', plateNumber.trim())
-      if (result.data.color) onChange('color', result.data.color)
-      if (result.data.year) onChange('year', result.data.year)
-
-      setPlateMessage('자동 입력됨 - 차량 정보를 직접 선택해주세요.')
-      setMode('manual')
     })
   }
 

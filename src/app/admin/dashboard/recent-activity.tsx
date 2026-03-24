@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import type { ActivityItem } from '@/features/admin/actions/get-dashboard-stats'
+import type { ActivityItem } from '@/features/admin/queries/dashboard'
 import { CONTRACT_STATUS_LABELS } from '@/features/contracts/utils/contract-machine'
 import type { ContractStatus } from '@prisma/client'
 

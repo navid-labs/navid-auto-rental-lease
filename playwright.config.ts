@@ -20,7 +20,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'yarn dev',
+    command: 'bun run dev',
     port: 3000,
     reuseExistingServer: true,
   },

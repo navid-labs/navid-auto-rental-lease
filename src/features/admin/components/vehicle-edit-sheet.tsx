@@ -14,7 +14,8 @@ import {
   SheetFooter,
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
-import { updateVehicleAdmin, type UpdateVehicleData } from '@/features/admin/actions/update-vehicle-admin'
+import { patchAdminVehiclesId } from '@/lib/api/generated/admin/admin'
+import { ApiError } from '@/lib/api/fetcher'
 import { Loader2 } from 'lucide-react'
 
 const vehicleEditSchema = z.object({
@@ -82,15 +83,15 @@ export function VehicleEditSheet({ vehicle, open, onOpenChange, onSuccess }: Veh
     if (!vehicle) return
 
     startTransition(async () => {
-      const result = await updateVehicleAdmin(vehicle.id, data as UpdateVehicleData)
-      if ('error' in result) {
-        toast.error(result.error)
-        return
+      try {
+        await patchAdminVehiclesId(vehicle.id, data)
+        toast.success('차량 정보가 수정되었습니다.')
+        onOpenChange(false)
+        reset()
+        onSuccess?.()
+      } catch (err) {
+        toast.error(err instanceof ApiError ? err.message : '수정에 실패했습니다.')
       }
-      toast.success('차량 정보가 수정되었습니다.')
-      onOpenChange(false)
-      reset()
-      onSuccess?.()
     })
   }
 

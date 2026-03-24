@@ -21,17 +21,18 @@ import {
 import { Button } from '@/components/ui/button'
 import { ChevronDown, SlidersHorizontal } from 'lucide-react'
 import {
-  getBrands,
-  getModelsByBrand,
-  getGenerationsByModel,
-} from '@/features/vehicles/actions/get-cascade-data'
+  listBrands,
+  listModelsByBrand,
+  listGenerationsByModel,
+} from '@/lib/api/generated/vehicles/vehicles'
+import type { Brand, CarModel, Generation } from '@/lib/api/generated/navidAutoRentalLeaseAPI.schemas'
 import { DualRangeSlider } from './dual-range-slider'
 import { ColorFilter } from './color-filter'
 import { BODY_TYPE_LABELS } from '../lib/vehicle-body-type'
 
-type BrandOption = { id: string; name: string; nameKo: string | null; logoUrl: string | null }
-type ModelOption = { id: string; name: string; nameKo: string | null }
-type GenerationOption = { id: string; name: string; startYear: number; endYear: number | null }
+type BrandOption = Brand
+type ModelOption = CarModel
+type GenerationOption = Generation
 
 const CURRENT_YEAR = new Date().getFullYear()
 const MIN_YEAR = CURRENT_YEAR - 15
@@ -198,8 +199,8 @@ export function FilterContent({ totalCount }: { totalCount?: number }) {
   // Load brands on mount
   useEffect(() => {
     startTransition(async () => {
-      const data = await getBrands()
-      setBrands(data)
+      const response = await listBrands()
+      setBrands(response.data.data ?? [])
     })
   }, [])
 
@@ -207,8 +208,8 @@ export function FilterContent({ totalCount }: { totalCount?: number }) {
   useEffect(() => {
     if (!filters.brand) return
     startTransition(async () => {
-      const data = await getModelsByBrand(filters.brand)
-      setModels(data)
+      const response = await listModelsByBrand(filters.brand)
+      setModels(response.data.data ?? [])
     })
   }, [filters.brand])
 
@@ -216,8 +217,8 @@ export function FilterContent({ totalCount }: { totalCount?: number }) {
   useEffect(() => {
     if (!filters.model) return
     startTransition(async () => {
-      const data = await getGenerationsByModel(filters.model)
-      setGenerations(data)
+      const response = await listGenerationsByModel(filters.model)
+      setGenerations(response.data.data ?? [])
     })
   }, [filters.model])
 

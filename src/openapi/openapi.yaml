@@ -1,0 +1,202 @@
+openapi: 3.1.0
+info:
+  title: Navid Auto Rental & Lease API
+  description: 중고차 렌탈/리스 플랫폼 REST API
+  version: 3.0.0
+
+servers:
+  - url: /api
+    description: Next.js API Routes
+
+tags:
+  - name: auth
+    description: 인증 (프로필 수정만 REST, login/signup/logout은 Server Action 유지)
+  - name: vehicles
+    description: 차량 관리
+  - name: contracts
+    description: 계약 관리
+  - name: admin
+    description: 관리자 전용
+  - name: inventory
+    description: 재고 관리
+  - name: pricing
+    description: 잔가율 관리
+  - name: inquiry
+    description: 문의/상담
+  - name: settings
+    description: 시스템 설정
+
+paths:
+  # Auth
+  /auth/profile:
+    $ref: './auth.yaml#/paths/~1auth~1profile'
+
+  # Vehicles
+  /vehicles:
+    $ref: './vehicles.yaml#/paths/~1vehicles'
+  /vehicles/{id}:
+    $ref: './vehicles.yaml#/paths/~1vehicles~1{id}'
+  /vehicles/{id}/status:
+    $ref: './vehicles.yaml#/paths/~1vehicles~1{id}~1status'
+  /vehicles/{id}/approve:
+    $ref: './vehicles.yaml#/paths/~1vehicles~1{id}~1approve'
+  /vehicles/{id}/resubmit:
+    $ref: './vehicles.yaml#/paths/~1vehicles~1{id}~1resubmit'
+  /vehicles/{id}/restore:
+    $ref: './vehicles.yaml#/paths/~1vehicles~1{id}~1restore'
+  /vehicles/{id}/images:
+    $ref: './vehicles.yaml#/paths/~1vehicles~1{id}~1images'
+  /vehicles/{id}/images/{imageId}:
+    $ref: './vehicles.yaml#/paths/~1vehicles~1{id}~1images~1{imageId}'
+  /vehicles/{id}/images/reorder:
+    $ref: './vehicles.yaml#/paths/~1vehicles~1{id}~1images~1reorder'
+  /vehicles/{id}/inquiry:
+    $ref: './vehicles.yaml#/paths/~1vehicles~1{id}~1inquiry'
+  /vehicles/batch-approve:
+    $ref: './vehicles.yaml#/paths/~1vehicles~1batch-approve'
+  /vehicles/brands:
+    $ref: './vehicles.yaml#/paths/~1vehicles~1brands'
+  /vehicles/brands/{id}/models:
+    $ref: './vehicles.yaml#/paths/~1vehicles~1brands~1{id}~1models'
+  /vehicles/models/{id}/generations:
+    $ref: './vehicles.yaml#/paths/~1vehicles~1models~1{id}~1generations'
+  /vehicles/generations/{id}/trims:
+    $ref: './vehicles.yaml#/paths/~1vehicles~1generations~1{id}~1trims'
+  /vehicles/lookup-plate:
+    $ref: './vehicles.yaml#/paths/~1vehicles~1lookup-plate'
+
+  # Contracts
+  /contracts:
+    $ref: './contracts.yaml#/paths/~1contracts'
+  /contracts/my:
+    $ref: './contracts.yaml#/paths/~1contracts~1my'
+  /contracts/{id}/status:
+    $ref: './contracts.yaml#/paths/~1contracts~1{id}~1status'
+  /contracts/{id}/approve:
+    $ref: './contracts.yaml#/paths/~1contracts~1{id}~1approve'
+  /contracts/{id}/ekyc:
+    $ref: './contracts.yaml#/paths/~1contracts~1{id}~1ekyc'
+  /contracts/{id}/pdf:
+    $ref: './contracts.yaml#/paths/~1contracts~1{id}~1pdf'
+  /contracts/ekyc/send-code:
+    $ref: './contracts.yaml#/paths/~1contracts~1ekyc~1send-code'
+
+  # Admin
+  /admin/dashboard/stats:
+    $ref: './admin.yaml#/paths/~1admin~1dashboard~1stats'
+  /admin/vehicles/{id}:
+    $ref: './admin.yaml#/paths/~1admin~1vehicles~1{id}'
+  /admin/users/{id}/role:
+    $ref: './admin.yaml#/paths/~1admin~1users~1{id}~1role'
+  /admin/users/{id}/deactivate:
+    $ref: './admin.yaml#/paths/~1admin~1users~1{id}~1deactivate'
+
+  # Inventory
+  /admin/inventory:
+    $ref: './inventory.yaml#/paths/~1admin~1inventory'
+  /admin/inventory/count:
+    $ref: './inventory.yaml#/paths/~1admin~1inventory~1count'
+  /admin/inventory/load:
+    $ref: './inventory.yaml#/paths/~1admin~1inventory~1load'
+  /admin/inventory/upload:
+    $ref: './inventory.yaml#/paths/~1admin~1inventory~1upload'
+  /admin/inventory/quote:
+    $ref: './inventory.yaml#/paths/~1admin~1inventory~1quote'
+  /admin/inventory/quote-pdf:
+    $ref: './inventory.yaml#/paths/~1admin~1inventory~1quote-pdf'
+  /admin/inventory/last-upload:
+    $ref: './inventory.yaml#/paths/~1admin~1inventory~1last-upload'
+
+  # Pricing
+  /pricing/residual-rate:
+    $ref: './pricing.yaml#/paths/~1pricing~1residual-rate'
+  /pricing/residual-rates:
+    $ref: './pricing.yaml#/paths/~1pricing~1residual-rates'
+  /pricing/residual-rates/{id}:
+    $ref: './pricing.yaml#/paths/~1pricing~1residual-rates~1{id}'
+
+  # Inquiry
+  /inquiry:
+    $ref: './inquiry.yaml#/paths/~1inquiry'
+
+  # Settings
+  /admin/settings/promo-rates:
+    $ref: './settings.yaml#/paths/~1admin~1settings~1promo-rates'
+  /admin/settings/promo-rates/{id}:
+    $ref: './settings.yaml#/paths/~1admin~1settings~1promo-rates~1{id}'
+  /admin/settings/defaults:
+    $ref: './settings.yaml#/paths/~1admin~1settings~1defaults'
+  /admin/settings/defaults/{id}:
+    $ref: './settings.yaml#/paths/~1admin~1settings~1defaults~1{id}'
+  /admin/settings/verify-password:
+    $ref: './settings.yaml#/paths/~1admin~1settings~1verify-password'
+
+components:
+  schemas:
+    ApiError:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    ValidationError:
+      type: object
+      required: [error, details]
+      properties:
+        error:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              path:
+                type: string
+              message:
+                type: string
+
+    SuccessResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          properties:
+            success:
+              type: boolean
+              enum: [true]
+
+    UserRole:
+      type: string
+      enum: [CUSTOMER, DEALER, ADMIN]
+
+    VehicleStatus:
+      type: string
+      enum: [AVAILABLE, RESERVED, RENTED, LEASED, MAINTENANCE, HIDDEN]
+
+    ApprovalStatus:
+      type: string
+      enum: [PENDING, APPROVED, REJECTED]
+
+    ContractStatus:
+      type: string
+      enum: [DRAFT, PENDING_EKYC, PENDING_APPROVAL, APPROVED, ACTIVE, COMPLETED, CANCELED]
+
+    ContractType:
+      type: string
+      enum: [RENTAL, LEASE]
+
+    FuelType:
+      type: string
+      enum: [GASOLINE, DIESEL, LPG, HYBRID, ELECTRIC, HYDROGEN]
+
+    Transmission:
+      type: string
+      enum: [AUTOMATIC, MANUAL, CVT, DCT]
+
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sb-access-token

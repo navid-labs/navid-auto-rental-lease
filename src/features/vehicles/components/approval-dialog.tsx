@@ -13,7 +13,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { approveVehicle } from '@/features/vehicles/actions/approve-vehicle'
+import { approveVehicle as approveVehicleApi } from '@/lib/api/generated/vehicles/vehicles'
+import { ApiError } from '@/lib/api/fetcher'
 import { REJECTION_PRESETS } from '@/features/vehicles/utils/approval-machine'
 
 type ApprovalDialogProps = {
@@ -44,19 +45,18 @@ export function ApprovalDialog({
   const handleConfirm = () => {
     startTransition(async () => {
       setError('')
-      const result = await approveVehicle(
-        vehicleId,
-        action,
-        isApprove ? undefined : reason.trim()
-      )
-      if ('error' in result) {
-        setError(result.error)
-        return
+      try {
+        await approveVehicleApi(vehicleId, {
+          action,
+          ...(isApprove ? {} : { reason: reason.trim() }),
+        })
+        setReason('')
+        onOpenChange(false)
+        router.refresh()
+        onComplete()
+      } catch (e) {
+        setError(e instanceof ApiError ? e.message : '요청에 실패했습니다.')
       }
-      setReason('')
-      onOpenChange(false)
-      router.refresh()
-      onComplete()
     })
   }
 

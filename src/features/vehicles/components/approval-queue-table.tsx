@@ -15,7 +15,8 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ApprovalBadge } from './approval-badge'
 import { ApprovalDialog } from './approval-dialog'
-import { batchApproveVehicles } from '@/features/vehicles/actions/approve-vehicle'
+import { batchApproveVehicles as batchApproveVehiclesApi } from '@/lib/api/generated/vehicles/vehicles'
+import { ApiError } from '@/lib/api/fetcher'
 import type { VehicleWithDetails } from '@/features/vehicles/types'
 import Image from 'next/image'
 import { Car, CheckCircle } from 'lucide-react'
@@ -68,13 +69,13 @@ export function ApprovalQueueTable({ vehicles }: ApprovalQueueTableProps) {
 
   const handleBatchApprove = useCallback(() => {
     startTransition(async () => {
-      const result = await batchApproveVehicles(Array.from(selectedIds))
-      if ('error' in result) {
-        toast.error(result.error)
-        return
+      try {
+        await batchApproveVehiclesApi({ vehicleIds: Array.from(selectedIds) })
+        setSelectedIds(new Set())
+        router.refresh()
+      } catch (e) {
+        toast.error(e instanceof ApiError ? e.message : '일괄 승인에 실패했습니다.')
       }
-      setSelectedIds(new Set())
-      router.refresh()
     })
   }, [selectedIds, router])
 

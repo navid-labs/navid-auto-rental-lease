@@ -15,11 +15,20 @@ import {
   DialogClose,
 } from '@/components/ui/dialog'
 import { ContractStatusBadge } from '@/features/contracts/components/contract-status-badge'
-import { approveContract } from '@/features/contracts/actions/approve-contract'
+import { postContractsIdApprove } from '@/lib/api/generated/contracts/contracts'
+import { ApiError } from '@/lib/api/fetcher'
 import { formatKRW, formatDate } from '@/lib/utils/format'
 import { CONTRACT_STATUS_LABELS } from '@/features/contracts/utils/contract-machine'
-import type { ContractStatus } from '@prisma/client'
 import { CheckCircle, XCircle, Loader2, Ban } from 'lucide-react'
+
+type ContractStatus =
+  | 'DRAFT'
+  | 'PENDING_EKYC'
+  | 'PENDING_APPROVAL'
+  | 'APPROVED'
+  | 'ACTIVE'
+  | 'COMPLETED'
+  | 'CANCELED'
 
 type ContractItem = {
   id: string
@@ -70,11 +79,11 @@ export function AdminContractList({ contracts }: AdminContractListProps) {
 
   function handleApprove(contractId: string, contractType: 'RENTAL' | 'LEASE') {
     startTransition(async () => {
-      const result = await approveContract(contractId, contractType, 'APPROVED')
-      if ('error' in result) {
-        toast.error(result.error)
-      } else {
+      try {
+        await postContractsIdApprove(contractId, { contractType, action: 'APPROVED' })
         toast.success('계약이 승인되었습니다.')
+      } catch (err) {
+        toast.error(err instanceof ApiError ? err.message : '승인에 실패했습니다.')
       }
     })
   }
@@ -83,25 +92,29 @@ export function AdminContractList({ contracts }: AdminContractListProps) {
     if (!confirm('이 계약을 취소하시겠습니까?')) return
 
     startTransition(async () => {
-      const result = await approveContract(contractId, contractType, 'CANCELED', '관리자 취소')
-      if ('error' in result) {
-        toast.error(result.error)
-      } else {
+      try {
+        await postContractsIdApprove(contractId, {
+          contractType,
+          action: 'CANCELED',
+          reason: '관리자 취소',
+        })
         toast.success('계약이 취소되었습니다.')
+      } catch (err) {
+        toast.error(err instanceof ApiError ? err.message : '취소에 실패했습니다.')
       }
     })
   }
 
   function handleReject() {
     startTransition(async () => {
-      const result = await approveContract(
-        rejectDialog.contractId,
-        rejectDialog.contractType,
-        'CANCELED',
-        rejectReason
-      )
-      if ('error' in result) {
-        toast.error(result.error)
+      try {
+        await postContractsIdApprove(rejectDialog.contractId, {
+          contractType: rejectDialog.contractType,
+          action: 'CANCELED',
+          reason: rejectReason,
+        })
+      } catch (err) {
+        toast.error(err instanceof ApiError ? err.message : '반려에 실패했습니다.')
       }
       setRejectDialog({ open: false, contractId: '', contractType: 'RENTAL' })
       setRejectReason('')

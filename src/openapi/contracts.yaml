@@ -1,0 +1,461 @@
+openapi: 3.1.0
+info:
+  title: Contracts API
+  version: 1.0.0
+
+tags:
+  - name: contracts
+    description: 계약 관리
+
+components:
+  schemas:
+    ContractStatus:
+      type: string
+      enum: [DRAFT, PENDING_EKYC, PENDING_APPROVAL, APPROVED, ACTIVE, COMPLETED, CANCELED]
+
+    ContractType:
+      type: string
+      enum: [RENTAL, LEASE]
+
+    EkycData:
+      type: object
+      required: [name, phone, carrier, birthDate, gender, verificationCode]
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+          pattern: '^01[016789]\d{7,8}$'
+          description: 한국 휴대폰 번호 (01x로 시작)
+        carrier:
+          type: string
+          enum: [SKT, KT, LGU]
+        birthDate:
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}$'
+          description: 생년월일 (YYYY-MM-DD)
+        gender:
+          type: string
+          enum: [M, F]
+        verificationCode:
+          type: string
+          minLength: 6
+          maxLength: 6
+
+    ContractListItem:
+      type: object
+      required:
+        - id
+        - contractType
+        - status
+        - vehicleName
+        - vehicleYear
+        - monthlyPayment
+        - deposit
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        contractType:
+          $ref: '#/components/schemas/ContractType'
+        status:
+          $ref: '#/components/schemas/ContractStatus'
+        vehicleName:
+          type: string
+        vehicleYear:
+          type: integer
+        vehicleImageUrl:
+          type: string
+          format: uri
+          nullable: true
+        monthlyPayment:
+          type: integer
+        deposit:
+          type: integer
+        startDate:
+          type: string
+          format: date-time
+          nullable: true
+        endDate:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+paths:
+  /contracts:
+    post:
+      tags: [contracts]
+      summary: 계약 생성
+      description: 렌탈 또는 리스 계약을 생성합니다. CUSTOMER 권한이 필요합니다.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [vehicleId, contractType, periodMonths, deposit]
+              properties:
+                vehicleId:
+                  type: string
+                  format: uuid
+                contractType:
+                  $ref: '#/components/schemas/ContractType'
+                periodMonths:
+                  type: integer
+                  minimum: 12
+                  maximum: 60
+                  description: 계약 기간 (개월 수, 12~60)
+                deposit:
+                  type: integer
+                  minimum: 0
+                  description: 보증금 (원, 0 이상)
+      responses:
+        '201':
+          description: 계약 생성 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [contractId, contractType]
+                    properties:
+                      contractId:
+                        type: string
+                      contractType:
+                        $ref: '#/components/schemas/ContractType'
+        '400':
+          description: 잘못된 요청 (유효성 검사 실패)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ValidationError'
+        '401':
+          description: 인증 필요
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '403':
+          description: 권한 없음 (CUSTOMER 전용)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+
+  /contracts/my:
+    get:
+      tags: [contracts]
+      summary: 내 계약 목록 조회
+      description: 로그인한 사용자의 계약 목록을 반환합니다.
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: 계약 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ContractListItem'
+        '401':
+          description: 인증 필요
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+
+  /contracts/{id}/status:
+    patch:
+      tags: [contracts]
+      summary: 계약 상태 변경
+      description: 계약 소유자 또는 ADMIN이 계약 상태를 변경합니다.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contractType, newStatus]
+              properties:
+                contractType:
+                  $ref: '#/components/schemas/ContractType'
+                newStatus:
+                  $ref: '#/components/schemas/ContractStatus'
+      responses:
+        '200':
+          description: 상태 변경 성공
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/SuccessResponse'
+        '400':
+          description: 잘못된 요청 또는 허용되지 않는 상태 전환
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ValidationError'
+        '401':
+          description: 인증 필요
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '403':
+          description: 권한 없음 (소유자 또는 ADMIN만 가능)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '404':
+          description: 계약 없음
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+
+  /contracts/{id}/approve:
+    post:
+      tags: [contracts]
+      summary: 계약 승인/취소 (ADMIN)
+      description: ADMIN이 계약을 승인하거나 취소합니다.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contractType, action]
+              properties:
+                contractType:
+                  $ref: '#/components/schemas/ContractType'
+                action:
+                  type: string
+                  enum: [APPROVED, CANCELED]
+                reason:
+                  type: string
+                  description: 취소 사유 (선택)
+                  nullable: true
+      responses:
+        '200':
+          description: 처리 성공
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/SuccessResponse'
+        '400':
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ValidationError'
+        '401':
+          description: 인증 필요
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '403':
+          description: 권한 없음 (ADMIN 전용)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '404':
+          description: 계약 없음
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+
+  /contracts/{id}/ekyc:
+    post:
+      tags: [contracts]
+      summary: eKYC 인증 정보 제출 (CUSTOMER)
+      description: CUSTOMER가 본인인증 정보를 제출합니다.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contractType, ekycData]
+              properties:
+                contractType:
+                  $ref: '#/components/schemas/ContractType'
+                ekycData:
+                  $ref: '#/components/schemas/EkycData'
+      responses:
+        '200':
+          description: eKYC 제출 성공
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/SuccessResponse'
+        '400':
+          description: 잘못된 요청 (인증 코드 불일치 포함)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ValidationError'
+        '401':
+          description: 인증 필요
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '403':
+          description: 권한 없음 (CUSTOMER 전용)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '404':
+          description: 계약 없음
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+
+  /contracts/ekyc/send-code:
+    post:
+      tags: [contracts]
+      summary: 인증 코드 발송
+      description: 휴대폰 번호로 본인인증 코드를 발송합니다. 인증 불필요 (공개 엔드포인트).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone]
+              properties:
+                phone:
+                  type: string
+                  description: 수신 휴대폰 번호
+      responses:
+        '200':
+          description: 코드 발송 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [sent]
+                    properties:
+                      sent:
+                        type: boolean
+                        enum: [true]
+        '400':
+          description: 잘못된 전화번호 형식
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ValidationError'
+        '429':
+          description: 요청 빈도 초과 (rate limit)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+
+  /contracts/{id}/pdf:
+    get:
+      tags: [contracts]
+      summary: 계약서 PDF 다운로드
+      description: 계약 소유자 또는 ADMIN이 계약서 PDF를 다운로드합니다.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: type
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/ContractType'
+          description: 계약 유형 (기본값 RENTAL)
+      responses:
+        '200':
+          description: PDF 파일
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+                example: 'inline; filename="navid-contract-abcd1234.pdf"'
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: 인증 필요
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '403':
+          description: 권한 없음 (소유자 또는 ADMIN만 가능)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '404':
+          description: 계약 없음
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '500':
+          description: PDF 생성 실패
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'

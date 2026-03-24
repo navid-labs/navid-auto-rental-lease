@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { upsertDefaultSetting } from '../actions/settings'
+import { putAdminSettingsDefaults } from '@/lib/api/generated/settings/settings'
+import { ApiError } from '@/lib/api/fetcher'
 
 type SettingRow = {
   id: string
@@ -57,16 +58,12 @@ function SettingRow({ setting }: { setting: SettingRow }) {
   function handleSave() {
     setMessage('')
     startTransition(async () => {
-      const result = await upsertDefaultSetting({
-        key: setting.key,
-        value,
-        label,
-      })
-      if ('success' in result) {
+      try {
+        await putAdminSettingsDefaults({ key: setting.key, value, label })
         setMessage('저장됨')
         setTimeout(() => setMessage(''), 2000)
-      } else {
-        setMessage(result.error)
+      } catch (err) {
+        setMessage(err instanceof ApiError ? err.message : '저장에 실패했습니다.')
       }
     })
   }
@@ -118,14 +115,17 @@ function AddDefaultForm() {
     if (!key || !value || !label) return
     setMessage(null)
     startTransition(async () => {
-      const result = await upsertDefaultSetting({ key, value, label })
-      if ('success' in result) {
+      try {
+        await putAdminSettingsDefaults({ key, value, label })
         setMessage({ type: 'success', text: '추가되었습니다.' })
         setKey('')
         setValue('')
         setLabel('')
-      } else {
-        setMessage({ type: 'error', text: result.error })
+      } catch (err) {
+        setMessage({
+          type: 'error',
+          text: err instanceof ApiError ? err.message : '추가에 실패했습니다.',
+        })
       }
     })
   }
@@ -181,16 +181,19 @@ function PasswordChangeForm({ current }: { current?: string }) {
     if (!newPassword) return
     setMessage(null)
     startTransition(async () => {
-      const result = await upsertDefaultSetting({
-        key: 'settings_password',
-        value: newPassword,
-        label: '설정 페이지 비밀번호',
-      })
-      if ('success' in result) {
+      try {
+        await putAdminSettingsDefaults({
+          key: 'settings_password',
+          value: newPassword,
+          label: '설정 페이지 비밀번호',
+        })
         setMessage({ type: 'success', text: '비밀번호가 변경되었습니다.' })
         setNewPassword('')
-      } else {
-        setMessage({ type: 'error', text: result.error })
+      } catch (err) {
+        setMessage({
+          type: 'error',
+          text: err instanceof ApiError ? err.message : '변경에 실패했습니다.',
+        })
       }
     })
   }

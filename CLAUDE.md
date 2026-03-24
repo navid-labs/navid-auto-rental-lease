@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 읽지 말 것 (토큰 절약)
 
 다음 경로는 읽지 마세요:
-- `node_modules/` - 의존성 (yarn.lock으로 버전 확인)
+- `node_modules/` - 의존성 (bun.lock으로 버전 확인)
 - `.next/` - Next.js 빌드 캐시
 - `dist/`, `build/` - 빌드 출력
 - `.git/` - Git 내부 파일
@@ -16,32 +16,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Package Manager
 
-**Always use `yarn` instead of `npm`** for all package management operations:
-- Install: `yarn add <package>` / `yarn add -D <package>`
-- Run scripts: `yarn <script-name>`
-- Do NOT use `npm install`, `npm run`, `npx` (프로젝트 초기화 시 제외)
+**Always use `bun` instead of `npm` or `yarn`** for all package management operations:
+- Install: `bun add <package>` / `bun add -D <package>`
+- Run scripts: `bun run <script-name>` or `bun <script-name>`
+- Do NOT use `npm install`, `npm run`, `npx`, `yarn` (프로젝트 초기화 시 제외)
 
 ## Commands
 
 ```bash
 # Development
-yarn dev              # Start Next.js dev server (http://localhost:3000)
-yarn build            # Production build
-yarn lint             # ESLint
-yarn lint:fix         # ESLint with auto-fix
-yarn type-check       # TypeScript check (tsc --noEmit)
+bun dev               # Start Next.js dev server (http://localhost:3000)
+bun run build         # Production build
+bun run lint          # ESLint
+bun run lint:fix      # ESLint with auto-fix
+bun run type-check    # TypeScript check (tsc --noEmit)
 
 # Testing
-yarn test             # Run all unit tests (vitest)
-yarn test:watch       # Watch mode
-yarn test:coverage    # Coverage report
+bun run test          # Run all unit tests (vitest) — 주의: `bun test`는 bun 내장 러너
+bun run test:watch    # Watch mode
+bun run test:coverage # Coverage report
 
 # Database (PostgreSQL via Prisma + Supabase)
-yarn db:generate      # Generate Prisma client
-yarn db:migrate       # Deploy migrations (prisma migrate deploy)
-yarn db:push          # Push schema changes (prisma db push)
-yarn db:seed          # Seed database
-yarn db:studio        # Open Prisma Studio
+bun run db:generate   # Generate Prisma client
+bun run db:migrate    # Deploy migrations (prisma migrate deploy)
+bun run db:push       # Push schema changes (prisma db push)
+bun run db:seed       # Seed database
+bun run db:studio     # Open Prisma Studio
 ```
 
 ## Architecture Overview
@@ -52,7 +52,7 @@ yarn db:studio        # Open Prisma Studio
 - **Forms**: React Hook Form + Zod validation
 - **Database**: PostgreSQL via Prisma (hosted on Supabase)
 - **State**: Zustand
-- **Package Manager**: yarn
+- **Package Manager**: bun
 
 ### Project Structure
 

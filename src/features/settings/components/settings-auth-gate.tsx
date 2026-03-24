@@ -1,38 +1,33 @@
 'use client'
 
-import { useState, useEffect, useTransition, type ReactNode } from 'react'
-import { verifySettingsPassword } from '../actions/settings-auth'
+import { useState, useTransition, type ReactNode } from 'react'
+import { postAdminSettingsVerifyPassword } from '@/lib/api/generated/settings/settings'
 
 type Props = {
   children: ReactNode
 }
 
 export function SettingsAuthGate({ children }: Props) {
-  const [authenticated, setAuthenticated] = useState(false)
+  // Lazy initializer reads sessionStorage once on mount — avoids useEffect setState pattern
+  const [authenticated, setAuthenticated] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false
+    return sessionStorage.getItem('settings_auth') === 'true'
+  })
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isPending, startTransition] = useTransition()
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = sessionStorage.getItem('settings_auth')
-      if (stored === 'true') {
-        setAuthenticated(true)
-      }
-    }
-  }, [])
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
 
     startTransition(async () => {
-      const result = await verifySettingsPassword(password)
-      if ('success' in result) {
+      try {
+        await postAdminSettingsVerifyPassword({ password })
         sessionStorage.setItem('settings_auth', 'true')
         setAuthenticated(true)
-      } else {
-        setError(result.error)
+      } catch {
+        setError('비밀번호가 올바르지 않습니다.')
       }
     })
   }

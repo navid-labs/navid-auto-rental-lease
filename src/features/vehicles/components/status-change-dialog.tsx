@@ -22,8 +22,9 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { StatusBadge } from './status-badge'
 import { getAvailableTransitions } from '@/features/vehicles/utils/status-machine'
-import { updateStatus } from '@/features/vehicles/actions/update-status'
-import type { VehicleStatus } from '@prisma/client'
+import { updateVehicleStatus as updateVehicleStatusApi } from '@/lib/api/generated/vehicles/vehicles'
+import { ApiError } from '@/lib/api/fetcher'
+import type { VehicleStatus } from '@/lib/api/generated/navidAutoRentalLeaseAPI.schemas'
 
 const STATUS_LABELS: Record<VehicleStatus, string> = {
   AVAILABLE: '판매 가능',
@@ -62,15 +63,18 @@ export function StatusChangeDialog({
 
     startTransition(async () => {
       setError('')
-      const result = await updateStatus(vehicleId, targetStatus as VehicleStatus, note || undefined)
-      if ('error' in result) {
-        setError(result.error)
-        return
+      try {
+        await updateVehicleStatusApi(vehicleId, {
+          status: targetStatus as VehicleStatus,
+          ...(note ? { note } : {}),
+        })
+        setOpen(false)
+        setTargetStatus('')
+        setNote('')
+        onStatusChanged?.()
+      } catch (e) {
+        setError(e instanceof ApiError ? e.message : '상태 변경에 실패했습니다.')
       }
-      setOpen(false)
-      setTargetStatus('')
-      setNote('')
-      onStatusChanged?.()
     })
   }
 

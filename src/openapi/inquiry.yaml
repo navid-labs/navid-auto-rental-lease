@@ -1,0 +1,71 @@
+paths:
+  /inquiry:
+    post:
+      tags: [inquiry]
+      summary: Submit a customer inquiry
+      description: Public endpoint — no authentication required. Creates a new inquiry/consultation request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, phone, message]
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  example: 홍길동
+                phone:
+                  type: string
+                  minLength: 1
+                  example: "010-1234-5678"
+                email:
+                  type: string
+                  format: email
+                  example: hong@example.com
+                message:
+                  type: string
+                  minLength: 1
+                  example: 아반떼 렌탈 비용 문의드립니다.
+                inquiryType:
+                  type: string
+                  example: RENTAL
+      responses:
+        "200":
+          description: Inquiry submitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [success]
+                    properties:
+                      success:
+                        type: boolean
+                        enum: [true]
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error, details]
+                properties:
+                  error:
+                    type: string
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: phone
+                        message:
+                          type: string
+                          example: Required

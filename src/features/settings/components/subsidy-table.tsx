@@ -1,7 +1,7 @@
 'use client'
 
 import { useTransition } from 'react'
-import { deleteDefaultSetting } from '../actions/settings'
+import { deleteAdminSettingsDefaultsId } from '@/lib/api/generated/settings/settings'
 
 type SettingRow = {
   id: string
@@ -21,7 +21,7 @@ export function SubsidyTable({ subsidies }: Props) {
   function handleDelete(id: string) {
     if (!confirm('정말 삭제하시겠습니까?')) return
     startTransition(async () => {
-      await deleteDefaultSetting(id)
+      await deleteAdminSettingsDefaultsId(id)
     })
   }
 

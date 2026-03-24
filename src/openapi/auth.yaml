@@ -1,0 +1,74 @@
+paths:
+  /auth/profile:
+    patch:
+      tags: [auth]
+      summary: Update authenticated user profile
+      description: Updates the current user's display name and/or phone number. Requires an active session.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  description: Display name
+                  example: 홍길동
+                phone:
+                  type: string
+                  description: Phone number (optional)
+                  example: "010-1234-5678"
+      responses:
+        "200":
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [success]
+                    properties:
+                      success:
+                        type: boolean
+                        enum: [true]
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error, details]
+                properties:
+                  error:
+                    type: string
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: name
+                        message:
+                          type: string
+                          example: String must contain at least 1 character(s)

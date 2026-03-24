@@ -1,12 +1,10 @@
 'use client'
 
 import { useTransition } from 'react'
-import { deletePromoRate } from '../actions/settings'
-import type { Decimal } from '@prisma/client/runtime/library'
-
+import { deleteAdminSettingsPromoRatesId } from '@/lib/api/generated/settings/settings'
 type PromoRateRow = {
   id: string
-  rate: Decimal
+  rate: number | { toString(): string }
   label: string | null
   isActive: boolean
   updatedAt: Date
@@ -23,7 +21,7 @@ export function PromoRateTable({ promoRates }: Props) {
   function handleDelete(id: string) {
     if (!confirm('정말 삭제하시겠습니까?')) return
     startTransition(async () => {
-      await deletePromoRate(id)
+      await deleteAdminSettingsPromoRatesId(id)
     })
   }
 

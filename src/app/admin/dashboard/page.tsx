@@ -1,4 +1,4 @@
-import { getDashboardStats } from '@/features/admin/actions/get-dashboard-stats'
+import { getDashboardStatsQuery } from '@/features/admin/queries/dashboard'
 import { StatsCards } from './stats-cards'
 import { ChartSection } from './chart-section'
 import { RecentActivity } from './recent-activity'
@@ -6,7 +6,7 @@ import { RecentActivity } from './recent-activity'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboardPage() {
-  const stats = await getDashboardStats()
+  const stats = await getDashboardStatsQuery()
 
   return (
     <div className="space-y-6">

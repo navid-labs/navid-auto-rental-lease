@@ -15,12 +15,15 @@ import { Button } from '@/components/ui/button'
 import { StatusBadge } from './status-badge'
 import { ApprovalBadge } from './approval-badge'
 import { StatusChangeDialog } from './status-change-dialog'
-import { deleteVehicle } from '@/features/vehicles/actions/delete-vehicle'
-import { softDeleteVehicle } from '@/features/admin/actions/soft-delete-vehicle'
-import { resubmitVehicle } from '@/features/vehicles/actions/resubmit-vehicle'
+import {
+  deleteVehicle as deleteVehicleApi,
+  resubmitVehicle as resubmitVehicleApi,
+} from '@/lib/api/generated/vehicles/vehicles'
+import { deleteAdminVehiclesId } from '@/lib/api/generated/admin/admin'
+import { ApiError } from '@/lib/api/fetcher'
 import { VehicleEditSheet } from '@/features/admin/components/vehicle-edit-sheet'
 import type { VehicleWithDetails } from '@/features/vehicles/types'
-import type { VehicleStatus } from '@prisma/client'
+import type { VehicleStatus } from '@/lib/api/generated/navidAutoRentalLeaseAPI.schemas'
 import Image from 'next/image'
 import { Pencil, Trash2, Car, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -98,15 +101,17 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
       if (!confirm('이 차량을 숨김 처리하시겠습니까?')) return
 
       startTransition(async () => {
-        const result = userRole === 'ADMIN'
-          ? await softDeleteVehicle(vehicleId)
-          : await deleteVehicle(vehicleId)
-        if ('error' in result) {
-          toast.error(result.error)
-          return
+        try {
+          if (userRole === 'ADMIN') {
+            await deleteAdminVehiclesId(vehicleId)
+          } else {
+            await deleteVehicleApi(vehicleId)
+          }
+          toast.success('차량이 삭제되었습니다.')
+          router.refresh()
+        } catch (e) {
+          toast.error(e instanceof ApiError ? e.message : '삭제에 실패했습니다.')
         }
-        toast.success('차량이 삭제되었습니다.')
-        router.refresh()
       })
     },
     [router, userRole]
@@ -119,12 +124,12 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
   const handleResubmit = useCallback(
     (vehicleId: string) => {
       startTransition(async () => {
-        const result = await resubmitVehicle(vehicleId)
-        if ('error' in result) {
-          toast.error(result.error)
-          return
+        try {
+          await resubmitVehicleApi(vehicleId)
+          router.refresh()
+        } catch (e) {
+          toast.error(e instanceof ApiError ? e.message : '재심사 요청에 실패했습니다.')
         }
-        router.refresh()
       })
     },
     [router]

@@ -1,0 +1,468 @@
+paths:
+  /admin/settings/promo-rates:
+    get:
+      tags: [settings]
+      summary: List promotional rates
+      description: Returns all promotional rates per brand. Requires ADMIN role.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: List of promotional rates
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PromoRate'
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden
+    put:
+      tags: [settings]
+      summary: Upsert a promotional rate
+      description: Creates or updates a promotional rate for a brand. Requires ADMIN role.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [brandId, rate]
+              properties:
+                brandId:
+                  type: string
+                  format: uuid
+                rate:
+                  type: number
+                  format: float
+                  minimum: 0
+                  maximum: 1
+                  example: 0.03
+                label:
+                  type: string
+                  example: 봄 프로모션 할인율
+      responses:
+        "200":
+          description: Promo rate upserted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [success]
+                    properties:
+                      success:
+                        type: boolean
+                        enum: [true]
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error, details]
+                properties:
+                  error:
+                    type: string
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+
+  /admin/settings/promo-rates/{id}:
+    delete:
+      tags: [settings]
+      summary: Delete a promotional rate
+      description: Removes a promotional rate entry by ID. Requires ADMIN role.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Promo rate deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [success]
+                    properties:
+                      success:
+                        type: boolean
+                        enum: [true]
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden
+
+  /admin/settings/defaults:
+    get:
+      tags: [settings]
+      summary: List default settings
+      description: Returns all system default key-value settings. Requires ADMIN role.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: List of default settings
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DefaultSetting'
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden
+    put:
+      tags: [settings]
+      summary: Upsert a default setting
+      description: Creates or updates a system default setting by key. Requires ADMIN role.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [key, value, label]
+              properties:
+                key:
+                  type: string
+                  example: DEFAULT_LEASE_PERIOD_MONTHS
+                value:
+                  type: string
+                  example: "36"
+                label:
+                  type: string
+                  example: 기본 리스 기간 (개월)
+      responses:
+        "200":
+          description: Setting upserted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [success]
+                    properties:
+                      success:
+                        type: boolean
+                        enum: [true]
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error, details]
+                properties:
+                  error:
+                    type: string
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+
+  /admin/settings/defaults/{id}:
+    delete:
+      tags: [settings]
+      summary: Delete a default setting
+      description: Removes a default setting entry by ID. Requires ADMIN role.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Setting deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [success]
+                    properties:
+                      success:
+                        type: boolean
+                        enum: [true]
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden
+
+  /admin/settings/verify-password:
+    post:
+      tags: [settings]
+      summary: Verify admin settings password
+      description: Verifies the admin password before allowing access to sensitive settings operations.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password:
+                  type: string
+                  format: password
+                  minLength: 1
+      responses:
+        "200":
+          description: Password verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [success]
+                    properties:
+                      success:
+                        type: boolean
+                        enum: [true]
+        "401":
+          description: Invalid password
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Invalid password
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error, details]
+                properties:
+                  error:
+                    type: string
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+
+components:
+  schemas:
+    PromoRate:
+      type: object
+      required: [id, brandId, rate, brand]
+      properties:
+        id:
+          type: string
+          format: uuid
+        brandId:
+          type: string
+          format: uuid
+        rate:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          example: 0.03
+        label:
+          type: ["string", "null"]
+          example: 봄 프로모션 할인율
+        brand:
+          type: object
+          required: [name, nameKo]
+          properties:
+            name:
+              type: string
+              example: Hyundai
+            nameKo:
+              type: string
+              example: 현대
+
+    DefaultSetting:
+      type: object
+      required: [id, key, value, label]
+      properties:
+        id:
+          type: string
+          format: uuid
+        key:
+          type: string
+          example: DEFAULT_LEASE_PERIOD_MONTHS
+        value:
+          type: string
+          example: "36"
+        label:
+          type: string
+          example: 기본 리스 기간 (개월)

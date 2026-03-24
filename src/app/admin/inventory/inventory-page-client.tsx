@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { InventoryToolbar } from '@/features/inventory/components/inventory-toolbar'
 import { InventoryTable } from '@/features/inventory/components/inventory-table'
 import { QuoteBuilder } from '@/features/inventory/components/quote-builder'
-import { loadInventoryData } from '@/features/inventory/actions/load-inventory'
+import { postAdminInventoryLoad } from '@/lib/api/generated/inventory/inventory'
 import type { InventoryFilter } from '@/features/inventory/types'
 import type { InventoryVehicleForQuote } from '@/features/inventory/types/quote'
 
@@ -63,7 +63,7 @@ export function InventoryPageClient({ items, count, filter }: Props) {
 
   const handleLoadData = () => {
     startTransition(async () => {
-      await loadInventoryData()
+      await postAdminInventoryLoad()
       router.refresh()
     })
   }

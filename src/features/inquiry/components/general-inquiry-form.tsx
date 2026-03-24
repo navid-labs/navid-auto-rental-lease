@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { createGeneralInquiry } from '@/features/inquiry/actions/create-general-inquiry'
+import { postInquiry } from '@/lib/api/generated/inquiry/inquiry'
 import { CheckCircle2 } from 'lucide-react'
 import type { Resolver } from 'react-hook-form'
 
@@ -50,7 +50,7 @@ export function GeneralInquiryForm() {
     setError(null)
     startTransition(async () => {
       try {
-        await createGeneralInquiry({
+        await postInquiry({
           name: data.name,
           phone: data.phone,
           email: data.email || undefined,

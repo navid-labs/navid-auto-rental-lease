@@ -1,0 +1,295 @@
+paths:
+  /pricing/residual-rate:
+    get:
+      tags: [pricing]
+      summary: Get a single residual value rate
+      description: Looks up the residual rate for a specific brand, car model, and year combination.
+      parameters:
+        - name: brandId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: carModelId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 2022
+      responses:
+        "200":
+          description: Residual rate for the given combination
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [rate]
+                    properties:
+                      rate:
+                        type: number
+                        format: float
+                        minimum: 0.01
+                        maximum: 0.99
+                        example: 0.45
+        "422":
+          description: Validation error (missing or invalid query params)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error, details]
+                properties:
+                  error:
+                    type: string
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+
+  /pricing/residual-rates:
+    get:
+      tags: [pricing]
+      summary: List residual value rates
+      description: Returns all residual value rates, optionally filtered by brand.
+      parameters:
+        - name: brandId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: List of residual value rates
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ResidualValueRate'
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error, details]
+                properties:
+                  error:
+                    type: string
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+    put:
+      tags: [pricing]
+      summary: Upsert a residual value rate
+      description: Creates or updates the residual rate for a brand + model + year combination. Requires ADMIN role.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [brandId, carModelId, year, rate]
+              properties:
+                brandId:
+                  type: string
+                  format: uuid
+                carModelId:
+                  type: string
+                  format: uuid
+                year:
+                  type: integer
+                  minimum: 2010
+                  maximum: 2030
+                  example: 2022
+                rate:
+                  type: number
+                  format: float
+                  minimum: 0.01
+                  maximum: 0.99
+                  example: 0.42
+      responses:
+        "200":
+          description: Rate upserted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [success]
+                    properties:
+                      success:
+                        type: boolean
+                        enum: [true]
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error, details]
+                properties:
+                  error:
+                    type: string
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+
+  /pricing/residual-rates/{id}:
+    delete:
+      tags: [pricing]
+      summary: Delete a residual value rate
+      description: Permanently removes a residual value rate entry. Requires ADMIN role.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Rate deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [success]
+                    properties:
+                      success:
+                        type: boolean
+                        enum: [true]
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden
+
+components:
+  schemas:
+    ResidualValueRate:
+      type: object
+      required: [id, brandId, carModelId, year, rate, brand, carModel]
+      properties:
+        id:
+          type: string
+          format: uuid
+        brandId:
+          type: string
+          format: uuid
+        carModelId:
+          type: string
+          format: uuid
+        year:
+          type: integer
+          example: 2022
+        rate:
+          type: number
+          format: float
+          minimum: 0.01
+          maximum: 0.99
+          example: 0.42
+        brand:
+          type: object
+          required: [name, nameKo]
+          properties:
+            name:
+              type: string
+              example: Hyundai
+            nameKo:
+              type: string
+              example: 현대
+        carModel:
+          type: object
+          required: [name, nameKo]
+          properties:
+            name:
+              type: string
+              example: Avante
+            nameKo:
+              type: string
+              example: 아반떼

@@ -1,7 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import { prisma } from '@/lib/db/prisma'
 import { getCurrentUser } from '@/lib/auth/helpers'
-import { getResidualRate } from '@/features/pricing/actions/residual-rate'
+import { getResidualRateQuery } from '@/features/pricing/queries/residual-rates'
 import { BreadcrumbNav } from '@/components/layout/breadcrumb-nav'
 import { ContractWizard } from '@/features/contracts/components/contract-wizard'
 import type { VehicleWithDetails } from '@/features/contracts/types'
@@ -62,7 +62,7 @@ export default async function ContractPage({ params }: PageProps) {
     notFound()
   }
 
-  const residualRate = await getResidualRate(
+  const residualRate = await getResidualRateQuery(
     vehicle.trim.generation.carModel.brand.id,
     vehicle.trim.generation.carModel.id,
     vehicle.year

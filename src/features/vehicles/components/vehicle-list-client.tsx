@@ -5,7 +5,7 @@ import { useInView } from 'react-intersection-observer'
 import { useQueryStates } from 'nuqs'
 import { LayoutGrid, List } from 'lucide-react'
 import { searchParamsParsers, PAGE_SIZE } from '../lib/search-params'
-import { loadMoreVehicles } from '../actions/load-more-vehicles'
+import { listVehicles } from '@/lib/api/generated/vehicles/vehicles'
 import { VehicleGrid } from './vehicle-grid'
 import { VehicleCardSkeleton } from './vehicle-card-skeleton'
 import { QuickFilterBadges } from './quick-filter-badges'
@@ -78,12 +78,13 @@ export function VehicleListClient({ initialVehicles, totalCount }: Props) {
         vehicleType: filters.vehicleType || null,
       }
 
-      const newVehicles = await loadMoreVehicles(
-        filterParams,
-        filters.sort,
+      const res = await listVehicles({
+        ...filterParams,
+        sort: filters.sort,
         offset,
-        PAGE_SIZE,
-      )
+        limit: PAGE_SIZE,
+      })
+      const newVehicles = ((res.data as unknown as { data: VehicleWithDetails[] }).data) ?? []
 
       // PITFALL 6 FIX: Deduplicate by ID
       setVehicles((prev) => {

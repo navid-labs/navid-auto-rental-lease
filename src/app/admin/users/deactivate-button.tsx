@@ -4,7 +4,8 @@ import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { deactivateUser } from '@/features/admin/actions/deactivate-user'
+import { postAdminUsersIdDeactivate } from '@/lib/api/generated/admin/admin'
+import { ApiError } from '@/lib/api/fetcher'
 import { UserX, Loader2 } from 'lucide-react'
 
 type DeactivateButtonProps = {
@@ -28,13 +29,13 @@ export function DeactivateButton({ userId, isDeactivated }: DeactivateButtonProp
     if (!confirm('이 사용자를 비활성화하시겠습니까?')) return
 
     startTransition(async () => {
-      const result = await deactivateUser(userId)
-      if ('error' in result) {
-        toast.error(result.error)
-        return
+      try {
+        await postAdminUsersIdDeactivate(userId)
+        toast.success('사용자가 비활성화되었습니다.')
+        router.refresh()
+      } catch (err) {
+        toast.error(err instanceof ApiError ? err.message : '비활성화에 실패했습니다.')
       }
-      toast.success('사용자가 비활성화되었습니다.')
-      router.refresh()
     })
   }
 

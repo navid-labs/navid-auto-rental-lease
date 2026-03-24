@@ -2,7 +2,8 @@
 
 import { useRef, useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
-import { uploadInventoryCsv } from '../actions/inventory-upload';
+import { postAdminInventoryUpload } from '@/lib/api/generated/inventory/inventory'
+import { ApiError } from '@/lib/api/fetcher'
 
 type RowError = { row: number; message: string };
 
@@ -20,10 +21,17 @@ export function CsvUploadForm() {
     const formData = new FormData(e.currentTarget);
 
     startTransition(async () => {
-      const res = await uploadInventoryCsv(formData);
-      setResult(res);
-      if (res.success && fileRef.current) {
-        fileRef.current.value = '';
+      try {
+        const res = await postAdminInventoryUpload({ file: formData.get('file') as Blob })
+        const data = res.data as { data: { success: true; count: number } }
+        setResult({ success: true, count: data.data.count })
+        if (fileRef.current) fileRef.current.value = ''
+      } catch (e) {
+        if (e instanceof ApiError) {
+          setResult({ success: false, error: e.message })
+        } else {
+          setResult({ success: false, error: '업로드 중 오류가 발생했습니다' })
+        }
       }
     });
   }

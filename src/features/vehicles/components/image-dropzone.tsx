@@ -3,7 +3,8 @@
 import { useState, useRef, useCallback } from 'react'
 import { Upload, AlertCircle, Loader2 } from 'lucide-react'
 import { compressImage, ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE_MB } from '@/features/vehicles/utils/image-compression'
-import { uploadVehicleImage } from '@/features/vehicles/actions/upload-images'
+import { uploadVehicleImage as uploadVehicleImageApi } from '@/lib/api/generated/vehicles/vehicles'
+import { ApiError } from '@/lib/api/fetcher'
 
 type ImageDropzoneProps = {
   vehicleId: string
@@ -57,18 +58,17 @@ export function ImageDropzone({
       setUploading(true)
 
       // Compress and upload in parallel
-      const results = await Promise.all(
+      const uploadErrors: string[] = []
+      await Promise.all(
         validFiles.map(async (file) => {
-          const compressed = await compressImage(file)
-          const formData = new FormData()
-          formData.set('file', compressed)
-          return uploadVehicleImage(vehicleId, formData)
+          try {
+            const compressed = await compressImage(file)
+            await uploadVehicleImageApi(vehicleId, { file: compressed })
+          } catch (e) {
+            uploadErrors.push(e instanceof ApiError ? e.message : `${file.name}: 업로드에 실패했습니다.`)
+          }
         })
       )
-
-      const uploadErrors = results
-        .filter((r): r is { error: string } => 'error' in r)
-        .map((r) => r.error)
 
       if (uploadErrors.length > 0) {
         setErrors((prev) => [...prev, ...uploadErrors])

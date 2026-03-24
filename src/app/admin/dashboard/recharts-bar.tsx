@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts'
-import type { MonthlyData } from '@/features/admin/actions/get-dashboard-stats'
+import type { MonthlyData } from '@/features/admin/queries/dashboard'
 
 type RechartsBarProps = {
   data: MonthlyData[]

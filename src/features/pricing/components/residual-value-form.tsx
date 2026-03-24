@@ -6,8 +6,9 @@ import { useRouter } from 'next/navigation'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { upsertResidualRate } from '../actions/residual-rate'
-import { getModelsByBrand } from '@/features/vehicles/actions/get-cascade-data'
+import { putPricingResidualRates } from '@/lib/api/generated/pricing/pricing'
+import { ApiError } from '@/lib/api/fetcher'
+import { listModelsByBrand } from '@/lib/api/generated/vehicles/vehicles'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -74,8 +75,8 @@ export function ResidualValueForm({ brands }: ResidualValueFormProps) {
       }
       setLoadingModels(true)
       try {
-        const result = await getModelsByBrand(brandId)
-        setModels(result)
+        const response = await listModelsByBrand(brandId)
+        setModels(response.data.data.map((m) => ({ id: m.id, name: m.name, nameKo: m.nameKo ?? null })))
       } finally {
         setLoadingModels(false)
       }
@@ -85,18 +86,18 @@ export function ResidualValueForm({ brands }: ResidualValueFormProps) {
 
   function onSubmit(data: FormValues) {
     startTransition(async () => {
-      const result = await upsertResidualRate({
-        brandId: data.brandId,
-        carModelId: data.carModelId,
-        year: data.year,
-        rate: data.ratePercent / 100,
-      })
-      if ('error' in result) {
-        toast.error(result.error)
-      } else {
+      try {
+        await putPricingResidualRates({
+          brandId: data.brandId,
+          carModelId: data.carModelId,
+          year: data.year,
+          rate: data.ratePercent / 100,
+        })
         reset()
         setModels([])
         router.refresh()
+      } catch (err) {
+        toast.error(err instanceof ApiError ? err.message : '저장에 실패했습니다.')
       }
     })
   }

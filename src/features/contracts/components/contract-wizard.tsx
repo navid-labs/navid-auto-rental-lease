@@ -7,14 +7,18 @@ import { StepVehicleConfirm } from './step-vehicle-confirm'
 import { StepTerms } from './step-terms'
 import { StepEkyc } from './step-ekyc'
 import { StepReview } from './step-review'
-import { createContract } from '@/features/contracts/actions/create-contract'
-import { submitEkyc } from '@/features/contracts/actions/submit-ekyc'
+import {
+  postContracts,
+  postContractsIdEkyc,
+} from '@/lib/api/generated/contracts/contracts'
+import { ApiError } from '@/lib/api/fetcher'
 import { calculateRental, calculateLease } from '@/lib/finance/calculate'
 import { cn } from '@/lib/utils'
 import type { VehicleWithDetails, ContractFormData } from '@/features/contracts/types'
 import type { TermsData, EkycData } from '@/features/contracts/schemas/contract'
-import type { ContractType } from '@prisma/client'
 import type { ContractWizardStep } from '@/features/contracts/types'
+
+type ContractType = 'RENTAL' | 'LEASE'
 
 type ContractWizardProps = {
   vehicle: VehicleWithDetails
@@ -43,27 +47,28 @@ export function ContractWizard({ vehicle, residualRate }: ContractWizardProps) {
   const handleTermsSubmit = (data: TermsData) => {
     startTransition(async () => {
       setError('')
-      const result = await createContract({
-        vehicleId: vehicle.id,
-        contractType: data.contractType,
-        periodMonths: data.periodMonths,
-        deposit: data.deposit,
-      })
+      try {
+        const result = await postContracts({
+          vehicleId: vehicle.id,
+          contractType: data.contractType,
+          periodMonths: data.periodMonths,
+          deposit: data.deposit,
+        })
 
-      if ('error' in result) {
-        setError(result.error)
-        return
+        // customFetch throws ApiError on non-2xx; if we reach here it's success
+        const body = (result as { contractId?: string; contractType?: ContractType })
+        setContractId(body.contractId ?? null)
+        setContractType(body.contractType ?? data.contractType)
+        setFormData((prev) => ({
+          ...prev,
+          contractType: data.contractType,
+          periodMonths: data.periodMonths,
+          deposit: data.deposit,
+        }))
+        setCurrentStep(3)
+      } catch (err) {
+        setError(err instanceof ApiError ? err.message : '계약 생성에 실패했습니다.')
       }
-
-      setContractId(result.contractId)
-      setContractType(result.contractType)
-      setFormData((prev) => ({
-        ...prev,
-        contractType: data.contractType,
-        periodMonths: data.periodMonths,
-        deposit: data.deposit,
-      }))
-      setCurrentStep(3)
     })
   }
 
@@ -72,22 +77,26 @@ export function ContractWizard({ vehicle, residualRate }: ContractWizardProps) {
     if (!contractId) return
     startTransition(async () => {
       setError('')
-      const result = await submitEkyc({
-        contractId,
-        contractType,
-        ekycData: data,
-      })
-
-      if ('error' in result) {
-        setError(result.error)
-        return
+      try {
+        await postContractsIdEkyc(contractId, {
+          contractType,
+          ekycData: {
+            name: data.name,
+            phone: data.phone,
+            carrier: data.carrier as 'SKT' | 'KT' | 'LGU',
+            birthDate: data.birthDate,
+            gender: data.gender as 'M' | 'F',
+            verificationCode: data.verificationCode,
+          },
+        })
+        setFormData((prev) => ({
+          ...prev,
+          ekyc: data,
+        }))
+        setCurrentStep(4)
+      } catch (err) {
+        setError(err instanceof ApiError ? err.message : '본인인증에 실패했습니다.')
       }
-
-      setFormData((prev) => ({
-        ...prev,
-        ekyc: data,
-      }))
-      setCurrentStep(4)
     })
   }
 

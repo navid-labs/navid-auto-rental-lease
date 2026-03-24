@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-const { mockPrisma, mockGetCurrentUser } = vi.hoisted(() => ({
+const { mockPrisma } = vi.hoisted(() => ({
   mockPrisma: {
     defaultSetting: {
       findUnique: vi.fn(),
@@ -13,20 +13,28 @@ const { mockPrisma, mockGetCurrentUser } = vi.hoisted(() => ({
       delete: vi.fn(),
     },
   },
-  mockGetCurrentUser: vi.fn(),
 }))
 
 vi.mock('@/lib/db/prisma', () => ({ prisma: mockPrisma }))
-vi.mock('@/lib/auth/helpers', () => ({
-  getCurrentUser: () => mockGetCurrentUser(),
-}))
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }))
 
 import { promoRateSchema, defaultSettingSchema } from '@/features/settings/schemas/settings'
-import { verifySettingsPassword } from '@/features/settings/actions/settings-auth'
-import { upsertPromoRate } from '@/features/settings/actions/settings'
+import { verifySettingsPasswordMutation } from '@/features/settings/mutations/auth'
+import { upsertPromoRateMutation } from '@/features/settings/mutations/settings'
+import type { UserProfile } from '@/lib/auth/helpers'
+
+const customerUser: UserProfile = {
+  id: 'customer-1',
+  role: 'CUSTOMER',
+  email: 'customer@test.com',
+  name: 'Customer',
+  phone: null,
+  avatar_url: null,
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-01-01T00:00:00Z',
+}
 
 describe('promoRateSchema', () => {
   it('validates valid data (brandId UUID, rate 0-1, optional label)', () => {
@@ -103,20 +111,20 @@ describe('defaultSettingSchema', () => {
   })
 })
 
-describe('verifySettingsPassword', () => {
+describe('verifySettingsPasswordMutation', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it('returns error for wrong password', async () => {
     mockPrisma.defaultSetting.findUnique.mockResolvedValue(null)
-    const result = await verifySettingsPassword('wrongpass')
+    const result = await verifySettingsPasswordMutation('wrongpass')
     expect(result).toEqual({ error: '비밀번호가 일치하지 않습니다.' })
   })
 
   it('accepts default password when no custom password set', async () => {
     mockPrisma.defaultSetting.findUnique.mockResolvedValue(null)
-    const result = await verifySettingsPassword('admin1234')
+    const result = await verifySettingsPasswordMutation('admin1234')
     expect(result).toEqual({ success: true })
   })
 
@@ -125,38 +133,27 @@ describe('verifySettingsPassword', () => {
       key: 'settings_password',
       value: 'custom123',
     })
-    const result = await verifySettingsPassword('custom123')
+    const result = await verifySettingsPasswordMutation('custom123')
     expect(result).toEqual({ success: true })
   })
 
   it('returns error for empty password', async () => {
-    const result = await verifySettingsPassword('')
+    const result = await verifySettingsPasswordMutation('')
     expect(result).toEqual({ error: '비밀번호를 입력해주세요.' })
   })
 })
 
-describe('upsertPromoRate', () => {
+describe('upsertPromoRateMutation', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it('rejects non-admin users', async () => {
-    mockGetCurrentUser.mockResolvedValue({ id: 'user-1', role: 'CUSTOMER' })
     await expect(
-      upsertPromoRate({
-        brandId: '11111111-1111-4111-a111-111111111111',
-        rate: 0.05,
-      })
-    ).rejects.toThrow('권한이 없습니다.')
-  })
-
-  it('rejects unauthenticated users', async () => {
-    mockGetCurrentUser.mockResolvedValue(null)
-    await expect(
-      upsertPromoRate({
-        brandId: '11111111-1111-4111-a111-111111111111',
-        rate: 0.05,
-      })
+      upsertPromoRateMutation(
+        { brandId: '11111111-1111-4111-a111-111111111111', rate: 0.05 },
+        customerUser
+      )
     ).rejects.toThrow('권한이 없습니다.')
   })
 })

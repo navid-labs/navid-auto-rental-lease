@@ -1,0 +1,556 @@
+paths:
+  /admin/inventory:
+    get:
+      tags: [inventory]
+      summary: List inventory items
+      description: Returns paginated inventory items with optional filters. Requires ADMIN role.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [STRATEGIC, GENERAL]
+        - name: brand
+          in: query
+          required: false
+          schema:
+            type: string
+            example: 현대
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+            example: 아반떼
+      responses:
+        "200":
+          description: Inventory list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [items, count]
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/InventoryItem'
+                      count:
+                        type: integer
+                        example: 47
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden
+
+  /admin/inventory/count:
+    get:
+      tags: [inventory]
+      summary: Get total inventory item count
+      description: Returns the total number of items currently loaded in inventory. Requires ADMIN role.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Inventory count
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [count]
+                    properties:
+                      count:
+                        type: integer
+                        example: 47
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden
+
+  /admin/inventory/last-upload:
+    get:
+      tags: [inventory]
+      summary: Get timestamp of the last inventory upload
+      description: Returns the ISO datetime of the most recent inventory upload, or null if none. Requires ADMIN role.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Last upload timestamp
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [lastUploadTime]
+                    properties:
+                      lastUploadTime:
+                        type: ["string", "null"]
+                        format: date-time
+                        example: "2026-03-20T09:15:00Z"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden
+
+  /admin/inventory/load:
+    post:
+      tags: [inventory]
+      summary: Load inventory from external source
+      description: Triggers a fetch from the external inventory data source and stores results. Requires ADMIN role.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Inventory loaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [count]
+                    properties:
+                      count:
+                        type: integer
+                        description: Number of items loaded
+                        example: 53
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden
+
+  /admin/inventory/upload:
+    post:
+      tags: [inventory]
+      summary: Upload inventory via file
+      description: Accepts a CSV/Excel file and bulk-imports inventory items. Requires ADMIN role.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: CSV or Excel file containing inventory rows
+      responses:
+        "200":
+          description: File processed — may include row-level errors
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - description: All rows imported successfully
+                    type: object
+                    required: [data]
+                    properties:
+                      data:
+                        type: object
+                        required: [success, count]
+                        properties:
+                          success:
+                            type: boolean
+                            enum: [true]
+                          count:
+                            type: integer
+                            example: 47
+                  - description: Partial failure — row-level validation errors returned
+                    type: object
+                    required: [error, rowErrors]
+                    properties:
+                      error:
+                        type: string
+                        example: Some rows failed validation
+                      rowErrors:
+                        type: array
+                        items:
+                          type: object
+                          required: [row, field, message]
+                          properties:
+                            row:
+                              type: integer
+                              description: 1-based row index in the uploaded file
+                              example: 3
+                            field:
+                              type: string
+                              example: price
+                            message:
+                              type: string
+                              example: Expected a number
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    example: Forbidden
+        "422":
+          description: File-level validation error (e.g. wrong format)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error, details]
+                properties:
+                  error:
+                    type: string
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+
+  /admin/inventory/quote:
+    post:
+      tags: [inventory]
+      summary: Generate lease quotes for selected inventory vehicles
+      description: Calculates lease quote results for one or more inventory vehicles using the provided financial parameters.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [vehicles, params]
+              properties:
+                vehicles:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required: [id, price, subsidy]
+                    description: Minimal inventory vehicle data needed for quote calculation
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      price:
+                        type: integer
+                        description: Vehicle price in KRW
+                        example: 32000000
+                      subsidy:
+                        type: integer
+                        description: Manufacturer subsidy in KRW
+                        example: 1500000
+                      modelName:
+                        type: string
+                        example: 아반떼 CN7 1.6 가솔린
+                params:
+                  type: object
+                  required:
+                    - leasePeriodMonths
+                    - residualMethod
+                    - residualRate
+                    - depositRate
+                    - advancePayment
+                    - creditGroup
+                  properties:
+                    leasePeriodMonths:
+                      type: integer
+                      description: Lease term in months
+                      example: 36
+                    residualMethod:
+                      type: string
+                      enum: [VEHICLE_PRICE, ACQUISITION_COST]
+                      description: Base used when computing residual value
+                    residualRate:
+                      type: number
+                      format: float
+                      minimum: 0
+                      maximum: 1
+                      example: 0.4
+                    depositRate:
+                      type: number
+                      format: float
+                      minimum: 0
+                      maximum: 0.4
+                      example: 0.2
+                    advancePayment:
+                      type: number
+                      format: float
+                      minimum: 0
+                      description: Upfront advance payment in KRW
+                      example: 3000000
+                    creditGroup:
+                      type: integer
+                      enum: [1, 2, 3]
+                      description: Customer credit tier (1=best, 3=worst)
+      responses:
+        "200":
+          description: Quote calculation results
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    description: QuoteGenerationResult — structure depends on calculation engine
+                    properties:
+                      quotes:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            vehicleId:
+                              type: string
+                              format: uuid
+                            monthlyPayment:
+                              type: number
+                              example: 580000
+                            acquisitionCost:
+                              type: number
+                              example: 30500000
+                            residualValue:
+                              type: number
+                              example: 12200000
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error, details]
+                properties:
+                  error:
+                    type: string
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+
+  /admin/inventory/quote-pdf:
+    post:
+      tags: [inventory]
+      summary: Generate quote PDF
+      description: Renders a printable PDF for a previously generated lease quote.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Quote data payload — mirrors the output of /admin/inventory/quote
+              additionalProperties: true
+      responses:
+        "200":
+          description: PDF file stream
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error, details]
+                properties:
+                  error:
+                    type: string
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+
+components:
+  schemas:
+    InventoryItem:
+      type: object
+      required:
+        - id
+        - category
+        - itemNumber
+        - representModel
+        - modelName
+        - modelYear
+        - exteriorColor
+        - interiorColor
+        - price
+        - subsidy
+        - availableQuantity
+        - immediateQuantity
+      properties:
+        id:
+          type: string
+          format: uuid
+        category:
+          type: string
+          enum: [STRATEGIC, GENERAL]
+        itemNumber:
+          type: string
+          example: INV-2026-00123
+        promotion:
+          type: ["string", "null"]
+          example: 봄 프로모션
+        representModel:
+          type: string
+          example: 아반떼
+        modelName:
+          type: string
+          example: 아반떼 CN7 1.6 가솔린 스마트
+        options:
+          type: ["string", "null"]
+          example: "선루프, 네비게이션"
+        modelYear:
+          type: integer
+          example: 2023
+        exteriorColor:
+          type: string
+          example: 쉬머링 실버 메탈릭
+        interiorColor:
+          type: string
+          example: 블랙
+        price:
+          type: integer
+          description: Vehicle price in KRW
+          example: 22500000
+        subsidy:
+          type: integer
+          description: Manufacturer subsidy in KRW
+          example: 800000
+        availableQuantity:
+          type: integer
+          example: 5
+        immediateQuantity:
+          type: integer
+          description: Units available for immediate delivery
+          example: 2
+        productionDate:
+          type: ["string", "null"]
+          format: date
+          example: "2023-08-01"
+        notice:
+          type: ["string", "null"]
+          example: 출고 2주 소요
+        brand:
+          type: ["string", "null"]
+          example: 현대

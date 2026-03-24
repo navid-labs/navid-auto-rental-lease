@@ -4,8 +4,10 @@ import { useState, useCallback, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
 import { ImageDropzone } from './image-dropzone'
 import { SortableImageGrid } from './sortable-image-grid'
-import { deleteVehicleImage } from '@/features/vehicles/actions/delete-image'
-import { reorderVehicleImages } from '@/features/vehicles/actions/reorder-images'
+import {
+  deleteVehicleImage as deleteVehicleImageApi,
+  reorderVehicleImages as reorderVehicleImagesApi,
+} from '@/lib/api/generated/vehicles/vehicles'
 import { MAX_IMAGES_PER_VEHICLE } from '@/features/vehicles/utils/image-compression'
 import type { ImageItem } from '@/features/vehicles/types'
 
@@ -42,10 +44,9 @@ export function StepPhotos({
       setImages(reordered)
       // Persist to server
       startTransition(async () => {
-        await reorderVehicleImages(
-          vehicleId,
-          reordered.map((img) => img.id)
-        )
+        await reorderVehicleImagesApi(vehicleId, {
+          orderedImageIds: reordered.map((img) => img.id),
+        })
       })
     },
     [vehicleId, startTransition]
@@ -60,10 +61,10 @@ export function StepPhotos({
       })
       // Persist
       startTransition(async () => {
-        await deleteVehicleImage(imageId)
+        await deleteVehicleImageApi(vehicleId, imageId)
       })
     },
-    [startTransition]
+    [vehicleId, startTransition]
   )
 
   return (

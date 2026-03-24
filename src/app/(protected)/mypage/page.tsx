@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { getCurrentUser } from '@/lib/auth/helpers'
 import { ProfileForm } from '@/features/auth/components/profile-form'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { getMyContracts } from '@/features/contracts/actions/get-my-contracts'
+import { getMyContractsQuery } from '@/features/contracts/queries/my-contracts'
 import { ContractList } from '@/features/contracts/components/contract-list'
 import { Suspense } from 'react'
 
@@ -17,7 +17,7 @@ export default async function MyPage() {
     redirect('/login')
   }
 
-  const contracts = await getMyContracts(user.id)
+  const contracts = await getMyContractsQuery(user.id)
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">

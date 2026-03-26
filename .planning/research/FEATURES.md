@@ -1,209 +1,253 @@
-# Feature Research
+# Feature Research: v3.0 Hardening
 
-**Domain:** Korean Used Car Rental/Lease Platform (B2B2C Hybrid)
-**Researched:** 2026-03-09
-**Confidence:** MEDIUM
+**Domain:** Security hardening, performance optimization, design system cleanup, code quality for used car rental/lease platform
+**Researched:** 2026-03-27
+**Confidence:** HIGH
 
 ## Feature Landscape
 
-### Table Stakes (Users Expect These)
+This milestone is not about new user-facing features. It is a production-readiness gate: fixing security vulnerabilities, eliminating performance waste, unifying the design system, and raising test coverage. Every item here was surfaced by concrete gstack audit findings with measurable before/after targets.
 
-Features users assume exist. Missing these = product feels incomplete.
+---
+
+### Table Stakes (Must Fix -- Blocks Production Deployment)
+
+Features and fixes that are non-negotiable for a production-grade application. Missing any of these is a deployment blocker or security liability.
+
+#### Security
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| 차량 검색/필터/정렬 | 엔카, KB차차차 등 모든 플랫폼 기본 기능. 브랜드/모델/연식/가격/주행거리 필터 필수 | MEDIUM | Supabase 풀텍스트 검색 + 다중 필터 조합. 차종 분류 체계(세단/SUV/경차 등) 설계 중요 |
-| 차량 상세 정보 페이지 | 사진 갤러리, 제원, 옵션, 사고이력 요약은 최소 기대치 | MEDIUM | 이미지 최적화(Next.js Image), 제원 데이터 구조화 필요 |
-| 렌탈/리스 월 납입금 계산기 | 다나와, 카베이 등 견적 비교 플랫폼의 핵심 기능. 보증금/기간/주행거리에 따른 월 비용 실시간 계산 | MEDIUM | 잔존가치 테이블 기반 계산 로직. 리스는 잔가율, 렌탈은 감가+보험+관리비 포함 |
-| 회원가입/로그인 | 기본 인증. 이메일+비밀번호 최소, 소셜 로그인(카카오/네이버)은 한국 시장에서 사실상 필수 | LOW | Supabase Auth 활용. v1은 이메일, v2에서 소셜 로그인 추가 가능 |
-| 역할 기반 접근 제어 (고객/딜러/관리자) | B2B2C 모델의 근간. 딜러 차량 관리, 관리자 승인 등 역할별 화면 분리 필수 | MEDIUM | Supabase RLS로 데이터 격리. 역할별 미들웨어 설계 |
-| 딜러 차량 등록/관리 | B2B2C 마켓플레이스 핵심. 딜러가 차량 정보/사진 등록, 수정, 삭제 | MEDIUM | 이미지 업로드(Supabase Storage), 차량 상태 관리 상태머신 |
-| 계약 신청 플로우 | 온라인 계약의 핵심 UX. 롯데렌터카 마이카는 "5분 논스톱 계약" 표방 | HIGH | 다단계 폼 위저드. 본인인증 -> 심사 -> 계약조건 확인 -> 서명 -> 완료 |
-| 마이페이지 (계약현황/차량정보) | 고객이 계약 상태, 잔여 기간, 납입 현황 확인하는 기본 기능 | LOW | Supabase 쿼리 기반. 계약 상태머신과 연동 |
-| 반응형 웹 (모바일 최적화) | K카 온라인 거래 비중 56.4%. 모바일 우선은 필수 | MEDIUM | Tailwind CSS 반응형. shadcn/ui 컴포넌트 기본 지원 |
-| 차량 상태 표시 (예약됨/렌트중/가용) | 실시간 재고 상태는 마켓플레이스 신뢰의 기본 | LOW | Supabase Realtime 또는 폴링. 상태 enum 관리 |
-| 관리자 대시보드 | 차량/계약/사용자 CRUD + 기본 통계. 운영의 최소 도구 | MEDIUM | shadcn/ui 데이터 테이블 + 차트. 관리자 전용 레이아웃 |
+| **Auth guard on quote-pdf endpoint** | `POST /api/admin/inventory/quote-pdf` accepts unauthenticated requests. Any internet user can generate PDFs with arbitrary data. This is an API abuse vector and potential cost attack (PDF rendering is CPU-intensive). | LOW | Add `requireRole('DEALER', 'ADMIN')` at top of handler, same pattern as `POST /api/vehicles/[id]/images`. 5-line fix. Existing `requireRole` helper in `src/lib/api/auth.ts`. |
+| **Password hashing (replace hardcoded admin1234)** | Settings auth in `src/features/settings/mutations/auth.ts` stores and compares passwords in plaintext. Default password `admin1234` is hardcoded. Any settings password stored in `DefaultSetting` table is also plaintext. This fails basic security audits. | MEDIUM | Use `Bun.password.hash()` (argon2 by default) and `Bun.password.verify()` -- native Bun runtime support, zero dependencies. Migration: hash existing plaintext passwords on first comparison, store hashed version back. Progressive migration pattern. |
+| **Server-side MIME type validation for image uploads** | `uploadImageMutation` in `src/features/vehicles/mutations/images.ts` trusts `file.type` from the client FormData without server-side verification. Attackers can upload executable files with spoofed MIME types. Supabase Storage does not validate content types server-side. | MEDIUM | Read first 12 bytes (magic bytes) to verify actual file type. Accept only `image/jpeg`, `image/png`, `image/webp`, `image/avif`. Use `file-type` npm package or manual magic byte check. Also enforce max file size server-side (current limit is client-only via `browser-image-compression`). |
+| **Next.js security update verification** | Current version 16.1.6 -- need to verify this is patched against CVE-2025-29927 (middleware bypass, fixed in 16.0.10), CVE-2025-66478 (RSC RCE, fixed in 16.0.7), and CVE-2026-23864 (DoS). The 16.1.6 version should be past all critical fixes but requires explicit verification. | LOW | Run `npx fix-react2shell-next` to verify. If any patch is missing, `bun add next@latest`. Check React version alignment per Vercel security advisory. |
+
+#### Performance
+
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| **Pretendard font optimization (3MB to ~300KB)** | Current setup imports 4 weights of `@fontsource/pretendard` (400, 500, 600, 700) = ~3MB WOFF2 total. Critically, these are **Latin-only** subsets -- Korean text falls back to system fonts, defeating the purpose. The 16MB `@fontsource/pretendard` package is wasted. | MEDIUM | **Option A (recommended):** Switch to Pretendard dynamic subset via CDN (`cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendard-dynamic-subset.min.css`). Uses unicode-range subsetting -- only characters on the page are downloaded. Variable font = single file for all weights. **Option B:** Download Pretendard Variable WOFF2 (~2.5MB for full Korean) and use `next/font/local` for self-hosting with automatic `font-display: swap` and `size-adjust`. Either way, remove `@fontsource/pretendard` dependency. |
+| **JS bundle reduction (1,197KB to target 500KB)** | Homepage loads 1,197KB of JavaScript. For a content-heavy used car listing site, this is excessive. Key offenders likely include: `recharts` (500KB+), `framer-motion` (150KB+), `@react-pdf/renderer` (200KB+), `embla-carousel` (bundled on non-carousel pages). | HIGH | Multi-pronged approach: (1) Dynamic import heavy libraries with `next/dynamic` -- `recharts` only on admin dashboard, `@react-pdf/renderer` only on PDF download, `framer-motion` animations lazy-loaded. (2) Audit barrel file imports -- import from specific paths not index files. (3) Use `@next/bundle-analyzer` or Turbopack analyzer to identify actual offenders. (4) Tree-shake unused exports. Target: first-load JS under 300KB for public pages. |
+| **HTTP request reduction (59 to target ~25)** | Homepage makes 59 HTTP requests. RSC prefetch, multiple font files, unoptimized image loading contribute. Each request adds latency, especially on mobile. | MEDIUM | (1) Reduce RSC prefetch by setting `prefetch={false}` on non-critical Links or using `prefetch="intent"`. (2) Consolidate font loading to single variable font file. (3) Use `loading="lazy"` on below-fold images. (4) Verify no duplicate API calls from parallel component trees. (5) Consider Vercel Edge caching headers. |
+| **CDN/caching strategy** | No explicit caching headers on API responses or static assets beyond Next.js defaults. Repeat visitors re-download everything. | LOW | Add `Cache-Control` headers to vehicle list API (short TTL, stale-while-revalidate), static assets (immutable for hashed filenames), and font files (long TTL). Vercel Edge Network handles most of this automatically but API responses need explicit headers. |
+
+#### Design System
+
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| **Hardcoded hex to CSS variables (408 occurrences)** | 411 hardcoded hex values across 35 source files. The design system has proper CSS variables defined in `globals.css` with `@theme` tokens, but components bypass them. This makes theme changes impossible and creates visual inconsistency. | HIGH | Systematic find-and-replace, file by file. Two distinct color sets to address: (1) **#1A6DFF** (43 occurrences, 17 files) -- K Car brand blue, not mapped to any CSS variable. Needs a new token like `--brand-blue` or consolidation with `--accent`. (2) **#3B82F6** (6 occurrences, 3 files) -- Tailwind blue-500, used in admin charts. Map to `--chart-primary` or `--accent`. Other hex values: grays (#E8E8E8, #F8F8F8, #999999, #555555, #0D0D0D, #D1D5DB, #F5F5F5, #EBF3FF) need mapping to existing `--muted`, `--border`, `--foreground` tokens. |
+| **Brand blue unification (#1A6DFF vs #3B82F6)** | Two different blues used for the same semantic purpose. #1A6DFF (K Car brand blue, 43 uses) and #3B82F6 (Tailwind blue-500, 6 uses in charts + floating CTA). The design decision from MEMORY.md says "Blue accent (#3B82F6)" but the K Car redesign introduced #1A6DFF widely. | MEDIUM | **Decision required:** Pick ONE brand blue. Recommend #1A6DFF since it has 43 occurrences vs 6 for #3B82F6, and it was the deliberate K Car style choice. Map to `--accent` CSS variable (currently `hsl(217 91% 60%)` which is actually #3B82F6). Update `--accent` to #1A6DFF's HSL equivalent, then replace all hardcoded instances with the `accent` design token. |
+| **Focus-visible accessibility (51 outline-none)** | 51 instances of `outline-none` across 29 files. Only 24 of those have a corresponding `focus-visible` replacement. That means **27 interactive elements lose keyboard focus indicators entirely** -- a WCAG 2.4.7 (Level AA) failure. Screen reader and keyboard users cannot navigate the site. | MEDIUM | Audit all 51 `outline-none` usages. For each: (1) If it has `focus-visible:ring-*`, it is already correct -- keep. (2) If it has no focus replacement, add `focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`. Most are in `src/components/ui/` (shadcn) which already follow the pattern. The violations are concentrated in marketing components (`hero-section.tsx` 4x, `hero-search-box.tsx` 4x, `quote-builder.tsx` 6x, `vehicle-edit-sheet.tsx` 6x). |
+| **prefers-reduced-motion support** | Zero instances of `prefers-reduced-motion` in the entire codebase. The site uses `framer-motion` animations, Embla carousel auto-play, and CSS transitions. ~35% of adults 40+ have vestibular sensitivity. This is a WCAG 2.3.3 (Level AAA) and increasingly an AA expectation. | MEDIUM | (1) Add global CSS: `@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }`. (2) Wrap `framer-motion` animations in `useReducedMotion()` hook. (3) Disable Embla carousel auto-play when reduced motion is preferred. (4) Add `autoPlay` toggle to hero banner respecting the preference. |
+| **Homepage missing h1** | Homepage (`src/app/(public)/page.tsx`) has no `<h1>` element. The hero banner and search box are all `<div>` elements. This is a WCAG 1.3.1 (Level A) failure and hurts SEO -- Google expects one `<h1>` per page for content hierarchy. | LOW | Add `<h1 className="sr-only">Navid Auto - 중고차 렌탈 리스</h1>` at top of page, or convert the hero banner title to an `<h1>`. The visually-hidden approach is common for image-heavy hero sections. |
+
+#### Code Quality
+
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| **Test coverage expansion (3.9% to target 30%+)** | 49 test files covering 385 source files = 12.7% file coverage, but line/branch coverage is 3.9%. Most tests are unit tests on schemas, utilities, and mutations. No integration tests for API route handlers. No component rendering tests for key user flows. | HIGH | Focus on behavioral tests, not coverage metrics: (1) API route handler tests for critical endpoints (contract creation, vehicle CRUD, auth flows). (2) Component tests for key user journeys (search + filter, vehicle detail view, contract wizard steps). (3) Use MSW for network mocking in integration tests. Target 30% line coverage as a floor, but prioritize high-value paths: auth, contracts, payments. |
+| **Push 145 unpushed commits** | 145 commits on local main that have not been pushed to remote. Risk of data loss if local machine fails. Also blocks CI/CD and team collaboration. | LOW | `git push origin main`. Verify remote is configured. If remote rejects (diverged history), investigate before force-pushing. This is a one-time operational task, not a code change. |
+
+---
 
 ### Differentiators (Competitive Advantage)
 
-Features that set the product apart. Not required, but valuable.
+Features that go beyond fixing problems -- they elevate the product above the audit baseline.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| 번호판 기반 차량 정보 자동 조회 | 헤이딜러의 핵심 차별화 요소. 딜러가 번호판만 입력하면 제원/이력 자동 채움 -> 등록 시간 대폭 단축 | MEDIUM | 국토교통부 공공데이터 API 또는 민간 API(에이픽 등) 연동. v1에서 실연동 확정 |
-| 비대면 계약 완결 (eKYC + 전자서명) | 롯데렌터카도 "논스톱 온라인 계약" 추구. 완전 비대면은 아직 드문 차별점 | HIGH | v1은 모의 플로우(UI/UX만), v2에서 PASS/카카오 본인인증 + 모두싸인 전자서명 API 연동 |
-| 잔존가치 자동 산정 | 리스 계약의 핵심 요소. 연식/주행거리/모델별 잔가율 자동 계산은 투명성 제고 | MEDIUM | 차종별 감가율 테이블 설계. 연 약정거리별 잔가율 차등 적용(1만km: 65%, 2만km: 62% 등) |
-| 렌탈 vs 리스 비교 시뮬레이션 | 고객이 같은 차량에 대해 렌탈/리스 조건을 나란히 비교. 다나와/카베이 수준의 비교 기능 | MEDIUM | 월 납입금, 총비용, 번호판 종류(하/허/호 vs 일반), 보험 조건 등 차이점 시각화 |
-| 계약서 PDF 자동 생성 | 계약 내용 기반 법적 효력 있는 PDF 자동 생성. 다운로드/이메일 발송 | MEDIUM | React-PDF 또는 서버사이드 PDF 생성. 계약서 템플릿 법률 검토 필요 |
-| 딜러 승인/관리 체계 | 관리자가 딜러 가입 승인, 등록 차량 검수 후 노출. 플랫폼 신뢰도 확보 | LOW | 승인 상태머신(신청 -> 검토 -> 승인/반려). 관리자 알림 |
-| 차량 가격 변동 알림 | 반카 등에서 제공. 찜한 차량 가격 하락 시 알림 | LOW | Supabase Edge Function + 웹 푸시 알림. v2 이후 적합 |
-| 3D/VR 차량 뷰어 | 엔카 VR 차량 전시장. 온라인 구매 신뢰도 향상 | HIGH | 서드파티 솔루션 필요. MVP 범위 밖이지만 장기적 차별화 요소 |
+| **Lighthouse CI in CI/CD pipeline** | Automated performance regression detection. Every PR gets a performance score. Prevents reintroduction of bundle bloat or accessibility issues after v3.0 fixes them. | LOW | Use `@lhci/cli` in GitHub Actions. Set budgets: performance >80, accessibility >90, FCP <2s. Fails PR if budgets are violated. |
+| **Design token documentation page** | Internal `/design-system` page showing all CSS variables, color swatches, typography scale, spacing. Makes the token system self-documenting and prevents future hardcoded hex drift. | LOW | Server component that reads `globals.css` variables and renders swatches. Valuable for any future designer/developer joining the project. |
+| **Error boundary with user-friendly fallback** | Currently uncaught errors show Next.js default error page. A branded error boundary with "Try again" button and error reporting improves perceived quality. | LOW | `error.tsx` files in key route segments. Log errors to console or future monitoring service. |
+| **Security headers (CSP, HSTS, X-Frame-Options)** | Content Security Policy prevents XSS. Strict-Transport-Security forces HTTPS. X-Frame-Options prevents clickjacking. These are standard production headers that security auditors check first. | MEDIUM | Add via `next.config.ts` headers configuration or Vercel edge middleware. CSP is the hardest to get right with inline styles from Tailwind -- may need `unsafe-inline` for style-src initially. |
+| **Structured logging for API errors** | Current error handling uses `console.error`. Production needs structured JSON logging with request context (user ID, route, timestamp) for debugging. | MEDIUM | Create a `logger.ts` utility wrapping `console` with structured output. Add request context to API error responses. Prepares for future integration with Vercel Log Drain or Axiom. |
+
+---
 
 ### Anti-Features (Commonly Requested, Often Problematic)
 
-Features that seem good but create problems.
+Features that seem valuable for a hardening milestone but create more problems than they solve.
 
 | Feature | Why Requested | Why Problematic | Alternative |
 |---------|---------------|-----------------|-------------|
-| 실시간 채팅/상담 | 고객 문의 즉시 응대 기대 | v1에서 24/7 상담 인력 확보 불가. 미응답 채팅은 역효과. 개발 복잡도 높음 | 문의 폼 + 콜백 예약. v2에서 카카오톡 채널 연동 검토 |
-| 결제/PG 연동 | "결제까지 원스톱" 기대 | 결제 방식 미확정. PG 심사/계약 시간 소요. 렌탈/리스는 월 자동이체가 일반적이라 PG보다 CMS가 적합 | v1은 계약 체결까지만. 결제는 오프라인 또는 별도 안내 |
-| AI 차량 추천 | "맞춤 추천"은 트렌디해 보임 | 초기 데이터 부족으로 추천 품질 낮음. 잘못된 추천은 신뢰 하락 | 인기 차량/최근 등록 차량 노출. 데이터 축적 후 v2+ 검토 |
-| 보험/정비 통합 관리 | 원스톱 차량 관리 기대 | 보험사/정비 업체 연동 복잡. 규제 이슈. v1 범위 초과 | 렌탈 계약에 보험 포함 여부만 명시. 정비 안내는 정보성 콘텐츠로 |
-| 다국어 지원 | 글로벌 확장 기대 | 한국 중고차 렌탈/리스는 내수 시장. i18n 구현 비용 대비 효과 미미 | 한국어 단일 언어. 향후 필요 시 next-intl 도입 |
-| 네이티브 모바일 앱 | "앱이 있어야 한다" 인식 | 웹 앱으로 충분한 기능 제공 가능. 앱스토어 심사/유지보수 부담 | 반응형 웹 + PWA. v2에서 Capacitor 패키징 검토 |
-| 실시간 차량 위치 추적 | 렌탈 차량 관리 기대 | GPS 장비/연동 필요. 개인정보 이슈. v1 범위 초과 | 차량 인수/반납 장소 안내만 제공 |
+| **100% test coverage target** | "More tests = better quality" mindset. Coverage reports look impressive. | Chasing coverage numbers leads to brittle snapshot tests, trivial assertion tests, and tests that test implementation not behavior. The marginal value of going from 30% to 100% is negative if those tests are low quality. | Target 30% line coverage with focus on **behavioral tests** for critical paths (auth, contracts, search). Use coverage as a guide, not a goal. |
+| **Full CSP without unsafe-inline** | "Best practice" for Content Security Policy. Eliminates all inline script/style vectors. | Tailwind CSS generates utility classes that often require `unsafe-inline` for `style-src`. Removing it requires nonce-based CSP which adds complexity to every server response. shadcn/ui components use inline styles. | Start with CSP that allows `unsafe-inline` for styles but blocks scripts. Tighten incrementally. The most important CSP directive is `default-src 'self'` and `script-src`. |
+| **Dark mode support** | CSS variables are already dark-mode ready (`.dark` variant exists in `globals.css`). Seems easy to enable. | Adding dark mode during a hardening milestone introduces visual regression risk across 35+ component files. Every hardcoded hex value (411 of them) needs dark mode equivalents. The hex cleanup must happen first. | Complete hex-to-variable migration first (this milestone). Enable dark mode toggle in a future milestone when all components use tokens. |
+| **Migrate from Vitest to Bun test runner** | Project uses Bun as package manager. Bun has built-in test runner. Seems natural to consolidate. | Bun's test runner lacks React Testing Library integration maturity, happy-dom/jsdom compatibility has edge cases, and vitest has superior watch mode, coverage reporting, and IDE integration. The existing 49 test files all use vitest patterns. | Keep Vitest. MEMORY.md explicitly warns: "`bun test` is bun's built-in runner -- do not use." The test infrastructure works. |
+| **Automated accessibility scanner (axe-core in CI)** | Catch all a11y issues automatically. | axe-core in CI without Playwright E2E tests only catches static HTML issues. The real a11y problems (focus management, keyboard navigation, dynamic content) require runtime testing. Adding axe-core before fixing the known 27 focus-visible violations is putting the cart before the horse. | Fix the known violations first (focus-visible, h1, reduced-motion). Then add `@axe-core/playwright` to E2E tests in a future milestone. |
+| **Sentry/error monitoring integration** | "Production apps need error monitoring." | Adds a third-party dependency, requires configuration, and needs a Sentry account. For a demo/investment-stage product, `console.error` with structured logging is sufficient. Sentry adds value at scale with real users. | Implement structured logging (`logger.ts`) this milestone. Add Sentry when the product has real user traffic. |
+
+---
 
 ## Feature Dependencies
 
 ```
-[회원가입/로그인]
-    +--requires--> [역할 기반 접근 제어]
-    |                  +--requires--> [딜러 차량 등록/관리]
-    |                  |                  +--enhances--> [번호판 기반 자동 조회]
-    |                  |                  +--requires--> [차량 상태 관리]
-    |                  +--requires--> [관리자 대시보드]
-    |                                     +--requires--> [딜러 승인/관리]
-    +--requires--> [마이페이지]
+[Next.js Security Update]  (independent, do first)
 
-[차량 검색/필터]
-    +--requires--> [차량 상세 페이지]
-    |                  +--enhances--> [렌탈/리스 월납입금 계산기]
-    |                  |                  +--requires--> [잔존가치 자동 산정]
-    |                  +--enhances--> [렌탈 vs 리스 비교 시뮬레이션]
-    +--requires--> [차량 상태 표시]
+[Password Hashing]  (independent)
 
-[계약 신청 플로우]
-    +--requires--> [회원가입/로그인]
-    +--requires--> [차량 상세 페이지]
-    +--requires--> [월납입금 계산기]
-    +--enhances--> [eKYC 본인인증] (v1 모의)
-    +--enhances--> [전자서명] (v1 모의)
-    +--enhances--> [계약서 PDF 생성]
+[Quote-PDF Auth Guard]  (independent)
 
-[잔존가치 자동 산정]
-    +--requires--> [차종별 감가율 데이터]
-    +--enhances--> [월납입금 계산기]
+[Image Upload MIME Validation]  (independent)
+
+[Brand Blue Decision: #1A6DFF vs #3B82F6]
+    └──required-by──> [Hardcoded Hex to CSS Variables]
+                           └──required-by──> [Dark Mode] (future, not this milestone)
+
+[Pretendard Font Optimization]  (independent)
+    └──reduces──> [HTTP Request Count]
+
+[JS Bundle Reduction]
+    └──requires──> [Bundle Analyzer Setup] (first step)
+    └──reduces──> [HTTP Request Count]
+
+[Focus-Visible Audit]  (independent, parallelize with hex migration)
+
+[prefers-reduced-motion]  (independent)
+
+[Homepage h1]  (independent, trivial)
+
+[Test Coverage Expansion]
+    └──depends-on──> [All security fixes complete] (tests should cover fixed behavior)
+    └──depends-on──> [API route patterns stable] (don't test routes that are about to change)
+
+[Push Unpushed Commits]  (do immediately, before any code changes)
 ```
 
 ### Dependency Notes
 
-- **계약 신청 플로우 requires 월납입금 계산기:** 계약 조건(보증금, 기간, 주행거리)에 따른 월 납입금이 확정되어야 계약 진행 가능
-- **번호판 조회 enhances 딜러 차량 등록:** 번호판 입력으로 차량 정보 자동 채움. 없어도 수동 입력 가능하지만 딜러 UX 크게 향상
-- **잔존가치 산정 requires 감가율 데이터:** 차종/연식/주행거리별 잔가율 테이블이 선행되어야 계산 가능. 초기 데이터는 업계 표준 기반 시드 데이터로 구성
-- **eKYC/전자서명 enhances 계약 플로우:** v1은 모의 플로우이므로 의존성 약함. v2에서 실연동 시 강한 의존성
+- **Brand Blue Decision before Hex Migration:** Cannot replace hardcoded hex values without knowing the canonical brand color. The decision between #1A6DFF and #3B82F6 must be made before systematic replacement begins.
+- **Security Fixes before Test Expansion:** Write tests for the correct behavior (with auth guards, with hashed passwords). Don't test the broken state.
+- **Bundle Analyzer before Bundle Reduction:** Identify actual offenders with data, not assumptions. `recharts` and `framer-motion` are likely candidates but must be measured.
+- **Font Optimization reduces HTTP Requests:** Switching from 4 separate font weight files to 1 variable font file eliminates 3 HTTP requests immediately.
+- **Push Commits first:** All changes build on current codebase. If remote is out of sync, merge conflicts will compound.
 
-## MVP Definition
+---
 
-### Launch With (v1) -- Demo/Investment Pitch
+## MVP Definition (v3.0 Scope)
 
-- [x] 차량 검색/필터/비교 -- 플랫폼의 가장 기본적인 가치
-- [x] 차량 상세 페이지 (사진, 제원, 가격) -- 구매 의사결정의 핵심 정보
-- [x] 번호판 기반 차량 정보 자동 조회 -- 데모 임팩트가 큰 핵심 차별화 기능
-- [x] 회원가입/로그인 + 역할 기반 접근 제어 -- B2B2C 모델의 근간
-- [x] 딜러 차량 등록/수정/삭제 -- 마켓플레이스 공급 측면
-- [x] 관리자 차량 등록 (자사 재고) -- 하이브리드 모델 시연
-- [x] 렌탈/리스 월 납입금 계산기 -- 계약 의사결정 도구
-- [x] 잔존가치 자동 산정 -- 리스 계약의 핵심 로직
-- [x] 계약 신청 플로우 (다단계 위저드) -- 비대면 계약의 핵심 UX
-- [x] eKYC 모의 플로우 (UI/UX만) -- 비대면 인증 시연
-- [x] 계약서 PDF 자동 생성 -- 계약 완결성 시연
-- [x] 마이페이지 (계약 현황) -- 고객 경험 완결
-- [x] 관리자 대시보드 (CRUD + 통계) -- 운영 도구
-- [x] 반응형 웹 (모바일 최적화) -- 모바일 트래픽 대응
+### Phase 1: Security Hardening (Launch-blocking)
 
-### Add After Validation (v1.x)
+- [x] Push 145 unpushed commits to remote
+- [ ] Verify Next.js 16.1.6 covers all known CVEs
+- [ ] Add auth guard to quote-pdf endpoint
+- [ ] Implement password hashing with Bun.password (argon2)
+- [ ] Add server-side MIME type validation for image uploads
+- [ ] Add file size limit enforcement server-side
 
-- [ ] 소셜 로그인 (카카오/네이버) -- 한국 시장 전환율 향상에 직결
-- [ ] 딜러 승인/관리 체계 -- 실 딜러 온보딩 시 필요
-- [ ] 차량 찜/관심 목록 -- 재방문 유도 (리본카 참고: 하트 아이콘 + 찜 목록 + 플로팅 메뉴)
-- [ ] 렌탈 vs 리스 비교 시뮬레이션 -- 고객 의사결정 지원 강화
-- [ ] 이메일/푸시 알림 (계약 상태 변경) -- 고객 경험 향상
-- [ ] 차량 가격 변동 알림 -- 재방문 유도
-- [ ] 최근 본 차량 (localStorage) -- 리본카 참고: 플로팅 메뉴에서 히스토리 20개 조회
-- [ ] 차량 비교 기능 (2-4대) -- 리본카 참고: 체크박스 선택 → 비교 테이블
-- [ ] 프로모션/기획전 배너 -- 리본카 참고: Swiper 슬라이더, 타임딜 카운트다운
-- [ ] 플로팅 상담 CTA -- 리본카 참고: 전화/카톡/문의 플로팅 버튼
-- [ ] 입고 알림 신청 -- 리본카 참고: 준비중/완료 차량에 알림 받기
-- [ ] 인기/추천 검색어 -- 리본카 참고: 검색바 focus 시 드롭다운
+### Phase 2: Performance Optimization
 
-### Future Consideration (v2+)
+- [ ] Replace @fontsource/pretendard with Pretendard dynamic subset (CDN or next/font/local)
+- [ ] Set up bundle analyzer and identify top 5 JS weight offenders
+- [ ] Dynamic import recharts, @react-pdf/renderer, framer-motion
+- [ ] Audit and fix barrel file imports
+- [ ] Reduce RSC prefetch on homepage
+- [ ] Add caching headers to vehicle list API
 
-- [ ] 실제 eKYC API 연동 (PASS/카카오 인증) -- 건당 200~500원 비용 발생
-- [ ] 전자서명 API 연동 (모두싸인) -- 월 구독 + 건당 비용
-- [ ] 결제/CMS 연동 -- 월 자동이체 설정
-- [ ] 실시간 채팅 (카카오톡 채널) -- 상담 인력 확보 후
-- [ ] 네이티브 앱 (Capacitor) -- PWA로 부족할 경우
-- [ ] AI 기반 차량 추천 -- 데이터 축적 후
-- [ ] 3D/VR 차량 뷰어 -- 기술 성숙도 + 비용 고려
+### Phase 3: Design System Cleanup
+
+- [ ] Decide canonical brand blue (#1A6DFF recommended)
+- [ ] Create new CSS variable tokens for K Car colors (--brand-blue, --text-gray-*, --bg-gray-*)
+- [ ] Systematic hex-to-variable migration across 35 files
+- [ ] Add homepage h1 (visually hidden)
+- [ ] Audit and fix 27 outline-none violations missing focus-visible
+- [ ] Add global prefers-reduced-motion CSS reset
+- [ ] Wrap framer-motion in useReducedMotion
+- [ ] Disable carousel auto-play for reduced-motion users
+
+### Phase 4: Code Quality
+
+- [ ] Write API route handler tests for auth, contracts, vehicles (integration layer)
+- [ ] Write component tests for search, detail, contract wizard (behavioral)
+- [ ] Set up MSW for network mocking
+- [ ] Target 30% line coverage floor
+- [ ] Add Lighthouse CI to GitHub Actions (optional, differentiator)
+
+### Defer to Future Milestones
+
+- [ ] Dark mode toggle -- requires hex migration first, visual regression testing
+- [ ] Sentry integration -- needs real user traffic to justify
+- [ ] Full CSP without unsafe-inline -- needs nonce-based approach research
+- [ ] axe-core in CI -- needs E2E Playwright tests as foundation
+- [ ] Bun test migration -- no benefit, risks breaking 49 test files
+
+---
 
 ## Feature Prioritization Matrix
 
-| Feature | User Value | Implementation Cost | Priority |
-|---------|------------|---------------------|----------|
-| 차량 검색/필터 | HIGH | MEDIUM | P1 |
-| 차량 상세 페이지 | HIGH | MEDIUM | P1 |
-| 번호판 기반 자동 조회 | HIGH | MEDIUM | P1 |
-| 회원가입/로그인 | HIGH | LOW | P1 |
-| 역할 기반 접근 제어 | HIGH | MEDIUM | P1 |
-| 딜러 차량 등록/관리 | HIGH | MEDIUM | P1 |
-| 월 납입금 계산기 | HIGH | MEDIUM | P1 |
-| 잔존가치 자동 산정 | HIGH | MEDIUM | P1 |
-| 계약 신청 플로우 | HIGH | HIGH | P1 |
-| eKYC 모의 플로우 | MEDIUM | MEDIUM | P1 |
-| 계약서 PDF 생성 | MEDIUM | MEDIUM | P1 |
-| 관리자 대시보드 | MEDIUM | MEDIUM | P1 |
-| 마이페이지 | MEDIUM | LOW | P1 |
-| 반응형 웹 | HIGH | MEDIUM | P1 |
-| 소셜 로그인 | MEDIUM | LOW | P2 |
-| 딜러 승인 체계 | MEDIUM | LOW | P2 |
-| 렌탈 vs 리스 비교 | MEDIUM | MEDIUM | P2 |
-| 차량 찜/관심 목록 | LOW | LOW | P2 |
-| 가격 변동 알림 | LOW | MEDIUM | P3 |
-| 실제 eKYC 연동 | HIGH | HIGH | P3 |
-| 전자서명 연동 | HIGH | HIGH | P3 |
-| 결제/CMS 연동 | HIGH | HIGH | P3 |
+| Feature | User Value | Implementation Cost | Risk if Skipped | Priority |
+|---------|------------|---------------------|-----------------|----------|
+| Quote-PDF auth guard | HIGH (security) | LOW | Data abuse, cost attack | P1 |
+| Password hashing | HIGH (security) | MEDIUM | Credential exposure | P1 |
+| Next.js CVE verification | HIGH (security) | LOW | RCE vulnerability | P1 |
+| Image MIME validation | HIGH (security) | MEDIUM | Malicious file upload | P1 |
+| Push unpushed commits | HIGH (operational) | LOW | Data loss | P1 |
+| Pretendard font optimization | HIGH (performance) | MEDIUM | 3MB font load, no Korean | P1 |
+| JS bundle reduction | HIGH (performance) | HIGH | Slow page load, poor CWV | P1 |
+| Brand blue decision | MEDIUM (consistency) | LOW | Blocks hex migration | P1 |
+| Hex to CSS variables | MEDIUM (maintainability) | HIGH | Theme changes impossible | P2 |
+| Focus-visible fixes | MEDIUM (accessibility) | MEDIUM | WCAG AA failure | P2 |
+| Homepage h1 | MEDIUM (SEO/a11y) | LOW | WCAG A failure | P2 |
+| prefers-reduced-motion | MEDIUM (accessibility) | MEDIUM | Vestibular sensitivity | P2 |
+| HTTP request reduction | MEDIUM (performance) | MEDIUM | Slow mobile experience | P2 |
+| CDN/caching headers | MEDIUM (performance) | LOW | Repeat visitor penalty | P2 |
+| Test coverage to 30% | MEDIUM (quality) | HIGH | Low confidence in changes | P2 |
+| Lighthouse CI | LOW (process) | LOW | No regression detection | P3 |
+| Design token doc page | LOW (DX) | LOW | Future hardcoded drift | P3 |
+| Security headers | MEDIUM (security) | MEDIUM | XSS/clickjacking risk | P3 |
+| Error boundaries | LOW (UX) | LOW | Raw error pages shown | P3 |
+| Structured logging | LOW (ops) | MEDIUM | Hard to debug production | P3 |
 
 **Priority key:**
-- P1: Must have for launch (demo/investment pitch)
-- P2: Should have, add when possible (post-launch enhancement)
-- P3: Nice to have, future consideration (v2+ with real business operations)
+- P1: Must complete this milestone -- security/performance blockers
+- P2: Should complete -- accessibility and maintainability improvements
+- P3: Nice to have -- operational excellence, can defer if time-constrained
 
-## Competitor Feature Analysis
+---
 
-| Feature | 엔카 | K카 (케이카) | KB차차차 | 롯데렌터카 마이카 | Our Approach |
-|---------|------|-------------|---------|-----------------|-------------|
-| 차량 검색/필터 | 최대 매물, 상세 필터 | 직영 재고 중심 | AI 시세 예측 | 자사 재고 중심 | 다중 필터 + 가격 비교 |
-| 번호판 조회 | 시세 조회 가능 | 미제공 | 시세 조회 가능 | 미제공 | 딜러 등록 시 자동 채움 (차별화) |
-| 온라인 계약 | 딜러 연결 | 100% 온라인 구매 | 딜러 연결 | 5분 논스톱 전자계약 | 비대면 렌탈/리스 계약 (차별화) |
-| 배송 | 미제공 | 당일배송 홈서비스 | 미제공 | 탁송 | v1 범위 외 |
-| 보증/환불 | 딜러별 상이 | 3일 환불 + 2년 보증 | 딜러별 상이 | 계약 조건 내 | 계약 조건 명시 |
-| 잔존가치 산정 | 시세 정보 제공 | 미제공 (매매) | AI 시세 예측 | 내부 산정 | 투명한 잔가율 공개 (차별화) |
-| 렌탈/리스 비교 | 미제공 (매매) | 미제공 (매매) | 미제공 | 렌탈만 | 렌탈 vs 리스 나란히 비교 (차별화) |
+## Complexity and Effort Estimates
 
-### 경쟁 분석 요약
+| Category | Files to Touch | Estimated LOC Changed | Risk Level |
+|----------|---------------|----------------------|------------|
+| Security (4 items) | ~6 files | +80 / -15 | **Low** -- well-understood patterns, existing helpers |
+| Performance (font) | ~3 files | +10 / -12 | **Low** -- swap import, remove dependency |
+| Performance (bundle) | ~10-15 files | +30 / -10 | **Medium** -- dynamic imports, needs measurement first |
+| Performance (HTTP) | ~5 files | +15 / -5 | **Low** -- config changes |
+| Design System (hex) | ~35 files | +411 / -411 | **Medium** -- high volume, low complexity per change |
+| Design System (a11y) | ~12 files | +27 / -0 | **Low** -- adding classes |
+| Test Coverage | ~15-20 new test files | +1500 / -0 | **Medium** -- test infrastructure exists, need to write meaningful tests |
 
-기존 시장은 크게 두 축으로 나뉨:
-1. **중고차 매매 플랫폼** (엔카, K카, KB차차차): 구매/판매 중심. 렌탈/리스 기능 미약
-2. **렌터카 회사** (롯데렌터카, SK렌터카): 자사 재고 중심. 마켓플레이스 아님
+**Total estimated: ~75 files touched, ~2,000 LOC changed/added**
 
-Navid의 포지셔닝은 이 두 축의 교차점: **중고차 마켓플레이스 + 렌탈/리스 특화**. 이 조합을 제공하는 플랫폼은 현재 한국 시장에 부재하므로 명확한 차별화 가능.
+---
 
 ## Sources
 
-- [다나와 자동차 렌트/리스 가격비교](https://auto.danawa.com/leaserent/)
-- [반카 - 렌트 가격비교 플랫폼](https://www.vancar.kr/)
-- [K Car 케이카 내차사기 홈서비스](https://www.kcar.com/bc/homeSvc/main)
-- [엔카 중고차](https://www.encar.com/)
-- [KB차차차](https://www.kbchachacha.com/)
-- [롯데렌터카 마이카](https://direct.lotterentacar.net/)
-- [SK렌터카 다이렉트](https://www.skdirect.co.kr/)
-- [국토교통부 자동차종합정보 API](https://www.data.go.kr/data/15071233/openapi.do)
-- [에이픽 API 차량 정보 조회](https://apick.app/dev_guide/get_car_info)
-- [모두싸인 전자서명 API](https://modusign.co.kr/features-api)
-- [바로써트 인증 API](https://www.barocert.com/)
-- [잔존가치 가이드 - 겟차](https://web.getcha.kr/articles/rent-residual-value)
-- [뱅크샐러드 리스 vs 렌트 비교](https://www.banksalad.com/articles/%EC%9E%90%EC%82%B0%EA%B4%80%EB%A6%AC-%EC%9E%90%EB%8F%99%EC%B0%A8%EB%A0%8C%ED%8A%B8-%EB%A6%AC%EC%8A%A4%EB%A0%8C%ED%8A%B8%EC%B0%A8%EC%9D%B4)
+### Security
+- [Next.js Security Best Practices 2026](https://www.authgear.com/post/nextjs-security-best-practices) -- API route auth, middleware patterns
+- [CVE-2025-29927: Next.js Middleware Bypass](https://nextjs.org/blog/cve-2025-29927) -- Fixed in 16.0.10
+- [CVE-2025-66478: RSC RCE](https://nextjs.org/blog/CVE-2025-66478) -- Fixed in 16.0.7, current 16.1.6 is patched
+- [Bun Password Hashing](https://bun.com/docs/runtime/hashing) -- Native argon2 support
+- [Server-side File Upload Validation](https://dev.to/thesameeric/how-to-validate-uploaded-files-in-node-js-2dc4) -- Magic bytes validation
+
+### Performance
+- [Pretendard Dynamic Subset](https://github.com/orioncactus/pretendard/blob/main/packages/pretendard/docs/en/README.md) -- CDN URLs, variable font
+- [Next.js Bundle Optimization Case Study](https://blog.nazrulkabir.com/2026/01/nextjs-bundle-size-optimization-case-study/) -- 40-75% reduction techniques
+- [Font Optimization in 2026](https://medium.com/design-bootcamp/font-optimization-in-2026-stop-letting-fonts-silently-kill-your-core-web-vitals-4ec4250736e1) -- Core Web Vitals impact
+- [Next.js Package Bundling Guide](https://nextjs.org/docs/app/guides/package-bundling) -- Code splitting, tree shaking
+
+### Design System / Accessibility
+- [Design Tokens with Tailwind v4 + CSS Variables](https://www.maviklabs.com/blog/design-tokens-tailwind-v4-2026) -- @theme directive migration
+- [WCAG 2.4.7 Focus Visible](https://www.digitala11y.com/focus-visible-understanding-sc-2-4-7/) -- Focus indicator requirements
+- [WCAG 2.4.13 Focus Appearance](https://www.allaccessible.org/blog/wcag-2413-focus-appearance-guide) -- Contrast and size requirements
+- [Accessible Animation with prefers-reduced-motion](https://blog.pope.tech/2025/12/08/design-accessible-animation-and-movement/) -- Implementation patterns
+
+### Code Quality
+- [Vitest + RTL with Next.js 2026](https://noqta.tn/en/tutorials/vitest-react-testing-library-nextjs-unit-testing-2026/) -- Testing strategy
+- [Next.js App Router Testing Strategy](https://shinagawa-web.com/en/blogs/nextjs-app-router-testing-setup) -- Multi-layer testing approach
+- [Vitest Component Testing](https://vitest.dev/guide/browser/component-testing) -- Browser-based component tests
 
 ---
-*Feature research for: Korean Used Car Rental/Lease Platform*
-*Researched: 2026-03-09*
+*Feature research for: v3.0 Hardening -- Security, Performance, Design System, Code Quality*
+*Researched: 2026-03-27*

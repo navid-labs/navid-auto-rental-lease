@@ -1,495 +1,684 @@
-# Architecture Research
+# Architecture Research: v3.0 Hardening
 
-**Domain:** Used car rental/lease marketplace (B2B2C hybrid)
-**Researched:** 2026-03-09
-**Confidence:** HIGH
+**Domain:** Security, performance, design system, and code quality integration for existing Next.js 16 used car rental/lease platform
+**Researched:** 2026-03-27
+**Confidence:** HIGH (direct codebase analysis of 52 API routes, 50 test files, all CSS files, middleware, layout, and auth infrastructure)
 
-## Standard Architecture
+## System Overview: Where Hardening Integrates
 
-### System Overview
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     Presentation Layer                          │
-│  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌─────────────┐  │
-│  │  Public    │  │  Customer │  │  Dealer   │  │   Admin     │  │
-│  │  Pages     │  │  Portal   │  │  Portal   │  │  Dashboard  │  │
-│  │ (SSR/SSG) │  │  (Auth)   │  │  (Auth)   │  │   (Auth)    │  │
-│  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘  └──────┬──────┘  │
-│        │              │              │               │          │
-├────────┴──────────────┴──────────────┴───────────────┴──────────┤
-│                     Application Layer                           │
-│  ┌─────────────┐  ┌──────────────┐  ┌─────────────────────┐    │
-│  │  Server     │  │  Route       │  │   Middleware         │    │
-│  │  Actions    │  │  Handlers    │  │  (Auth + Role Guard) │    │
-│  │ (Mutations) │  │ (Ext. API)   │  │                      │    │
-│  └──────┬──────┘  └──────┬───────┘  └──────────┬───────────┘    │
-│         │               │                      │                │
-├─────────┴───────────────┴──────────────────────┴────────────────┤
-│                      Data Layer                                 │
-│  ┌───────────────┐  ┌───────────────┐  ┌──────────────────┐    │
-│  │  Supabase     │  │  Supabase     │  │   Supabase       │    │
-│  │  Database     │  │  Auth         │  │   Storage        │    │
-│  │  (PostgreSQL  │  │  (JWT +       │  │   (Vehicle       │    │
-│  │   + RLS)      │  │   Roles)      │  │    Images)       │    │
-│  └───────────────┘  └───────────────┘  └──────────────────┘    │
-│                                                                 │
-│  ┌───────────────┐  ┌───────────────┐                          │
-│  │  Supabase     │  │  External     │                          │
-│  │  Realtime     │  │  APIs         │                          │
-│  │  (Status      │  │  (License     │                          │
-│  │   Updates)    │  │   Plate API)  │                          │
-│  └───────────────┘  └───────────────┘                          │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Component Responsibilities
-
-| Component | Responsibility | Typical Implementation |
-|-----------|----------------|------------------------|
-| Public Pages | Vehicle search, listing, detail view. SEO-critical. | Next.js SSR/SSG pages with Server Components |
-| Customer Portal | My contracts, profile, eKYC flow, contract signing | Protected routes with auth middleware |
-| Dealer Portal | Vehicle CRUD, inventory management, contract review | Role-gated routes (dealer role check) |
-| Admin Dashboard | All CRUD, user management, approval workflows, stats | Role-gated routes (admin role check) |
-| Server Actions | All data mutations (create/update/delete) | `'use server'` functions, Zod validation |
-| Route Handlers | External webhook endpoints, license plate API proxy | `app/api/` route handlers |
-| Middleware | Session refresh, role-based route protection | `middleware.ts` with Supabase SSR |
-| Supabase DB + RLS | Data storage, tenant isolation, query filtering | PostgreSQL with RLS policies per role |
-| Supabase Auth | User sessions, JWT tokens, role claims | Email/password auth with custom claims |
-| Supabase Storage | Vehicle photos, contract PDFs, ID documents | Storage buckets with RLS policies |
-| Supabase Realtime | Vehicle status changes pushed to connected clients | `postgres_changes` subscriptions |
-| External APIs | License plate lookup (v1), eKYC/e-sign (v2) | Route handlers as proxy to external services |
-
-## Recommended Project Structure
+The existing architecture has four distinct layers where hardening work intersects. Each improvement area touches different layers, and understanding these boundaries prevents accidental coupling.
 
 ```
-src/
-├── app/                        # Next.js App Router
-│   ├── (public)/               # Route group: public pages (no auth)
-│   │   ├── page.tsx            # Homepage / vehicle search
-│   │   ├── vehicles/
-│   │   │   ├── page.tsx        # Search results with filters
-│   │   │   └── [id]/
-│   │   │       └── page.tsx    # Vehicle detail
-│   │   └── layout.tsx          # Public layout (header, footer)
-│   ├── (auth)/                 # Route group: auth pages
-│   │   ├── login/page.tsx
-│   │   ├── signup/page.tsx
-│   │   └── layout.tsx
-│   ├── (customer)/             # Route group: customer portal
-│   │   ├── my/
-│   │   │   ├── contracts/page.tsx
-│   │   │   ├── profile/page.tsx
-│   │   │   └── layout.tsx
-│   │   ├── contract/
-│   │   │   └── [vehicleId]/
-│   │   │       ├── page.tsx    # Contract application flow
-│   │   │       └── ekyc/page.tsx
-│   │   └── layout.tsx          # Customer layout with sidebar
-│   ├── (dealer)/               # Route group: dealer portal
-│   │   ├── inventory/
-│   │   │   ├── page.tsx        # Dealer's vehicles list
-│   │   │   ├── new/page.tsx    # Add vehicle
-│   │   │   └── [id]/edit/page.tsx
-│   │   ├── contracts/page.tsx  # Contracts on dealer vehicles
-│   │   └── layout.tsx
-│   ├── (admin)/                # Route group: admin dashboard
-│   │   ├── dashboard/page.tsx  # Stats overview
-│   │   ├── vehicles/page.tsx   # All vehicles CRUD
-│   │   ├── users/page.tsx      # User management
-│   │   ├── contracts/page.tsx  # All contracts
-│   │   ├── approvals/page.tsx  # Dealer vehicle approvals
-│   │   └── layout.tsx
-│   ├── api/                    # Route handlers (external-facing)
-│   │   ├── license-plate/route.ts  # Proxy to license plate API
-│   │   └── webhooks/route.ts       # Future webhook endpoints
-│   ├── layout.tsx              # Root layout
-│   └── error.tsx               # Global error boundary
-├── components/                 # Shared UI components
-│   ├── ui/                     # shadcn/ui primitives
-│   ├── vehicles/               # Vehicle-specific components
-│   │   ├── vehicle-card.tsx
-│   │   ├── vehicle-filters.tsx
-│   │   ├── vehicle-gallery.tsx
-│   │   └── vehicle-comparison.tsx
-│   ├── contracts/              # Contract flow components
-│   │   ├── contract-form.tsx
-│   │   ├── lease-calculator.tsx
-│   │   └── ekyc-steps.tsx
-│   ├── dashboard/              # Admin dashboard widgets
-│   │   ├── stats-card.tsx
-│   │   └── charts.tsx
-│   └── layout/                 # Layout components
-│       ├── header.tsx
-│       ├── sidebar.tsx
-│       └── footer.tsx
-├── lib/                        # Core business logic
-│   ├── supabase/
-│   │   ├── client.ts           # Browser client
-│   │   ├── server.ts           # Server Component client
-│   │   ├── admin.ts            # Service role client (mutations)
-│   │   └── middleware.ts       # Session refresh helper
-│   ├── actions/                # Server Actions (all mutations)
-│   │   ├── vehicles.ts         # Vehicle CRUD actions
-│   │   ├── contracts.ts        # Contract lifecycle actions
-│   │   ├── users.ts            # User management actions
-│   │   └── auth.ts             # Auth actions (signup, login)
-│   ├── queries/                # Data fetching functions
-│   │   ├── vehicles.ts         # Vehicle queries
-│   │   ├── contracts.ts        # Contract queries
-│   │   └── stats.ts            # Dashboard statistics
-│   ├── validations/            # Zod schemas
-│   │   ├── vehicle.ts
-│   │   ├── contract.ts
-│   │   └── user.ts
-│   └── utils/                  # Pure utility functions
-│       ├── residual-value.ts   # Lease residual value calculator
-│       ├── format.ts           # Korean number/date formatting
-│       └── constants.ts        # Enums, status maps
-├── hooks/                      # Client-side React hooks
-│   ├── use-realtime-status.ts  # Vehicle status subscriptions
-│   └── use-filters.ts         # Search filter state management
-├── types/                      # TypeScript types
-│   ├── database.ts             # Supabase generated types
-│   ├── vehicles.ts
-│   └── contracts.ts
-├── middleware.ts               # Next.js middleware (auth guard)
-└── supabase/
-    ├── migrations/             # SQL migration files
-    │   ├── 001_initial.sql
-    │   ├── 002_rls_policies.sql
-    │   └── 003_functions.sql
-    └── seed.sql                # Development seed data
++----------------------------------------------------------------------+
+|                     Edge / Middleware Layer                            |
+|  src/middleware.ts                                                     |
+|  - Route protection (page-level)                                      |
+|  + NEW: Security headers (CSP, HSTS, X-Frame-Options)                |
+|  + NEW: Rate limiting headers / Vercel WAF config                    |
++----------------------------------------------------------------------+
+|                     API Route Layer (52 endpoints)                     |
+|  src/app/api/***/route.ts                                             |
+|  - Auth guards via requireAuth/requireAdmin/requireRole               |
+|  + FIX: 5 unguarded endpoints needing auth or rate limiting          |
+|  + FIX: Quote PDF route missing auth entirely                        |
+|  + FIX: File upload missing MIME/size validation                     |
++----------------------------------------------------------------------+
+|                     Component Layer                                    |
+|  src/components/layout/ (6 files, 47 hardcoded hex colors)           |
+|  src/features/**/ (23 files, 347 hardcoded hex colors)               |
+|  src/app/layout.tsx (font loading, root structure)                    |
+|  + FIX: Migrate 394 hardcoded hex values -> CSS variable references  |
+|  + FIX: Font loading strategy (@fontsource -> next/font/local)       |
+|  + FIX: Bundle splitting for framer-motion heavy components          |
++----------------------------------------------------------------------+
+|                     Foundation Layer                                   |
+|  src/app/globals.css (design tokens, theme variables)                 |
+|  src/lib/api/ (auth.ts, response.ts, validation.ts)                  |
+|  tests/ + src/**/*.test.ts (50 files, 425+ tests)                    |
+|  + ADD: New semantic color tokens for hex replacement targets         |
+|  + ADD: API route-level test coverage                                |
+|  + FIX: Hardcoded password in settings auth mutation                 |
++----------------------------------------------------------------------+
 ```
 
-### Structure Rationale
+---
 
-- **`app/` route groups `(public)`, `(customer)`, `(dealer)`, `(admin)`:** Cleanly separates four distinct user experiences. Each group gets its own layout. Route groups do not affect URL structure, keeping URLs clean.
-- **`lib/actions/` for Server Actions:** All mutations centralized here, not scattered across page files. Every action validates input with Zod, checks permissions, then mutates via Supabase service role client.
-- **`lib/queries/` for data fetching:** Reusable query functions called from Server Components. Uses the per-request Supabase server client so RLS applies automatically.
-- **`lib/supabase/` with three clients:** Browser client for realtime subscriptions. Server client for SSR reads (RLS-scoped). Admin client (service_role) for trusted mutations where business logic validation happens in the Server Action before the DB call.
-- **`components/` by domain:** Vehicle, contract, and dashboard components grouped by feature, not by type (no `components/buttons/` folder).
+## 1. Security Hardening: Integration Points
 
-## Architectural Patterns
+### 1.1 Unguarded API Endpoints (CRITICAL)
 
-### Pattern 1: Server Component Reads + Server Action Writes
+Direct codebase analysis reveals the following API routes with missing or incomplete auth guards:
 
-**What:** All data reading happens in Server Components using the RLS-scoped Supabase server client. All writes go through Server Actions using the service_role client after explicit validation.
-**When to use:** Every data operation in the app.
-**Trade-offs:** Cleaner separation of concerns and better security. Slightly more boilerplate than doing everything client-side, but prevents RLS bypass issues on writes.
+| Endpoint | Method | Current Auth | Risk | Fix |
+|----------|--------|-------------|------|-----|
+| `/api/inquiry` | POST | **NONE** | Spam/abuse -- no rate limit, no captcha | Add rate limiting (IP-based, 5/min) |
+| `/api/vehicles/[id]/inquiry` | POST | **NONE** | Same spam risk | Add rate limiting |
+| `/api/contracts/ekyc/send-code` | POST | **NONE** | SMS bombing attack vector | Add `requireAuth()` + rate limit |
+| `/api/admin/inventory/quote-pdf` | POST | **NONE** | PDF generation abuse (CPU-intensive) | Add `requireAdmin()` |
+| `/api/pricing/residual-rate` | GET | **NONE** | Low risk (read-only public data) | Acceptable as-is, optional rate limit |
+
+**Integration pattern -- all fixes use the existing `requireAuth`/`requireRole` from `src/lib/api/auth.ts`:**
 
 ```typescript
-// lib/queries/vehicles.ts — Read (Server Component)
-import { createServerClient } from '@/lib/supabase/server'
+// BEFORE (src/app/api/admin/inventory/quote-pdf/route.ts)
+export async function POST(request: Request) {
+  try {
+    const data: QuotePDFData = await request.json()
+    // ... no auth check at all
 
-export async function getVehicles(filters: VehicleFilters) {
-  const supabase = await createServerClient()
-  const query = supabase.from('vehicles').select('*, dealer:profiles(*)')
-    .eq('status', 'approved')
-  // RLS automatically scopes results
-  return query
-}
+// AFTER
+import { requireAdmin } from '@/lib/api/auth'
 
-// lib/actions/vehicles.ts — Write (Server Action)
-'use server'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { vehicleSchema } from '@/lib/validations/vehicle'
-
-export async function createVehicle(formData: FormData) {
-  const parsed = vehicleSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: parsed.error.flatten() }
-
-  // Check user role explicitly
-  const supabase = await createAdminClient()
-  const { data, error } = await supabase
-    .from('vehicles')
-    .insert(parsed.data)
-    .select()
-    .single()
-
-  return error ? { error: error.message } : { data }
-}
+export async function POST(request: Request) {
+  const auth = await requireAdmin()
+  if (auth.error) return auth.error
+  // ... rest unchanged
 ```
 
-### Pattern 2: Role-Based Access via Middleware + RLS
+**Files to modify:** 4 route files (add auth guards), 0 new files needed.
 
-**What:** Two-layer authorization. Middleware blocks unauthorized route access at the edge. RLS policies enforce data-level isolation in PostgreSQL.
-**When to use:** Every authenticated route and every database query.
-**Trade-offs:** Defense-in-depth security. Middleware catches unauthorized navigation early (fast rejection). RLS ensures even if middleware is bypassed, data is still protected.
+### 1.2 Hardcoded Password (CRITICAL)
+
+**Location:** `src/features/settings/mutations/auth.ts` line 3
 
 ```typescript
-// middleware.ts
-export async function middleware(request: NextRequest) {
-  const supabase = createMiddlewareClient(request)
-  const { data: { user } } = await supabase.auth.getUser()
+const DEFAULT_PASSWORD = 'admin1234'  // HARDCODED IN SOURCE
+```
 
-  const path = request.nextUrl.pathname
-  if (path.startsWith('/admin') && user?.user_metadata?.role !== 'admin') {
-    return NextResponse.redirect(new URL('/login', request.url))
+**Fix:** Move to environment variable with fallback disabled in production.
+
+```typescript
+// AFTER
+export async function verifySettingsPasswordMutation(password: string) {
+  const record = await prisma.defaultSetting.findUnique({
+    where: { key: 'settings_password' },
+  })
+
+  if (!record) {
+    // No password configured -- require setup
+    return { error: 'Settings password not configured. Set via admin panel.' }
   }
-  if (path.startsWith('/dealer') && user?.user_metadata?.role !== 'dealer') {
-    return NextResponse.redirect(new URL('/login', request.url))
-  }
-  // Customer routes: any authenticated user
-  if (path.startsWith('/my') && !user) {
-    return NextResponse.redirect(new URL('/login', request.url))
-  }
+
+  // Use bcrypt or argon2 for hash comparison
+  const isValid = await bcrypt.compare(password, record.value)
+  if (!isValid) return { error: 'Password incorrect.' }
+  return { success: true }
 }
 ```
 
-```sql
--- RLS policy: dealers see only their own vehicles
-CREATE POLICY "Dealers manage own vehicles" ON vehicles
-  FOR ALL
-  USING (
-    owner_id = auth.uid()
-    OR
-    (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
-  );
-```
+**Files to modify:** `src/features/settings/mutations/auth.ts`, seed script to hash default password.
+**New dependency:** `bcryptjs` (4KB, zero native deps, safe for Vercel serverless).
 
-### Pattern 3: Contract State Machine
+### 1.3 File Upload Validation (HIGH)
 
-**What:** Contracts follow a strict state machine: `draft` -> `pending_ekyc` -> `ekyc_verified` -> `pending_approval` -> `approved` -> `active` -> `completed`/`cancelled`. Transitions are enforced in Server Actions, not in the database.
-**When to use:** All contract lifecycle operations.
-**Trade-offs:** Explicit transitions prevent invalid state changes. Business rules (who can approve, when can cancel) are codified in one place. Slightly more code than just updating a status field, but prevents data corruption.
+**Location:** `src/features/vehicles/mutations/images.ts`
+
+Current upload accepts any file from FormData without MIME type validation or file size limits. The `file.type` is passed to Supabase storage but never validated server-side.
 
 ```typescript
-const CONTRACT_TRANSITIONS: Record<ContractStatus, ContractStatus[]> = {
-  draft: ['pending_ekyc', 'cancelled'],
-  pending_ekyc: ['ekyc_verified', 'cancelled'],
-  ekyc_verified: ['pending_approval'],
-  pending_approval: ['approved', 'rejected'],
-  approved: ['active', 'cancelled'],
-  active: ['completed', 'cancelled'],
-  completed: [],
-  rejected: [],
-  cancelled: [],
-}
+// CURRENT (line 46-47)
+const file = formData.get('file') as File | null
+if (!file) return { error: 'Please select a file.' }
+// File is uploaded directly -- no type/size check
 
-export function canTransition(from: ContractStatus, to: ContractStatus): boolean {
-  return CONTRACT_TRANSITIONS[from]?.includes(to) ?? false
+// FIX: Add validation before upload
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+
+if (!ALLOWED_TYPES.includes(file.type)) {
+  return { error: 'Only JPEG, PNG, WebP images are allowed.' }
+}
+if (file.size > MAX_FILE_SIZE) {
+  return { error: 'File size must be under 5MB.' }
 }
 ```
 
-### Pattern 4: Optimistic UI with Realtime Fallback
+**Files to modify:** `src/features/vehicles/mutations/images.ts` (add validation block before line 48).
 
-**What:** For vehicle status changes (available -> reserved -> rented), update the UI optimistically on user action, then reconcile with Supabase Realtime subscription. If the server rejects (e.g., another user reserved first), the Realtime event corrects the UI.
-**When to use:** Vehicle status display on search/listing pages.
-**Trade-offs:** Snappy UX for the user performing the action. Other users see near-instant updates via Realtime. Adds complexity for conflict handling.
+### 1.4 Security Headers via next.config.ts
+
+**Location:** `next.config.ts` -- currently only has `serverExternalPackages` and `images`.
+
+Add security headers. Middleware-based CSP is unnecessary for this app (no strict nonce requirement for a demo/investment platform).
 
 ```typescript
-// hooks/use-realtime-status.ts
-'use client'
-import { useEffect, useState } from 'react'
-import { createBrowserClient } from '@/lib/supabase/client'
+const securityHeaders = [
+  { key: 'X-DNS-Prefetch-Control', value: 'on' },
+  { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+]
 
-export function useRealtimeVehicleStatus(vehicleId: string, initialStatus: string) {
-  const [status, setStatus] = useState(initialStatus)
-
-  useEffect(() => {
-    const supabase = createBrowserClient()
-    const channel = supabase
-      .channel(`vehicle-${vehicleId}`)
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'vehicles',
-        filter: `id=eq.${vehicleId}`,
-      }, (payload) => {
-        setStatus(payload.new.status)
-      })
-      .subscribe()
-
-    return () => { supabase.removeChannel(channel) }
-  }, [vehicleId])
-
-  return status
+const nextConfig: NextConfig = {
+  // ...existing config
+  async headers() {
+    return [{ source: '/(.*)', headers: securityHeaders }]
+  },
 }
 ```
 
-## Data Flow
+**Files to modify:** `next.config.ts` only.
 
-### Vehicle Search Flow (Public, SSR)
+### 1.5 Rate Limiting Strategy
 
-```
-[User enters search/filters]
-    |
-[Next.js Server Component renders]
-    |
-[lib/queries/vehicles.ts] --> [Supabase Server Client] --> [PostgreSQL + RLS]
-    |                                                           |
-[Server returns HTML with vehicle list]  <--  [Query results]
-    |
-[Client hydrates, enables filter interactions]
-    |
-[URL search params update] --> [Server re-renders with new filters]
-```
+For Vercel deployment, server-side rate limiting within serverless functions is stateless (no shared memory between invocations). Two options:
 
-### Contract Application Flow
+**Option A (Recommended -- simple): Vercel WAF / Edge Config**
+- Configure rate limiting rules in `vercel.json` or Vercel dashboard
+- Zero code changes for basic IP-based limiting
+- Available on Pro plan
 
-```
-[Customer clicks "Apply for Lease"]
-    |
-[Contract form page (Server Component)]
-    |
-[Customer fills form + selects terms]
-    |
-[Server Action: createContract]
-    |-> Zod validates input
-    |-> Checks vehicle availability
-    |-> Creates contract (status: draft)
-    |-> Returns contract ID
-    |
-[Redirect to eKYC flow]
-    |
-[Mock eKYC steps (Client Components)]
-    |-> ID upload UI
-    |-> Face verification UI (mock)
-    |
-[Server Action: completeEkyc]
-    |-> State machine: draft -> pending_ekyc -> ekyc_verified
-    |-> Updates contract status
-    |
-[Server Action: submitForApproval]
-    |-> State machine: ekyc_verified -> pending_approval
-    |
-[Admin reviews and approves]
-    |
-[Server Action: approveContract]
-    |-> State machine: pending_approval -> approved
-    |-> Generates PDF contract
-    |-> Stores in Supabase Storage
-    |-> Updates vehicle status to 'reserved'
-    |-> Realtime broadcasts status change
-```
+**Option B: Upstash Redis rate limiter**
+- `@upstash/ratelimit` package (serverless-compatible, uses Redis)
+- Add to specific route handlers
 
-### Dealer Vehicle Registration Flow
+For a demo/investment-stage product, Option A is sufficient. Add Option B only if abuse is observed.
 
-```
-[Dealer enters license plate number]
-    |
-[Route Handler: /api/license-plate]
-    |-> Proxies to external Korean license plate API
-    |-> Returns vehicle specs (make, model, year, etc.)
-    |
-[Form auto-populated with API data]
-    |
-[Dealer adds photos, price, rental/lease terms]
-    |
-[Server Action: registerVehicle]
-    |-> Zod validates all fields
-    |-> Uploads images to Supabase Storage
-    |-> Creates vehicle record (status: pending_approval)
-    |
-[Admin sees in approval queue]
-    |
-[Server Action: approveVehicle]
-    |-> Updates status to 'approved'
-    |-> Vehicle appears in public search
+---
+
+## 2. Performance Optimization: Integration Points
+
+### 2.1 Font Loading -- @fontsource to next/font/local (CRITICAL)
+
+**Current problem:** The `@fontsource/pretendard` package (16MB installed) ships **Latin subset only** -- no Korean glyphs. On a Korean-language platform, ALL Korean text falls back to `system-ui`, defeating the purpose of the custom font.
+
+**Evidence:** `node_modules/@fontsource/pretendard/files/` contains only `pretendard-latin-*` files. No `pretendard-korean-*` files exist. Each weight file is ~748KB (Latin woff2), and 4 weights are imported via CSS (400, 500, 600, 700 = ~3MB of Latin-only fonts downloaded on page load).
+
+**Fix: Switch to `next/font/local` with Pretendard Variable woff2.**
+
+Step 1: Download PretendardVariable.woff2 from the official Pretendard repo (includes Korean glyphs, ~3.2MB variable font, or use dynamic subset CDN).
+
+Step 2: Replace font loading in `src/app/layout.tsx`:
+
+```typescript
+// BEFORE
+// (font loaded via @import in globals.css)
+<body className="font-sans antialiased">
+
+// AFTER
+import localFont from 'next/font/local'
+
+const pretendard = localFont({
+  src: '../fonts/PretendardVariable.subset.woff2',
+  display: 'swap',
+  weight: '400 700',
+  variable: '--font-pretendard',
+  preload: true,
+})
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="ko" className={pretendard.variable}>
+      <body className="font-sans antialiased">
+        {children}
+      </body>
+    </html>
+  )
+}
 ```
 
-### Key Data Flows
+Step 3: Update `globals.css`:
+```css
+/* REMOVE these 4 lines: */
+@import "@fontsource/pretendard/400.css";
+@import "@fontsource/pretendard/500.css";
+@import "@fontsource/pretendard/600.css";
+@import "@fontsource/pretendard/700.css";
 
-1. **Search/Browse:** Server-rendered with URL-based filter state. No client-side data fetching for initial load -- pure SSR for SEO and performance. Filter changes update URL params, triggering server re-render.
+/* UPDATE font-sans definition: */
+--font-sans: var(--font-pretendard), system-ui, sans-serif;
+```
 
-2. **Vehicle Status Sync:** Initial status loaded via SSR. Connected clients subscribe to Realtime `postgres_changes` for live status updates. Status changes propagate within seconds to all viewers.
+Step 4: Remove `@fontsource/pretendard` dependency (`bun remove @fontsource/pretendard`).
 
-3. **Contract Lifecycle:** Strictly server-side via Server Actions. Each step validates the state machine transition. PDF generation happens server-side on approval. Customer portal polls or subscribes for status updates.
+**Benefits:**
+- Korean glyphs actually work (currently missing)
+- `next/font` self-hosts and preloads at build time (no external requests)
+- Automatic `size-adjust` fallback prevents layout shift
+- Variable font = single file instead of 4 weight files
 
-4. **Image Upload:** Client uploads directly to Supabase Storage (signed URLs), then passes the storage path to a Server Action that associates the image with a vehicle record.
+**Files to modify:** `src/app/layout.tsx`, `src/app/globals.css`, `package.json`
+**New file:** `src/fonts/PretendardVariable.subset.woff2` (download from Pretendard repo)
+**Confidence:** HIGH -- next/font/local is the canonical Next.js approach per official docs.
+
+### 2.2 Bundle Splitting -- framer-motion
+
+**Current state:** `framer-motion` (~30KB gzipped) is imported in 7 component files:
+
+| File | Usage | Dynamic-loadable? |
+|------|-------|-------------------|
+| `components/layout/floating-cta.tsx` | AnimatePresence + motion | YES (below fold) |
+| `components/layout/recently-viewed-drawer.tsx` | motion + AnimatePresence | YES (user interaction) |
+| `components/layout/comparison-bar.tsx` | motion + AnimatePresence | YES (conditional) |
+| `features/marketing/components/promotion-banner.tsx` | AnimatePresence + motion | YES (below fold) |
+| `features/marketing/components/finance-partners.tsx` | AnimatePresence + motion | YES (below fold) |
+| `features/marketing/components/sell-my-car-sections.tsx` | motion + Variants | YES (below fold) |
+| `features/marketing/components/hero-section.tsx` | motion + Variants | NO (above fold, LCP) |
+
+**Strategy:** Dynamic import wrapper for framer-motion components that are below-fold or interaction-triggered.
+
+```typescript
+// src/components/layout/floating-cta.tsx
+// BEFORE: static import
+import { AnimatePresence, motion } from 'framer-motion'
+
+// AFTER: Replace with CSS transitions for simple fade/slide
+// framer-motion only needed for complex orchestrated animations
+// Simple show/hide can use Tailwind transition classes
+```
+
+For components where framer-motion is genuinely needed (hero section entrance animation), keep the import but ensure the component is in a separate chunk:
+
+```typescript
+// In page-level server component:
+const HeroSection = dynamic(
+  () => import('@/features/marketing/components/hero-section'),
+  { ssr: true } // SSR enabled for LCP, hydration adds animation
+)
+```
+
+**Recharts:** Already correctly dynamic-imported in `src/app/admin/dashboard/chart-section.tsx` with `{ ssr: false }`. No changes needed.
+
+**Files to modify:** Up to 6 component files (replace framer-motion with CSS transitions where possible).
+
+### 2.3 HTTP Request Optimization
+
+**Current issue:** `export const dynamic = 'force-dynamic'` is set on 14 pages, including pages that could benefit from ISR or static generation:
+
+| Page | Current | Could Be |
+|------|---------|----------|
+| `/login`, `/signup` | Static (correct) | No change |
+| `/` (homepage) | force-dynamic | ISR with `revalidate: 60` (recommended vehicles change infrequently) |
+| `/vehicles` | force-dynamic | Correct (search params drive data) |
+| `/vehicles/[id]` | force-dynamic | ISR with `revalidate: 300` (vehicle details rarely change) |
+| `/calculator` | force-dynamic | Could be static (no server data needed) |
+
+For `force-dynamic` pages that do need fresh data, ensure parallel data fetching with `Promise.all()` (already done correctly in vehicle detail page).
+
+**Files to modify:** 2-3 page files (change `force-dynamic` to ISR where appropriate).
+
+---
+
+## 3. Design System Cleanup: Integration Points
+
+### 3.1 Hardcoded Hex Color Inventory
+
+**Total hardcoded hex values found:**
+- `src/components/layout/` -- 47 occurrences across 6 files
+- `src/features/` -- 347 occurrences across 23 files
+- **Total: 394 hardcoded hex values in 29 files**
+
+**Most affected files (top 10):**
+
+| File | Hex Count | Primary Colors Used |
+|------|-----------|---------------------|
+| `features/vehicles/components/public-vehicle-detail.tsx` | 142 | `#0D0D0D`, `#555555`, `#999999`, `#E8E8E8`, `#1A6DFF` |
+| `features/marketing/components/hero-section.tsx` | 36 | `#1A6DFF`, `#0D0D0D`, `#F8F8F8` |
+| `features/marketing/components/hero-search-box.tsx` | 34 | `#1A6DFF`, `#0D0D0D`, `#E8E8E8`, `#999999` |
+| `features/marketing/components/sell-my-car-sections.tsx` | 27 | `#0D0D0D`, `#555555`, `#1A6DFF` |
+| `components/layout/header.tsx` | 17 | `#0D0D0D`, `#7A7A7A`, `#E8E8E8`, `#1A6DFF` |
+| `features/marketing/components/featured-vehicles.tsx` | 14 | `#0D0D0D`, `#1A6DFF` |
+| `components/layout/mobile-nav.tsx` | 13 | `#0D0D0D`, `#555555`, `#999999`, `#E8E8E8`, `#1A6DFF` |
+| `features/marketing/components/finance-partners.tsx` | 13 | `#0D0D0D`, `#555555` |
+| `features/marketing/components/rent-subscription.tsx` | 12 | `#0D0D0D`, `#1A6DFF`, `#555555` |
+| `features/vehicles/components/color-filter.tsx` | 11 | Various car color swatches |
+
+### 3.2 Hex-to-CSS-Variable Mapping
+
+The hardcoded values cluster into a small palette that maps directly to semantic tokens:
+
+| Hex Value | Frequency | Semantic Meaning | CSS Variable Target |
+|-----------|-----------|------------------|---------------------|
+| `#0D0D0D` | ~80 | Primary text (near-black) | `var(--foreground)` |
+| `#555555` | ~50 | Secondary text | `var(--muted-foreground)` or new `--text-secondary` |
+| `#999999` | ~30 | Tertiary/placeholder text | `var(--muted-foreground)` |
+| `#7A7A7A` | ~15 | Utility bar text | `var(--muted-foreground)` |
+| `#1A6DFF` | ~60 | Brand accent blue | `var(--accent)` or `var(--ring)` |
+| `#E8E8E8` | ~40 | Border / separator | `var(--border)` |
+| `#F8F8F8` | ~20 | Subtle background | `var(--secondary)` |
+| `#F5F5F5` | ~15 | Hover background | `var(--card-hover)` |
+| `#EBF3FF` | ~10 | Accent hover bg | New `--accent-muted` |
+| `#3B82F6` | ~5 | CTA buttons (Tailwind blue-500) | `var(--accent)` |
+
+**Implementation approach:**
+
+Step 1: Add missing semantic tokens to `globals.css` `:root`:
+```css
+:root {
+  /* ... existing tokens ... */
+
+  /* NEW: fill gaps in semantic token coverage */
+  --text-tertiary: hsl(0 0% 60%);       /* replaces #999999 */
+  --accent-muted: hsl(217 91% 96%);     /* replaces #EBF3FF */
+  --utility-text: hsl(0 0% 48%);        /* replaces #7A7A7A */
+}
+```
+
+Step 2: Add Tailwind theme mappings in `@theme inline`:
+```css
+@theme inline {
+  /* ... existing mappings ... */
+  --color-text-tertiary: var(--text-tertiary);
+  --color-accent-muted: var(--accent-muted);
+  --color-utility-text: var(--utility-text);
+}
+```
+
+Step 3: File-by-file replacement using find-and-replace:
+- `text-[#0D0D0D]` -> `text-foreground`
+- `text-[#555555]` -> `text-muted-foreground`
+- `text-[#999999]` -> `text-text-tertiary`
+- `text-[#1A6DFF]` -> `text-accent`
+- `bg-[#1A6DFF]` -> `bg-accent`
+- `border-[#E8E8E8]` -> `border-border`
+- `bg-[#F8F8F8]` -> `bg-secondary`
+- `bg-[#F5F5F5]` -> `bg-card-hover`
+- `hover:bg-[#EBF3FF]` -> `hover:bg-accent-muted`
+
+**Exception: `color-filter.tsx`** -- car color swatches (White, Black, Silver, Red, etc.) are inherently hardcoded hex values representing actual car colors. These should NOT be converted to CSS variables. They should be moved to a constants file instead.
+
+**Files to modify:** 29 component files (mechanical find-replace), `globals.css` (add 3-4 new tokens).
+**Risk:** LOW -- purely visual, no logic changes. Test with visual regression (Playwright screenshot comparison).
+
+### 3.3 Accessibility: Color Contrast Audit
+
+After CSS variable migration, verify WCAG AA contrast ratios:
+
+| Token Pair | Ratio Required | Current HSL | Action |
+|-----------|----------------|-------------|--------|
+| `--foreground` on `--background` | 4.5:1 min | Dark on near-white | PASS (estimated 18:1) |
+| `--muted-foreground` on `--background` | 4.5:1 min | `hsl(220 10% 45%)` on `hsl(220 30% 98%)` | CHECK -- may be 3.8:1, borderline |
+| `--accent` on `--primary` (button text on navy bg) | 4.5:1 min | Blue on dark navy | CHECK |
+| `--text-secondary` on `--card` | 4.5:1 min | `hsl(220 10% 45%)` on white | CHECK |
+
+**Tool:** Use `axe-core` via Playwright for automated WCAG scanning.
+
+---
+
+## 4. Code Quality: Integration Points
+
+### 4.1 Test Coverage Gaps
+
+**Current state:** 50 test files with 425+ tests. Strong coverage in:
+- Vehicle mutations (6 test files)
+- Contract mutations/schemas (4 test files)
+- Finance calculations (5 test files)
+- Auth schemas/actions (4 test files)
+
+**Gaps identified:**
+
+| Area | Test Files | Coverage Gap |
+|------|-----------|-------------|
+| API route handlers | 0 | **No API route tests at all** -- auth guards untested |
+| Middleware | 1 (`middleware.test.ts`) | Exists but may not cover all edge cases |
+| Marketing components | 3 | Only hero-banner, quick-links, recommended-vehicles |
+| Layout components | 3 | Only header, footer, breadcrumb-nav |
+| Settings mutations | 1 | Exists (settings-actions.test.ts) |
+| Vehicle queries | 1 | Only inquiry.test.ts, no search query tests |
+
+**Priority: API route auth guard tests.** These directly validate security hardening.
+
+```typescript
+// tests/unit/api/vehicles-route.test.ts (NEW)
+describe('POST /api/vehicles', () => {
+  it('returns 401 when not authenticated', async () => {
+    // Mock getCurrentUser to return null
+    // Call POST handler
+    // Assert 401 response
+  })
+
+  it('returns 403 when user is CUSTOMER', async () => {
+    // Mock getCurrentUser to return CUSTOMER profile
+    // Call POST handler
+    // Assert 403 response
+  })
+})
+```
+
+**Test structure for new tests:**
+```
+tests/
+  unit/
+    api/                    # NEW directory
+      vehicles-route.test.ts
+      contracts-route.test.ts
+      inquiry-route.test.ts
+      admin-routes.test.ts
+    features/
+      settings/
+        password-hash.test.ts   # NEW: test bcrypt migration
+```
+
+### 4.2 Test Factory Pattern
+
+The existing tests use inline mock objects. Before modifying shared types (for security improvements or CSS variable changes), create a test factory:
+
+```typescript
+// tests/helpers/factories.ts (NEW)
+import type { UserProfile } from '@/lib/auth/helpers'
+
+export function createMockUser(overrides?: Partial<UserProfile>): UserProfile {
+  return {
+    id: 'test-user-id',
+    email: 'test@example.com',
+    name: 'Test User',
+    phone: '010-1234-5678',
+    role: 'CUSTOMER',
+    avatar_url: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    ...overrides,
+  }
+}
+
+export function createMockAdmin(overrides?: Partial<UserProfile>): UserProfile {
+  return createMockUser({ role: 'ADMIN', ...overrides })
+}
+```
+
+---
+
+## 5. Recommended Build Order
+
+The four improvement areas have the following dependency relationships:
+
+```
+[A] Security Headers (next.config.ts)         -- Independent
+[B] Font Migration (@fontsource -> next/font)  -- Independent
+[C] CSS Token Foundation (globals.css)          -- Independent
+[D] Test Factory (tests/helpers/factories.ts)   -- Independent
+
+[E] API Auth Guards (4 route fixes)            -- Depends on D (tests needed)
+[F] Password Hashing (settings/mutations)       -- Depends on D (tests needed)
+[G] File Upload Validation (images mutation)    -- Depends on D (tests needed)
+
+[H] Hex-to-CSS-Variable Migration (29 files)   -- Depends on C (tokens defined first)
+
+[I] Bundle Optimization (framer-motion)         -- Independent
+[J] ISR/Caching Optimization (page configs)     -- Independent
+
+[K] API Route Tests                            -- Depends on D, E, F, G
+[L] Visual Regression Tests                    -- Depends on H
+[M] Accessibility Audit                        -- Depends on H
+```
+
+### Suggested Phase Structure
+
+**Phase 1: Foundation (security headers, font fix, CSS tokens, test factory)**
+- Items A, B, C, D -- all independent, can be parallel plans
+- Establishes the groundwork for all subsequent work
+- No risk of breaking existing functionality (additive only)
+
+**Phase 2: Security Fixes (auth guards, password hashing, upload validation)**
+- Items E, F, G -- depends on test factory from Phase 1
+- Each fix is small (10-30 lines per file) but critical
+- Write tests alongside each fix
+
+**Phase 3: Design System Migration (hex -> CSS variables)**
+- Item H -- depends on CSS tokens from Phase 1
+- Largest volume of file changes (29 files, 394 replacements)
+- Purely mechanical, low logic risk, high visual impact
+- Follow with visual regression testing (L)
+
+**Phase 4: Performance + Quality (bundle, caching, coverage)**
+- Items I, J, K, M -- depends on Phases 1-3 being stable
+- Bundle optimization and ISR changes
+- Fill remaining test coverage gaps
+- Accessibility audit after colors are stabilized
+
+---
+
+## Data Flow: Security Hardening
+
+### Current Auth Flow (Pages)
+
+```
+Browser Request
+    |
+    v
+[middleware.ts] -- checks PROTECTED_ROUTES map
+    |               (page paths: /admin, /dealer, /mypage)
+    |               queries profiles table for role
+    v
+[Page Server Component] -- fetches data
+    |
+    v
+[Client Component] -- renders UI
+```
+
+### Current Auth Flow (API Routes)
+
+```
+API Request
+    |
+    v
+[middleware.ts] -- RUNS but only checks page routes
+    |               API routes /api/* pass through
+    v
+[Route Handler] -- manually calls requireAuth/requireAdmin/requireRole
+    |               (or skips auth entirely for 5 routes)
+    v
+[Business Logic] -- mutations/queries
+```
+
+**Key insight:** Middleware DOES NOT protect API routes. The `PROTECTED_ROUTES` map only includes page paths (`/admin`, `/dealer`, `/mypage`). All API auth is handled per-route via `requireAuth`/`requireAdmin`/`requireRole` calls at the top of each handler function. This is actually the correct pattern (per Next.js security guidance post-CVE-2025-29927), but it means every route handler is responsible for its own auth check.
+
+### After Hardening
+
+```
+API Request
+    |
+    v
+[middleware.ts] -- security headers applied
+    |               (CSP, HSTS, X-Frame-Options via next.config.ts headers)
+    v
+[Route Handler] -- ALL handlers now call auth guard
+    |               (no unguarded write endpoints)
+    |               + Input validation (file type, size)
+    |               + Rate limiting (inquiry/ekyc endpoints)
+    v
+[Business Logic] -- password hashing via bcrypt
+```
+
+---
+
+## Anti-Patterns to Avoid
+
+### Anti-Pattern 1: Middleware-Only Auth
+
+**What people do:** Put all API auth checks in `middleware.ts` and skip per-route guards.
+**Why it is wrong:** Next.js CVE-2025-29927 (CVSS 9.1) showed middleware can be bypassed via `x-middleware-subrequest` header. Middleware is for routing decisions, not security enforcement. The existing per-route `requireAuth`/`requireRole` pattern is correct -- extend it, do not consolidate into middleware.
+**Do this instead:** Keep the Data Access Layer pattern. Every route handler validates auth. Middleware adds headers and handles redirects only.
+
+### Anti-Pattern 2: CSS Variable Migration via Search-and-Replace-All
+
+**What people do:** Global find-replace `#0D0D0D` -> `var(--foreground)` across all files at once.
+**Why it is wrong:** Same hex value may have different semantic meanings in different contexts. `#0D0D0D` as text color maps to `--foreground`, but as a border color it might map to `--border` (wrong hex). Context matters.
+**Do this instead:** Migrate file by file. Review each replacement in context. Group by semantic meaning, not by hex value.
+
+### Anti-Pattern 3: Dynamic Import Everything for Bundle Size
+
+**What people do:** Wrap every component in `next/dynamic` to reduce initial bundle.
+**Why it is wrong:** Dynamic imports add loading states, delay hydration, and can cause layout shift. Above-fold components (hero section, header, navigation) must load synchronously for LCP.
+**Do this instead:** Only dynamic-import components that are: (a) below fold, (b) triggered by user interaction, or (c) conditionally rendered. The hero section and navigation stay as static imports.
+
+### Anti-Pattern 4: Adding ISR Globally
+
+**What people do:** Set `revalidate` on every page to avoid `force-dynamic`.
+**Why it is wrong:** Pages with auth-dependent data (admin, dealer, mypage, contract pages) MUST be dynamic. Caching auth-gated pages can leak user data across sessions.
+**Do this instead:** Only apply ISR to truly public pages with slowly-changing data: homepage (60s), vehicle detail (300s), calculator (static).
+
+---
+
+## Component Changes Summary
+
+### New Files
+
+| File | Purpose | Phase |
+|------|---------|-------|
+| `src/fonts/PretendardVariable.subset.woff2` | Self-hosted Korean + Latin variable font | 1 |
+| `tests/helpers/factories.ts` | Test fixture factory for UserProfile, Vehicle mocks | 1 |
+| `tests/unit/api/` (directory, 3-4 files) | API route auth guard tests | 2 |
+
+### Modified Files
+
+| File | Changes | Phase |
+|------|---------|-------|
+| `next.config.ts` | Add security headers | 1 |
+| `src/app/layout.tsx` | Replace `font-sans` with `next/font/local` variable class | 1 |
+| `src/app/globals.css` | Remove @fontsource imports, add 3-4 semantic tokens, update `--font-sans` | 1 |
+| `package.json` | Remove `@fontsource/pretendard`, add `bcryptjs` | 1-2 |
+| `src/features/settings/mutations/auth.ts` | Replace hardcoded password with bcrypt hash comparison | 2 |
+| `src/app/api/admin/inventory/quote-pdf/route.ts` | Add `requireAdmin()` | 2 |
+| `src/app/api/contracts/ekyc/send-code/route.ts` | Add `requireAuth()` | 2 |
+| `src/app/api/inquiry/route.ts` | Add rate limiting consideration | 2 |
+| `src/app/api/vehicles/[id]/inquiry/route.ts` | Add rate limiting consideration | 2 |
+| `src/features/vehicles/mutations/images.ts` | Add MIME type + file size validation | 2 |
+| 29 component files (layout + features) | Replace hardcoded hex -> CSS variable references | 3 |
+| 6 component files | Replace framer-motion with CSS transitions where possible | 4 |
+| 2-3 page files | Change `force-dynamic` to ISR where appropriate | 4 |
+
+### Unchanged (Explicitly)
+
+| Component | Reason Not Changed |
+|-----------|-------------------|
+| `src/middleware.ts` | Auth pattern is correct -- per-route guards, not middleware-only |
+| `prisma/schema.prisma` | No schema changes in v3.0 hardening |
+| `src/lib/api/auth.ts` | Already well-structured, no changes needed |
+| `src/lib/api/response.ts` | Already well-structured |
+| `src/lib/api/validation.ts` | Already well-structured |
+| All admin/dealer page routes | No changes to routing structure |
+
+---
 
 ## Scaling Considerations
 
-| Scale | Architecture Adjustments |
-|-------|--------------------------|
-| 0-1k users | Current architecture is fine. Single Supabase project. No caching needed. SSR handles everything. |
-| 1k-10k users | Add Redis/Vercel KV for search result caching. Consider ISR (Incremental Static Regeneration) for popular vehicle detail pages. Index all RLS-referenced columns. |
-| 10k-100k users | Supabase connection pooling (Supavisor). Edge caching for vehicle search. Consider read replicas. Split Supabase Storage into CDN-backed buckets. |
+| Scale | Hardening Impact |
+|-------|-----------------|
+| Demo (current) | Security headers prevent common attacks. Font fix improves Korean UX. Hex cleanup eases future theming. |
+| 100 users | Rate limiting on inquiry/ekyc endpoints prevents abuse. ISR reduces server load for public pages. |
+| 10K users | Bcrypt password hashing critical for real user data. Upload validation prevents storage abuse. Test coverage prevents regression at scale. |
 
-### Scaling Priorities
+### First Bottleneck After Hardening
 
-1. **First bottleneck: Vehicle search queries.** Complex filters with joins on a growing dataset. Fix: add composite indexes on (status, make, model, year, price). Consider full-text search via Supabase's pg_trgm or move to a search index.
-2. **Second bottleneck: Realtime connections.** Each vehicle detail page opens a Realtime channel. Fix: batch status updates via a single channel per listing page instead of per-vehicle channels.
+If the app moves to production with real users, the next bottleneck will be **Prisma cold starts on Vercel serverless**. Each function invocation that creates a new Prisma client has a ~200ms cold start. This is not addressed in v3.0 but should be flagged for v3.1 (connection pooling via Prisma Accelerate or PgBouncer).
 
-## Anti-Patterns
-
-### Anti-Pattern 1: Client-Side Data Mutations
-
-**What people do:** Call Supabase directly from the browser for inserts/updates, relying on RLS for validation.
-**Why it's wrong:** RLS can only check row-level permissions, not business logic (e.g., "is this vehicle still available?", "has the eKYC been completed?"). Race conditions on vehicle reservations. No input sanitization.
-**Do this instead:** Route all mutations through Server Actions. Validate with Zod, check business rules, then use service_role client to write.
-
-### Anti-Pattern 2: God Layout with Global State
-
-**What people do:** Put all providers, auth checks, and data fetching in the root layout, creating a single large context that wraps everything.
-**Why it's wrong:** Root layout cannot re-render on navigation (it is static in App Router). Stale data across route transitions. Unnecessary data loading for unauthenticated pages.
-**Do this instead:** Use route group layouts. Each group `(public)`, `(customer)`, `(dealer)`, `(admin)` has its own layout that loads only what that section needs.
-
-### Anti-Pattern 3: Storing Computed Lease Values
-
-**What people do:** Store calculated monthly payments, total cost, and residual values in the database when a lease is quoted.
-**Why it's wrong:** Interest rates, residual value tables, and pricing can change. Stored calculations become stale. Disputes arise from mismatched numbers.
-**Do this instead:** Store the input parameters (vehicle price, term length, mileage, rate tier). Calculate lease payments on-the-fly using `residual-value.ts`. Only persist the final approved contract terms.
-
-### Anti-Pattern 4: Single Supabase Client Everywhere
-
-**What people do:** Create one Supabase client and use it in Server Components, Client Components, and Server Actions.
-**Why it's wrong:** Server Components need a per-request client (for proper cookie handling). Client Components need a singleton browser client. Server Actions need a service_role client for trusted writes. Mixing them causes auth context leaks and security holes.
-**Do this instead:** Three separate client factories in `lib/supabase/`: `server.ts` (per-request, SSR), `client.ts` (browser singleton), `admin.ts` (service_role, mutations only).
-
-## Integration Points
-
-### External Services
-
-| Service | Integration Pattern | Notes |
-|---------|---------------------|-------|
-| License Plate API | Route handler proxy (`/api/license-plate`) | v1 real integration. Rate-limit the proxy endpoint. Cache responses by plate number. |
-| eKYC (CLOVA etc.) | Mock service in `lib/services/ekyc-mock.ts` | v1 mock only. Interface should match expected real API shape for easy v2 swap. |
-| Electronic Signature | Mock PDF generation via `@react-pdf/renderer` or `jsPDF` | v1 generates unsigned PDF. v2 integrates real e-sign API (Modusign etc.). |
-| Image CDN | Supabase Storage + Vercel Image Optimization | Transform vehicle images via `next/image` with Supabase Storage URLs. |
-
-### Internal Boundaries
-
-| Boundary | Communication | Notes |
-|----------|---------------|-------|
-| Public Pages <-> Database | Server Component queries via RLS-scoped client | Read-only. No mutations from public pages. |
-| Customer Portal <-> Contract Engine | Server Actions with state machine validation | Every transition checked against allowed states. |
-| Dealer Portal <-> Vehicle Management | Server Actions with ownership validation | Dealer can only modify own vehicles. |
-| Admin Dashboard <-> All Data | Server Actions with admin role check, service_role client | Full access but still validated through Server Actions. |
-| Vehicle Status <-> All Portals | Supabase Realtime `postgres_changes` | One-way broadcast. Status writes only via Server Actions. |
-
-## Suggested Build Order
-
-Based on component dependencies, the recommended build sequence:
-
-1. **Foundation (must be first):** Supabase project setup, DB schema + RLS policies, auth flow (signup/login), middleware, three Supabase clients, role system in profiles table.
-
-2. **Vehicle Core (depends on foundation):** Vehicle table, dealer registration flow (CRUD), admin approval workflow, license plate API integration, Supabase Storage for images.
-
-3. **Public Experience (depends on vehicle data):** Search/filter/listing pages (SSR), vehicle detail pages, comparison feature, responsive mobile design.
-
-4. **Contract Engine (depends on vehicle + auth):** Contract state machine, application form, mock eKYC flow, PDF generation, Realtime status updates.
-
-5. **Admin Dashboard (depends on all data):** Stats/analytics, user management, contract oversight, approval queues.
-
-6. **Polish (depends on all above):** Residual value calculator refinement, edge cases in contract flow, error handling, loading states, SEO optimization.
-
-**Rationale:** Foundation is a hard prerequisite. Vehicle data must exist before you can search or contract on it. Public search is the primary user entry point. Contract engine is the core business logic but needs vehicles to exist first. Admin dashboard aggregates everything so it naturally comes last.
+---
 
 ## Sources
 
-- [Supabase + Next.js Official Quickstart](https://supabase.com/docs/guides/getting-started/quickstarts/nextjs)
-- [Supabase Row Level Security Docs](https://supabase.com/docs/guides/database/postgres/row-level-security)
-- [Supabase Realtime: Subscribing to Database Changes](https://supabase.com/docs/guides/realtime/subscribing-to-database-changes)
-- [Next.js App Router Project Structure](https://nextjs.org/docs/app/getting-started/project-structure)
-- [Supabase + Next.js Vercel Starter Template](https://vercel.com/templates/next.js/supabase)
-- [Server Actions vs Route Handlers (MakerKit)](https://makerkit.dev/blog/tutorials/server-actions-vs-route-handlers)
-- [Next.js + Supabase Production Lessons](https://catjam.fi/articles/next-supabase-what-do-differently)
-- [Multi-Tenant RLS on Supabase (AntStack)](https://www.antstack.com/blog/multi-tenant-applications-with-rls-on-supabase-postgress/)
-- [Car Rental Database Design (PostgreSQL)](https://github.com/dhvani-k/Car_Rental_Database_Design)
-- [Car Rental System Design (OpenGenus)](https://iq.opengenus.org/system-design-of-car-rental-system/)
+- Existing codebase analysis -- HIGH confidence (direct file reads of all 52 API route handlers, middleware, layout, CSS, all 50 test files)
+- [Next.js CSP Configuration Guide](https://nextjs.org/docs/app/guides/content-security-policy) -- HIGH confidence (official docs)
+- [Next.js Font Optimization](https://nextjs.org/docs/app/getting-started/fonts) -- HIGH confidence (official docs)
+- [Next.js Security Best Practices 2026](https://www.authgear.com/post/nextjs-security-best-practices) -- MEDIUM confidence (third-party, but comprehensive)
+- [Next.js CVE-2025-29927 Middleware Bypass](https://www.hashbuilds.com/articles/next-js-middleware-authentication-protecting-routes-in-2025) -- HIGH confidence (documented CVE)
+- [Pretendard Official Repository](https://github.com/orioncactus/pretendard) -- HIGH confidence (font source)
+- [@fontsource/pretendard npm](https://www.npmjs.com/package/@fontsource/pretendard) -- HIGH confidence (verified Latin-only subset limitation)
+- [MetaMask hex-to-CSS-variable migration](https://github.com/MetaMask/metamask-extension/issues/13247) -- MEDIUM confidence (real-world migration reference)
+- [Next.js Bundle Optimization Guide](https://nextjs.org/docs/app/guides/package-bundling) -- HIGH confidence (official docs)
 
 ---
-*Architecture research for: Navid Auto -- Used Car Rental/Lease Platform*
-*Researched: 2026-03-09*
+*Architecture research for: v3.0 Hardening -- Security, Performance, Design System, Code Quality*
+*Researched: 2026-03-27*

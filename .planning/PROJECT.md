@@ -50,7 +50,15 @@
 
 ### Active
 
-_(No active requirements — next milestone pending)_
+## Current Milestone: v3.0 Hardening
+
+**Goal:** gstack 종합 피드백(보안/성능/디자인/품질) 전면 개선 — 프로덕션 수준 품질 관문
+
+**Target features:**
+- 보안 취약점 전면 수정 (미인증 API, 하드코딩 비밀번호, 파일 업로드 검증, Next.js 업데이트)
+- 성능 최적화 (폰트 서브셋팅, JS 번들 축소, HTTP 요청 최적화)
+- 디자인 시스템 정비 (하드코딩 hex → CSS 변수, 브랜드컬러 통일, 접근성 개선)
+- 코드 품질 강화 (테스트 커버리지 확대, 기술 부채 정리)
 
 ### Out of Scope
 
@@ -114,6 +122,9 @@ _(No active requirements — next milestone pending)_
 
 ## Current State
 
+**v3.0 Hardening started 2026-03-27.**
+- gstack 종합 피드백 기반: retro, cso, benchmark, design-review 결과 반영
+
 **v2.1 Visual Polish shipped 2026-03-23.**
 - 20 phases total (v1.0: 9, v1.1: 3, v2.0: 5, v2.1: 3), 52 plans executed
 - 18 source files modified, +38/-23 lines in v2.1 (spacing-only CSS changes)
@@ -129,4 +140,4 @@ _(No active requirements — next milestone pending)_
 
 ---
 
-*Last updated: 2026-03-23 after v2.1 milestone completion*
+*Last updated: 2026-03-27 after v3.0 Hardening milestone start*

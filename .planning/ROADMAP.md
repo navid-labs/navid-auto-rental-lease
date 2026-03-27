@@ -160,4 +160,4 @@ Plans:
 | 22. Security Fixes | 2/2 | Complete    | 2026-03-27 | - |
 | 23. Design System Migration | v3.0 | Complete    | 2026-03-27 | 2026-03-27 |
 | 24. Performance Optimization | 2/2 | Complete    | 2026-03-27 | - |
-| 25. Code Quality + CSP | 1/3 | In Progress|  | - |
+| 25. Code Quality + CSP | 2/3 | In Progress|  | - |

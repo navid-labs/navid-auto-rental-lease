@@ -12,6 +12,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
+import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { StatusBadge } from './status-badge'
 import { ApprovalBadge } from './approval-badge'
 import { StatusChangeDialog } from './status-change-dialog'
@@ -78,6 +79,10 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
     open: false,
     vehicle: null,
   })
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; vehicleId: string }>({
+    open: false,
+    vehicleId: '',
+  })
 
   const filteredVehicles =
     statusFilter === 'ALL'
@@ -96,10 +101,16 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
     setCurrentPage(1)
   }
 
-  const handleDelete = useCallback(
+  const handleDeleteClick = useCallback(
     (vehicleId: string) => {
-      if (!confirm('이 차량을 숨김 처리하시겠습니까?')) return
+      setDeleteConfirm({ open: true, vehicleId })
+    },
+    []
+  )
 
+  const executeDelete = useCallback(
+    () => {
+      const vehicleId = deleteConfirm.vehicleId
       startTransition(async () => {
         try {
           if (userRole === 'ADMIN') {
@@ -114,7 +125,7 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
         }
       })
     },
-    [router, userRole]
+    [deleteConfirm.vehicleId, router, userRole]
   )
 
   const handleStatusChanged = useCallback(() => {
@@ -301,7 +312,7 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
                           <Button
                             variant="ghost"
                             size="icon-sm"
-                            onClick={() => handleDelete(vehicle.id)}
+                            onClick={() => handleDeleteClick(vehicle.id)}
                             disabled={isPending}
                             aria-label="삭제"
                           >
@@ -360,6 +371,17 @@ export function VehicleTable({ vehicles, userRole, basePath }: VehicleTableProps
           onSuccess={() => router.refresh()}
         />
       )}
+
+      <ConfirmDialog
+        open={deleteConfirm.open}
+        onOpenChange={(open) => {
+          if (!open) setDeleteConfirm({ open: false, vehicleId: '' })
+        }}
+        title="차량 숨김 처리"
+        description="이 차량을 숨김 처리하시겠습니까?"
+        confirmLabel="숨김 처리"
+        onConfirm={executeDelete}
+      />
     </div>
   )
 }

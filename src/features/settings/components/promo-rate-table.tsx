@@ -1,7 +1,8 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { deleteAdminSettingsPromoRatesId } from '@/lib/api/generated/settings/settings'
+import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 type PromoRateRow = {
   id: string
   rate: number | { toString(): string }
@@ -17,9 +18,10 @@ type Props = {
 
 export function PromoRateTable({ promoRates }: Props) {
   const [isPending, startTransition] = useTransition()
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   function handleDelete(id: string) {
-    if (!confirm('정말 삭제하시겠습니까?')) return
     startTransition(async () => {
       await deleteAdminSettingsPromoRatesId(id)
     })
@@ -68,7 +70,10 @@ export function PromoRateTable({ promoRates }: Props) {
               </td>
               <td className="px-4 py-3">
                 <button
-                  onClick={() => handleDelete(row.id)}
+                  onClick={() => {
+                    setPendingDeleteId(row.id)
+                    setConfirmOpen(true)
+                  }}
                   disabled={isPending}
                   className="text-destructive hover:underline disabled:opacity-50"
                 >
@@ -79,6 +84,16 @@ export function PromoRateTable({ promoRates }: Props) {
           ))}
         </tbody>
       </table>
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="프로모션율 삭제"
+        description="정말 삭제하시겠습니까?"
+        confirmLabel="삭제"
+        onConfirm={() => {
+          if (pendingDeleteId) handleDelete(pendingDeleteId)
+        }}
+      />
     </div>
   )
 }

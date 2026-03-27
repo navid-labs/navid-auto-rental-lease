@@ -8,6 +8,7 @@ import {
   deletePricingResidualRatesId,
 } from '@/lib/api/generated/pricing/pricing'
 import { ApiError } from '@/lib/api/fetcher'
+import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { Pencil, Trash2, Check, X, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -32,6 +33,8 @@ export function ResidualValueTable({ rates }: ResidualValueTableProps) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValue, setEditValue] = useState('')
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   function startEdit(row: ResidualRateRow) {
     setEditingId(row.id)
@@ -67,13 +70,17 @@ export function ResidualValueTable({ rates }: ResidualValueTableProps) {
     })
   }
 
-  function handleDelete(id: string) {
-    if (!confirm('이 잔존가치율을 삭제하시겠습니까?')) return
+  function handleDeleteClick(id: string) {
+    setPendingDeleteId(id)
+    setConfirmOpen(true)
+  }
 
-    setDeletingId(id)
+  function executeDelete() {
+    if (!pendingDeleteId) return
+    setDeletingId(pendingDeleteId)
     startTransition(async () => {
       try {
-        await deletePricingResidualRatesId(id)
+        await deletePricingResidualRatesId(pendingDeleteId)
         router.refresh()
       } catch (err) {
         toast.error(err instanceof ApiError ? err.message : '삭제에 실패했습니다.')
@@ -162,7 +169,7 @@ export function ResidualValueTable({ rates }: ResidualValueTableProps) {
                 <Button
                   variant="destructive"
                   size="xs"
-                  onClick={() => handleDelete(row.id)}
+                  onClick={() => handleDeleteClick(row.id)}
                   disabled={isPending || deletingId === row.id}
                 >
                   {deletingId === row.id ? (
@@ -177,6 +184,14 @@ export function ResidualValueTable({ rates }: ResidualValueTableProps) {
           ))}
         </tbody>
       </table>
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="잔존가치율 삭제"
+        description="이 잔존가치율을 삭제하시겠습니까?"
+        confirmLabel="삭제"
+        onConfirm={executeDelete}
+      />
     </div>
   )
 }

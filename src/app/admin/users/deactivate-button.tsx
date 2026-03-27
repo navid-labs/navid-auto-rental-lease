@@ -1,9 +1,10 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { postAdminUsersIdDeactivate } from '@/lib/api/generated/admin/admin'
 import { ApiError } from '@/lib/api/fetcher'
 import { UserX, Loader2 } from 'lucide-react'
@@ -15,6 +16,7 @@ type DeactivateButtonProps = {
 
 export function DeactivateButton({ userId, isDeactivated }: DeactivateButtonProps) {
   const [isPending, startTransition] = useTransition()
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const router = useRouter()
 
   if (isDeactivated) {
@@ -26,8 +28,6 @@ export function DeactivateButton({ userId, isDeactivated }: DeactivateButtonProp
   }
 
   function handleDeactivate() {
-    if (!confirm('이 사용자를 비활성화하시겠습니까?')) return
-
     startTransition(async () => {
       try {
         await postAdminUsersIdDeactivate(userId)
@@ -40,19 +40,29 @@ export function DeactivateButton({ userId, isDeactivated }: DeactivateButtonProp
   }
 
   return (
-    <Button
-      variant="ghost"
-      size="xs"
-      onClick={handleDeactivate}
-      disabled={isPending}
-      className="border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
-    >
-      {isPending ? (
-        <Loader2 className="size-3 animate-spin" />
-      ) : (
-        <UserX className="size-3" />
-      )}
-      비활성화
-    </Button>
+    <>
+      <Button
+        variant="ghost"
+        size="xs"
+        onClick={() => setConfirmOpen(true)}
+        disabled={isPending}
+        className="border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
+      >
+        {isPending ? (
+          <Loader2 className="size-3 animate-spin" />
+        ) : (
+          <UserX className="size-3" />
+        )}
+        비활성화
+      </Button>
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="사용자 비활성화"
+        description="이 사용자를 비활성화하시겠습니까?"
+        confirmLabel="비활성화"
+        onConfirm={handleDeactivate}
+      />
+    </>
   )
 }

@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import {
   Dialog,
   DialogContent,
@@ -69,6 +70,11 @@ export function AdminContractList({ contracts }: AdminContractListProps) {
     contractType: 'RENTAL' | 'LEASE'
   }>({ open: false, contractId: '', contractType: 'RENTAL' })
   const [rejectReason, setRejectReason] = useState('')
+  const [cancelConfirm, setCancelConfirm] = useState<{
+    open: boolean
+    contractId: string
+    contractType: 'RENTAL' | 'LEASE'
+  }>({ open: false, contractId: '', contractType: 'RENTAL' })
 
   const currentFilter = TABS.find((t) => t.key === activeTab)
   const filtered = currentFilter?.filter
@@ -89,12 +95,14 @@ export function AdminContractList({ contracts }: AdminContractListProps) {
   }
 
   function handleCancel(contractId: string, contractType: 'RENTAL' | 'LEASE') {
-    if (!confirm('이 계약을 취소하시겠습니까?')) return
+    setCancelConfirm({ open: true, contractId, contractType })
+  }
 
+  function executeCancel() {
     startTransition(async () => {
       try {
-        await postContractsIdApprove(contractId, {
-          contractType,
+        await postContractsIdApprove(cancelConfirm.contractId, {
+          contractType: cancelConfirm.contractType,
           action: 'CANCELED',
           reason: '관리자 취소',
         })
@@ -303,6 +311,18 @@ export function AdminContractList({ contracts }: AdminContractListProps) {
           </div>
         </>
       )}
+
+      {/* Cancel confirmation dialog */}
+      <ConfirmDialog
+        open={cancelConfirm.open}
+        onOpenChange={(open) => {
+          if (!open) setCancelConfirm({ open: false, contractId: '', contractType: 'RENTAL' })
+        }}
+        title="계약 취소"
+        description="이 계약을 취소하시겠습니까?"
+        confirmLabel="취소 확인"
+        onConfirm={executeCancel}
+      />
 
       {/* Rejection reason dialog */}
       <Dialog

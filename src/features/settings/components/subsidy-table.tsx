@@ -1,7 +1,8 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { deleteAdminSettingsDefaultsId } from '@/lib/api/generated/settings/settings'
+import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 
 type SettingRow = {
   id: string
@@ -17,9 +18,10 @@ type Props = {
 
 export function SubsidyTable({ subsidies }: Props) {
   const [isPending, startTransition] = useTransition()
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   function handleDelete(id: string) {
-    if (!confirm('정말 삭제하시겠습니까?')) return
     startTransition(async () => {
       await deleteAdminSettingsDefaultsId(id)
     })
@@ -58,7 +60,10 @@ export function SubsidyTable({ subsidies }: Props) {
               </td>
               <td className="px-4 py-3">
                 <button
-                  onClick={() => handleDelete(row.id)}
+                  onClick={() => {
+                    setPendingDeleteId(row.id)
+                    setConfirmOpen(true)
+                  }}
                   disabled={isPending}
                   className="text-destructive hover:underline disabled:opacity-50"
                 >
@@ -69,6 +74,16 @@ export function SubsidyTable({ subsidies }: Props) {
           ))}
         </tbody>
       </table>
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="보조금 설정 삭제"
+        description="정말 삭제하시겠습니까?"
+        confirmLabel="삭제"
+        onConfirm={() => {
+          if (pendingDeleteId) handleDelete(pendingDeleteId)
+        }}
+      />
     </div>
   )
 }

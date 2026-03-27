@@ -41,7 +41,7 @@ export default async function ContractPage({ params }: PageProps) {
   // Auth check
   const user = await getCurrentUser()
   if (!user) {
-    redirect('/auth/login')
+    redirect('/login')
   }
   if (user.role !== 'CUSTOMER') {
     redirect('/')

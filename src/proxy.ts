@@ -5,6 +5,7 @@ const PROTECTED_ROUTES: Record<string, string[]> = {
   '/admin': ['ADMIN'],
   '/dealer': ['DEALER', 'ADMIN'],
   '/mypage': ['CUSTOMER', 'DEALER', 'ADMIN'],
+  '/contracts': ['CUSTOMER', 'DEALER', 'ADMIN'],
 }
 
 const AUTH_PAGES = ['/login', '/signup']

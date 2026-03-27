@@ -94,8 +94,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 22-01-PLAN.md -- Auth guards for unprotected endpoints + argon2id password hashing
-- [ ] 22-02-PLAN.md -- Server-side image upload validation with magic byte checks
+- [x] 22-01-PLAN.md -- Auth guards for unprotected endpoints + argon2id password hashing
+- [x] 22-02-PLAN.md -- Server-side image upload validation with magic byte checks
 
 ### Phase 23: Design System Migration
 **Goal**: The codebase uses a single source of truth for colors via CSS variables, brand blue is unified, and core accessibility gaps (focus-visible, reduced-motion, heading hierarchy) are resolved
@@ -110,9 +110,9 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 23-01-PLAN.md -- Accessibility foundations (focus-visible, reduced-motion, h1, dark mode tokens)
-- [ ] 23-02-PLAN.md -- Hex migration batch 1: 4 largest files (public-vehicle-detail, hero-section, hero-search-box, sell-my-car)
-- [ ] 23-03-PLAN.md -- Hex migration batch 2: layout + remaining marketing + page files (24 files)
+- [x] 23-01-PLAN.md -- Accessibility foundations (focus-visible, reduced-motion, h1, dark mode tokens)
+- [x] 23-02-PLAN.md -- Hex migration batch 1: 4 largest files (public-vehicle-detail, hero-section, hero-search-box, sell-my-car)
+- [x] 23-03-PLAN.md -- Hex migration batch 2: layout + remaining marketing + page files (24 files)
 - [ ] 23-04-PLAN.md -- Verification sweep + visual regression checkpoint
 
 ### Phase 24: Performance Optimization
@@ -158,6 +158,6 @@ Plans:
 | 18-20 | v2.1 | 4/4 | Complete | 2026-03-23 |
 | 21. Infrastructure Foundation | 3/3 | Complete    | 2026-03-27 | - |
 | 22. Security Fixes | 2/2 | Complete    | 2026-03-27 | - |
-| 23. Design System Migration | 2/4 | In Progress|  | - |
+| 23. Design System Migration | 3/4 | In Progress|  | - |
 | 24. Performance Optimization | v3.0 | 0/2 | Not started | - |
 | 25. Code Quality + CSP | v3.0 | 0/3 | Not started | - |

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Hardening
 status: executing
-stopped_at: Completed 23-01 Accessibility & Dark Mode
-last_updated: "2026-03-27T06:11:00Z"
-last_activity: 2026-03-27 — Completed 23-01 Accessibility & Dark Mode
+stopped_at: Completed 23-03 Component Hex-to-Token Migration
+last_updated: "2026-03-27T06:18:31Z"
+last_activity: 2026-03-27 — Completed 23-03 Component Hex-to-Token Migration
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 9
-  completed_plans: 6
-  percent: 67
+  completed_plans: 7
+  percent: 78
 ---
 
 # Project State
@@ -26,18 +26,19 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 ## Current Position
 
 Phase: 23 (third of 5 in v3.0) — Design System Migration [IN PROGRESS]
-Plan: 2 of 4 in current phase (23-02 complete)
+Plan: 3 of 4 in current phase (23-03 complete)
 Status: Executing Phase 23 design system migration
-Last activity: 2026-03-27 — Completed 23-02 Top 4 Component Hex Migration
+Last activity: 2026-03-27 — Completed 23-03 Component Hex-to-Token Migration
 
-Progress: [███████░░░] 70%
+Progress: [████████░░] 78%
 
 ## Performance Metrics
 
 **Velocity (all milestones):**
-- Total plans completed: 56
+- Total plans completed: 57
 - Total execution time: ~3 hours across 4 milestones
 - 23-01: 7min, 2 tasks, 12 files
+- 23-03: 14min, 2 tasks, 19 files
 
 ## Accumulated Context
 
@@ -61,6 +62,8 @@ Recent decisions affecting current work:
 - [Phase 22]: requireAuth (not requireAdmin) for ekyc/send-code -- any authenticated user can request verification codes
 - [23-01]: focus-visible (not focus) for ring styles -- avoids showing ring on mouse clicks (WCAG 2.4.7)
 - [23-01]: brand-blue token for all focus rings -- maintains design system consistency across light/dark modes
+- [23-03]: Dark navy decorative hex (#0f1e3c, #1A1A2E, #0D47A1) retained as intentional exceptions
+- [23-03]: Tailwind semantic colors (green-600, red-600, etc.) kept as direct hex rather than creating new tokens
 
 ### Pending Todos
 
@@ -75,6 +78,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-27T06:15:00Z
-Stopped at: Completed 23-02-PLAN.md
-Resume file: .planning/phases/23-design-system-migration/23-03-PLAN.md
+Last session: 2026-03-27T06:18:31Z
+Stopped at: Completed 23-03-PLAN.md
+Resume file: .planning/phases/23-design-system-migration/23-04-PLAN.md

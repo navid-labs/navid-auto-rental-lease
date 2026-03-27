@@ -88,7 +88,7 @@ Plans:
 **Depends on**: Phase 21 (test factory needed for security tests, proxy rename must be complete)
 **Requirements**: SEC-02, SEC-03, SEC-04
 **Success Criteria** (what must be TRUE):
-  1. Unauthenticated POST to `/api/admin/inventory/quote-pdf`, `/api/ekyc/send-code`, and `/api/inquiry` returns 401 (not 200)
+  1. Unauthenticated POST to `/api/admin/inventory/quote-pdf` and `/api/contracts/ekyc/send-code` returns 401 (not 200). `/api/inquiry` remains intentionally public (anonymous contact form).
   2. The settings password in the database is an argon2 hash (not plaintext `admin1234`), and login with the correct password still succeeds
   3. Uploading a `.js` file renamed to `.jpg` via the vehicle image upload endpoint returns a validation error (magic byte check rejects it)
 **Plans**: 2 plans
@@ -156,7 +156,7 @@ Plans:
 | 13-17 | v2.0 | 18/18 | Complete | 2026-03-23 |
 | 18-20 | v2.1 | 4/4 | Complete | 2026-03-23 |
 | 21. Infrastructure Foundation | 3/3 | Complete    | 2026-03-27 | - |
-| 22. Security Fixes | 2/2 | Complete   | 2026-03-27 | - |
+| 22. Security Fixes | 2/2 | Complete    | 2026-03-27 | - |
 | 23. Design System Migration | v3.0 | 0/3 | Not started | - |
 | 24. Performance Optimization | v3.0 | 0/2 | Not started | - |
 | 25. Code Quality + CSP | v3.0 | 0/3 | Not started | - |

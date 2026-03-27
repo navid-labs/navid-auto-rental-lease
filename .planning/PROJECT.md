@@ -48,17 +48,25 @@
 - ✓ 상세 페이지 브레드크럼 내비게이션 + 24px 여백 — v2.1
 - ✓ 비슷한 차량 3열 그리드 + 섹션 카드 32px 균일 간격 — v2.1
 
+### Validated (v3.0 Hardening — 2026-03-27)
+
+- ✓ proxy.ts 마이그레이션 (Next.js 16 규격) + 보안 헤더 6개 — v3.0
+- ✓ Pretendard CDN 동적 서브셋 한국어 폰트 정상화 (3MB → ~200KB) — v3.0
+- ✓ 9개 브랜드 CSS 토큰 + light/dark 체계 — v3.0
+- ✓ API 인증 가드 (quote-pdf, ekyc/send-code) + argon2id 비밀번호 해싱 — v3.0
+- ✓ 이미지 업로드 MIME + magic byte 서버 검증 — v3.0
+- ✓ 394 hex → CSS 변수 마이그레이션 + 브랜드 블루 #3B82F6 통일 — v3.0
+- ✓ focus-visible 34개 적용 + prefers-reduced-motion 글로벌 리셋 — v3.0
+- ✓ 홈페이지 h1 추가 (WCAG 1.3.1) — v3.0
+- ✓ framer-motion dynamic import (-124KB 번들 축소) — v3.0
+- ✓ ISR revalidation (홈 60s, 상세 300s) + prefetch 최적화 (-27 requests) — v3.0
+- ✓ 테스트 693개/84파일, 커버리지 27.52% (baseline 15.64%에서 +76%) — v3.0
+- ✓ 기술 부채 정리 (confirm() → AlertDialog, orphaned 모듈, 라우트 버그) — v3.0
+- ✓ CSP Report-Only + /api/csp-report 위반 로그 엔드포인트 — v3.0
+
 ### Active
 
-## Current Milestone: v3.0 Hardening
-
-**Goal:** gstack 종합 피드백(보안/성능/디자인/품질) 전면 개선 — 프로덕션 수준 품질 관문
-
-**Target features:**
-- 보안 취약점 전면 수정 (미인증 API, 하드코딩 비밀번호, 파일 업로드 검증, Next.js 업데이트)
-- 성능 최적화 (폰트 서브셋팅, JS 번들 축소, HTTP 요청 최적화)
-- 디자인 시스템 정비 (하드코딩 hex → CSS 변수, 브랜드컬러 통일, 접근성 개선)
-- 코드 품질 강화 (테스트 커버리지 확대, 기술 부채 정리)
+_(No active requirements — next milestone pending)_
 
 ### Out of Scope
 
@@ -120,24 +128,32 @@
 | -mt-6 edge-to-edge 오버라이드 | 히어로/갤러리는 네비 바에 붙어야 함 | ✅ 선택적 적용 |
 | 3-col 그리드 통일 | K Car 스타일 적정 밀도, 시각적 일관성 | ✅ 홈/검색/상세 동일 |
 
+## Key Decisions (v3.0)
+
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| Pretendard CDN 동적 서브셋 | @fontsource 한국어 글리프 0개 → CDN으로 정상화 | ✅ ~200KB/page |
+| 브랜드 블루 #3B82F6 통일 | #1A6DFF vs #3B82F6 혼용 → Tailwind 기본값 채택 | ✅ 0건 잔여 |
+| proxy.ts 단순 리네임 | Next.js 16 규격 준수, 기능 변경 없이 전환 | ✅ 무중단 |
+| Bun.password argon2id | admin1234 평문 → 내장 해싱, 패키지 추가 불필요 | ✅ 역호환 |
+| CSP Report-Only 선행 | 도메인 열거 필요 → 데이터 수집 후 enforcing 전환 | ✅ v4.0 준비 |
+
 ## Current State
 
-**v3.0 Hardening started 2026-03-27.**
-- gstack 종합 피드백 기반: retro, cso, benchmark, design-review 결과 반영
+**v3.0 Hardening shipped 2026-03-27.**
+- 5 phases, 14 plans, 38 commits, 108 files modified, +8,175/-538 lines
+- 693 tests across 84 files, coverage 27.52% (from 15.64%)
+- gstack 피드백 13/13 이슈 해결 (CRITICAL 1, HIGH 4, design 5, quality 3)
 
 **v2.1 Visual Polish shipped 2026-03-23.**
-- 20 phases total (v1.0: 9, v1.1: 3, v2.0: 5, v2.1: 3), 52 plans executed
-- 18 source files modified, +38/-23 lines in v2.1 (spacing-only CSS changes)
-- 439 tests across 50 files, type-check clean
-- 14/14 v2.1 requirements satisfied, 1 minor tech debt item
+- 20 phases total (v1.0-v2.1), 52 plans executed
 
 **v2.0 K Car Style Redesign shipped 2026-03-23.**
-- 166 files modified, +25,221 lines
-- K Car 수준의 검색/상세/홈 UI 완성, 비교 기능, 모바일 반응형
+- K Car 수준의 검색/상세/홈 UI, 비교 기능, 모바일 반응형
 
 **v1.0 Demo MVP shipped 2026-03-10.**
 - 9 phases, 22 plans, 213 source files, 18,276 LOC TypeScript
 
 ---
 
-*Last updated: 2026-03-27 after v3.0 Hardening milestone start*
+*Last updated: 2026-03-27 after v3.0 Hardening milestone completion*

@@ -1,5 +1,14 @@
 # Milestones
 
+## v3.0 Hardening (Shipped: 2026-03-27)
+
+**Phases completed:** 5 phases, 14 plans, 4 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+
 ## v2.1 Visual Polish (Shipped: 2026-03-23)
 
 **Phases:** 3 | **Plans:** 4 | **Tasks:** 7 | **Requirements:** 14/14

@@ -56,6 +56,16 @@
   --color-text-secondary: var(--text-secondary);
   --color-border-light: var(--border-light);
   --color-badge-discount: var(--badge-discount);
+  /* Brand design tokens (Phase 21 -- definition only, migration in Phase 23) */
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-bg: var(--brand-bg);
+  --color-brand-text: var(--brand-text);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-accent-muted: var(--accent-muted);
+  --color-surface-hover: var(--surface-hover);
+  --color-border-subtle: var(--border-subtle);
+  --color-text-caption: var(--text-caption);
 }
 
 :root {
@@ -103,6 +113,16 @@
   --text-secondary: hsl(220 10% 45%);
   --border-light: hsl(220 15% 92%);
   --badge-discount: hsl(24 95% 53%);
+  /* Brand design tokens */
+  --brand-blue: hsl(217 91% 60%);        /* #3B82F6 -- unified brand accent */
+  --brand-navy: hsl(220 50% 15%);        /* Primary dark navy */
+  --brand-bg: hsl(220 30% 98%);          /* Page background */
+  --brand-text: hsl(220 30% 10%);        /* Primary text */
+  --text-tertiary: hsl(0 0% 60%);        /* #999999 equivalent */
+  --accent-muted: hsl(217 100% 96%);     /* #EBF3FF equivalent */
+  --surface-hover: hsl(220 15% 97%);     /* #F5F5F5 equivalent */
+  --border-subtle: hsl(0 0% 91%);        /* #E8E8E8 equivalent */
+  --text-caption: hsl(0 0% 48%);         /* #7A7A7A equivalent */
 }
 
 .dark {
@@ -148,6 +168,16 @@
   --text-secondary: hsl(220 10% 60%);
   --border-light: hsl(220 20% 22%);
   --badge-discount: hsl(24 95% 63%);
+  /* Brand design tokens (dark) */
+  --brand-blue: hsl(217 91% 65%);
+  --brand-navy: hsl(220 50% 20%);
+  --brand-bg: hsl(220 40% 8%);
+  --brand-text: hsl(220 10% 95%);
+  --text-tertiary: hsl(0 0% 50%);
+  --accent-muted: hsl(217 50% 15%);
+  --surface-hover: hsl(220 25% 12%);
+  --border-subtle: hsl(220 20% 22%);
+  --text-caption: hsl(0 0% 55%);
 }
 
 @layer base {

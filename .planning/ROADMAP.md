@@ -79,9 +79,9 @@
 **Plans**: 3 plans
 
 Plans:
-- [ ] 21-01-PLAN.md -- Proxy rename (middleware.ts to proxy.ts) + security headers in next.config.ts
-- [ ] 21-02-PLAN.md -- Pretendard CDN font migration + brand CSS token definitions
-- [ ] 21-03-PLAN.md -- @vitest/coverage-v8 install + baseline coverage measurement
+- [x] 21-01-PLAN.md -- Proxy rename (middleware.ts to proxy.ts) + security headers in next.config.ts
+- [x] 21-02-PLAN.md -- Pretendard CDN font migration + brand CSS token definitions
+- [x] 21-03-PLAN.md -- @vitest/coverage-v8 install + baseline coverage measurement
 
 ### Phase 22: Security Fixes
 **Goal**: All known security vulnerabilities are patched -- every write API endpoint requires authentication, passwords are hashed, and file uploads are validated server-side
@@ -91,11 +91,11 @@ Plans:
   1. Unauthenticated POST to `/api/admin/inventory/quote-pdf`, `/api/ekyc/send-code`, and `/api/inquiry` returns 401 (not 200)
   2. The settings password in the database is an argon2 hash (not plaintext `admin1234`), and login with the correct password still succeeds
   3. Uploading a `.js` file renamed to `.jpg` via the vehicle image upload endpoint returns a validation error (magic byte check rejects it)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 22-01: TBD
-- [ ] 22-02: TBD
+- [ ] 22-01-PLAN.md -- Auth guards for unprotected endpoints + argon2id password hashing
+- [ ] 22-02-PLAN.md -- Server-side image upload validation with magic byte checks
 
 ### Phase 23: Design System Migration
 **Goal**: The codebase uses a single source of truth for colors via CSS variables, brand blue is unified, and core accessibility gaps (focus-visible, reduced-motion, heading hierarchy) are resolved

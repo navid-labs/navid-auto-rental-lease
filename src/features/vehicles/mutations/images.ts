@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db/prisma'
 import type { UserProfile } from '@/lib/auth/helpers'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { MAX_IMAGES_PER_VEHICLE } from '@/features/vehicles/utils/image-compression'
+import { validateImageFile } from '@/lib/validation/image'
 
 type UploadResult =
   | { success: true; image: { id: string; url: string; order: number } }
@@ -45,8 +46,21 @@ export async function uploadImageMutation(
   const file = formData.get('file') as File | null
   if (!file) return { error: '파일을 선택해주세요.' }
 
+  // Validate file: MIME whitelist, size limit, magic byte verification
+  const validation = await validateImageFile(file)
+  if ('error' in validation) {
+    return { error: validation.error }
+  }
+
   const supabase = createAdminClient()
-  const ext = file.name.split('.').pop() ?? 'webp'
+  // Derive extension from validated MIME type, not user-supplied filename
+  const mimeToExt: Record<string, string> = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'image/gif': 'gif',
+  }
+  const ext = mimeToExt[file.type] ?? 'webp'
   const filePath = `vehicles/${vehicleId}/${Date.now()}.${ext}`
 
   const { error: uploadError } = await supabase.storage

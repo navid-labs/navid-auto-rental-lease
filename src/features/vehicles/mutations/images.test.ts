@@ -51,7 +51,13 @@ const adminUser: UserProfile = { ...base, id: 'admin-1', role: 'ADMIN', email: '
 const customerUser: UserProfile = { ...base, id: 'customer-1', role: 'CUSTOMER', email: 'c@test.com', name: 'Customer' }
 
 function createMockFormData(filename = 'photo.jpg', type = 'image/jpeg', size = 1024) {
-  const file = new File(['x'.repeat(size)], filename, { type })
+  // Include valid JPEG magic bytes so server-side image validation passes
+  const jpegHeader = new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0])
+  const padding = new Uint8Array(Math.max(0, size - jpegHeader.length))
+  const combined = new Uint8Array(jpegHeader.length + padding.length)
+  combined.set(jpegHeader)
+  combined.set(padding, jpegHeader.length)
+  const file = new File([combined], filename, { type })
   const fd = new FormData()
   fd.set('file', file)
   return fd

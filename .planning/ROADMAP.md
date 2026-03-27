@@ -127,24 +127,24 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 24-01-PLAN.md -- Dynamic import framer-motion layout components (FloatingCTA, RecentlyViewedDrawer, ComparisonBar)
-- [ ] 24-02-PLAN.md -- ISR revalidation on public pages + prefetch={false} on non-critical links
+- [x] 24-01-PLAN.md -- Dynamic import framer-motion layout components (FloatingCTA, RecentlyViewedDrawer, ComparisonBar)
+- [x] 24-02-PLAN.md -- ISR revalidation on public pages + prefetch={false} on non-critical links
 
 ### Phase 25: Code Quality + CSP
 **Goal**: Test coverage reaches 30%+ with meaningful API route tests, accumulated tech debt is cleaned up, and Content-Security-Policy is deployed in report-only mode to prepare for future enforcement
 **Depends on**: Phase 22 (tests should validate post-fix behavior), Phase 24 (all optimizations stable before CSP)
 **Requirements**: CQ-02, CQ-03, CQ-04, CQ-05
 **Success Criteria** (what must be TRUE):
-  1. `bun run test:coverage` shows line coverage at 30% or above (up from 3.9%)
+  1. `bun run test:coverage` shows line coverage at 30% or above (up from 16.25%)
   2. API route handler tests exist for auth endpoints, contract creation, and vehicle search -- each test uses real Request objects and validates HTTP status codes and response shapes
   3. `native confirm()` calls are replaced with a proper confirmation dialog component, orphaned modules are removed, and the `/contracts` route redirect bug is fixed
   4. Browser DevTools shows `Content-Security-Policy-Report-Only` header on responses, and visiting `/api/csp-report` endpoint accepts POST requests for violation logging
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 25-01: TBD
-- [ ] 25-02: TBD
-- [ ] 25-03: TBD
+- [ ] 25-01-PLAN.md -- API route tests batch 1: auth, contracts, admin settings (test helpers + 6 test files)
+- [ ] 25-02-PLAN.md -- Tech debt cleanup (confirm dialogs, orphaned module, redirect bug, proxy route) + CSP Report-Only
+- [ ] 25-03-PLAN.md -- API route tests batch 2: vehicles, inquiry, admin dashboard, CSP report, lib/api helpers + coverage 30% verification
 
 ## Progress
 

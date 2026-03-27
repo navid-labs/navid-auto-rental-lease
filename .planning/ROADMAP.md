@@ -107,12 +107,13 @@ Plans:
   3. Pressing Tab through interactive elements on homepage, search page, and contract wizard shows a visible focus ring on every focusable element
   4. Toggling `prefers-reduced-motion: reduce` in browser DevTools causes all animations (framer-motion, carousel, CSS transitions) to be disabled or reduced
   5. Homepage has exactly one `<h1>` element (verifiable via `document.querySelectorAll('h1').length === 1`)
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 23-01: TBD
-- [ ] 23-02: TBD
-- [ ] 23-03: TBD
+- [ ] 23-01-PLAN.md -- Accessibility foundations (focus-visible, reduced-motion, h1, dark mode tokens)
+- [ ] 23-02-PLAN.md -- Hex migration batch 1: 4 largest files (public-vehicle-detail, hero-section, hero-search-box, sell-my-car)
+- [ ] 23-03-PLAN.md -- Hex migration batch 2: layout + remaining marketing + page files (24 files)
+- [ ] 23-04-PLAN.md -- Verification sweep + visual regression checkpoint
 
 ### Phase 24: Performance Optimization
 **Goal**: Public pages load fast with optimized JavaScript bundles, server-rendered content is cached via ISR, and unnecessary client-side prefetching is eliminated
@@ -157,6 +158,6 @@ Plans:
 | 18-20 | v2.1 | 4/4 | Complete | 2026-03-23 |
 | 21. Infrastructure Foundation | 3/3 | Complete    | 2026-03-27 | - |
 | 22. Security Fixes | 2/2 | Complete    | 2026-03-27 | - |
-| 23. Design System Migration | v3.0 | 0/3 | Not started | - |
+| 23. Design System Migration | v3.0 | 0/4 | Not started | - |
 | 24. Performance Optimization | v3.0 | 0/2 | Not started | - |
 | 25. Code Quality + CSP | v3.0 | 0/3 | Not started | - |

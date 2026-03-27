@@ -28,7 +28,7 @@ export async function RecommendedVehicles() {
   ])
 
   return (
-    <section className="bg-[#F9FAFB] py-10 md:py-12">
+    <section className="bg-secondary py-10 md:py-12">
       <div className="mx-auto max-w-7xl px-4">
         <RecommendedVehiclesTabs popular={popular} newest={newest} deals={deals} />
       </div>

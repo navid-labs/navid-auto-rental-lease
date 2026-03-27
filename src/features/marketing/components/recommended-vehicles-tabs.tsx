@@ -30,7 +30,7 @@ export function RecommendedVehiclesTabs({ popular, newest, deals }: Props) {
       {/* Header: title + tabs + more link */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <h2 className="text-[24px] font-bold text-[#0D0D0D]">추천 차량</h2>
+          <h2 className="text-[24px] font-bold text-foreground">추천 차량</h2>
           <div className="flex gap-1">
             {TABS.map((tab) => (
               <button
@@ -38,8 +38,8 @@ export function RecommendedVehiclesTabs({ popular, newest, deals }: Props) {
                 onClick={() => setActiveTab(tab.id)}
                 className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                   activeTab === tab.id
-                    ? 'bg-[#1A6DFF] text-white'
-                    : 'bg-[#F0F0F0] text-[#555555] hover:bg-[#E5E5E5]'
+                    ? 'bg-brand-blue text-white'
+                    : 'bg-surface-hover text-muted-foreground hover:bg-border-subtle'
                 }`}
               >
                 {tab.label}
@@ -49,7 +49,7 @@ export function RecommendedVehiclesTabs({ popular, newest, deals }: Props) {
         </div>
         <Link
           href={activeTabConfig.moreHref}
-          className="text-sm font-medium text-[#1A6DFF] transition-opacity hover:opacity-70"
+          className="text-sm font-medium text-brand-blue transition-opacity hover:opacity-70"
         >
           더보기 &rarr;
         </Link>
@@ -63,7 +63,7 @@ export function RecommendedVehiclesTabs({ popular, newest, deals }: Props) {
           ))}
         </div>
       ) : (
-        <div className="flex h-40 items-center justify-center text-sm text-[#7A7A7A]">
+        <div className="flex h-40 items-center justify-center text-sm text-text-caption">
           등록된 차량이 없습니다
         </div>
       )}

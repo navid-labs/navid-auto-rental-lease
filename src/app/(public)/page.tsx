@@ -43,7 +43,7 @@ export default function HomePage() {
 
 function SectionSkeleton({ title }: { title: string }) {
   return (
-    <div className="bg-[#F9FAFB] py-10 md:py-12">
+    <div className="bg-secondary py-10 md:py-12">
       <div className="mx-auto max-w-7xl px-4">
         <div className="mb-6 flex items-center gap-6">
           <div className="h-7 w-28 animate-pulse rounded bg-muted" />

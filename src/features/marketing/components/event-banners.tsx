@@ -33,7 +33,7 @@ export function EventBanners() {
     <section className="bg-white py-12 md:py-[48px]">
       <div className="mx-auto max-w-7xl px-4 md:px-8">
         {/* Section header */}
-        <h2 className="mb-5 text-[28px] font-bold leading-tight text-[#0D0D0D]">기획전</h2>
+        <h2 className="mb-5 text-[28px] font-bold leading-tight text-foreground">기획전</h2>
 
         {/* Banner grid */}
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">

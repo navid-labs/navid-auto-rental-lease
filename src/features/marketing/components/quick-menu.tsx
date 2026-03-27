@@ -33,19 +33,17 @@ export function QuickMenu() {
               >
                 {/* Icon circle */}
                 <span
-                  className="flex h-14 w-14 items-center justify-center rounded-full transition-colors duration-200 group-hover:bg-[#D6E8FF]"
-                  style={{ backgroundColor: '#EBF3FF' }}
+                  className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-muted transition-colors duration-200 group-hover:bg-brand-blue/15"
                 >
                   <Icon
-                    style={{ width: 24, height: 24, color: '#1A6DFF' }}
+                    style={{ width: 24, height: 24, color: 'var(--brand-blue)' }}
                     strokeWidth={1.75}
                   />
                 </span>
 
                 {/* Label */}
                 <span
-                  className="text-[13px] font-medium leading-tight"
-                  style={{ color: '#333333' }}
+                  className="text-[13px] font-medium leading-tight text-foreground"
                 >
                   {label}
                 </span>

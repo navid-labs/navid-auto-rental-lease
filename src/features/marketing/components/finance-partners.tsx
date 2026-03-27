@@ -76,8 +76,8 @@ function MiniCarCard({ car }: { car: CarInfo }) {
         width: 180,
         height: 200,
         borderRadius: 12,
-        border: '1px solid #FFFFFF33',
-        background: '#FFFFFF11',
+        border: '1px solid rgba(255,255,255,0.2)',
+        background: 'rgba(255,255,255,0.067)',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
@@ -164,7 +164,7 @@ export function FinancePartners() {
           style={{
             fontSize: 28,
             fontWeight: 700,
-            color: '#0D0D0D',
+            color: 'var(--foreground)',
             lineHeight: 1.2,
             marginBottom: 24,
           }}
@@ -172,7 +172,7 @@ export function FinancePartners() {
           금융사 전용관
         </h2>
 
-        {/* Tab row — full width, 4 equal tabs */}
+        {/* Tab row -- full width, 4 equal tabs */}
         <div className="flex w-full" style={{ marginBottom: 16 }}>
           {PARTNERS.map((partner, index) => {
             const isActive = activeIndex === index
@@ -188,9 +188,9 @@ export function FinancePartners() {
                   height: 44,
                   fontSize: 14,
                   fontWeight: isActive ? 600 : 500,
-                  background: isActive ? '#1A6DFF' : '#F4F4F4',
-                  color: isActive ? '#FFFFFF' : '#555555',
-                  border: isActive ? 'none' : '1px solid #E0E0E0',
+                  background: isActive ? 'var(--brand-blue)' : 'var(--surface-hover)',
+                  color: isActive ? '#FFFFFF' : 'var(--muted-foreground)',
+                  border: isActive ? 'none' : '1px solid var(--border-subtle)',
                   borderRadius: isFirst
                     ? '8px 0 0 8px'
                     : isLast
@@ -219,7 +219,7 @@ export function FinancePartners() {
           {/* Dark overlay */}
           <div
             className="pointer-events-none absolute inset-0"
-            style={{ background: '#00000066', borderRadius: 16 }}
+            style={{ background: 'rgba(0,0,0,0.4)', borderRadius: 16 }}
           />
 
           <AnimatePresence mode="wait">
@@ -232,7 +232,7 @@ export function FinancePartners() {
               className="relative z-10 flex h-full items-center"
               style={{ padding: '0 40px', gap: 40 }}
             >
-              {/* Left side — partner info + CTA */}
+              {/* Left side -- partner info + CTA */}
               <div
                 style={{
                   width: 360,
@@ -271,7 +271,7 @@ export function FinancePartners() {
                     alignItems: 'center',
                     gap: 6,
                     background: '#FFFFFF',
-                    color: '#1A6DFF',
+                    color: 'var(--brand-blue)',
                     border: 'none',
                     borderRadius: 8,
                     padding: '10px 20px',
@@ -292,7 +292,7 @@ export function FinancePartners() {
                 </button>
               </div>
 
-              {/* Right side — mini vehicle cards (hidden on mobile) */}
+              {/* Right side -- mini vehicle cards (hidden on mobile) */}
               <div
                 className="hidden md:flex"
                 style={{ gap: 16, alignItems: 'center' }}

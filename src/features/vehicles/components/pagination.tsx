@@ -29,9 +29,9 @@ export function Pagination({ totalCount, pageSize }: PaginationProps) {
 
   const btnBase =
     'flex size-10 items-center justify-center rounded-lg text-sm font-medium transition-colors'
-  const btnActive = 'bg-[#1A6DFF] text-white'
-  const btnInactive = 'bg-white text-[#0D0D0D] border border-[#E4E4E7] hover:bg-[#F4F4F4]'
-  const btnDisabled = 'bg-white text-[#71717A] border border-[#E4E4E7] cursor-not-allowed opacity-50'
+  const btnActive = 'bg-brand-blue text-white'
+  const btnInactive = 'bg-white text-foreground border border-border hover:bg-surface-hover'
+  const btnDisabled = 'bg-white text-muted-foreground border border-border cursor-not-allowed opacity-50'
 
   return (
     <nav

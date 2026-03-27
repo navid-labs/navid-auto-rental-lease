@@ -26,7 +26,7 @@ const BANNERS: Banner[] = [
     id: 1,
     title: '신규 차량 입고',
     subtitle: '엄선된 인증 중고차를 만나보세요',
-    gradient: 'from-[#1A6DFF] to-[#0D47A1]',
+    gradient: 'from-brand-blue to-[#0D47A1]',
     cta: '/vehicles?sort=newest',
   },
   {
@@ -106,7 +106,7 @@ export function HeroBanner() {
             key={index}
             onClick={() => api?.scrollTo(index)}
             className={`h-2 rounded-full transition-all ${
-              current === index ? 'w-6 bg-[#1A6DFF]' : 'w-2 bg-[#D1D5DB]'
+              current === index ? 'w-6 bg-brand-blue' : 'w-2 bg-border'
             }`}
           />
         ))}

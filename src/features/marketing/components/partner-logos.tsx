@@ -9,16 +9,16 @@ const PARTNERS = [
 
 export function PartnerLogos() {
   return (
-    <section className="border-t border-[#F0F0F0] bg-white py-10">
+    <section className="border-t border-surface-hover bg-white py-10">
       <div className="mx-auto max-w-7xl px-4">
-        <p className="mb-4 text-center text-[13px] font-medium text-[#7A7A7A]">금융 파트너사</p>
+        <p className="mb-4 text-center text-[13px] font-medium text-text-caption">금융 파트너사</p>
         <div className="flex items-center justify-center gap-8 md:gap-12">
           {PARTNERS.map((partner) => (
             <div key={partner.name} className="flex flex-col items-center gap-1.5">
-              <div className="flex size-12 items-center justify-center rounded-full bg-[#F5F5F5] text-[16px] font-bold text-[#999999]">
+              <div className="flex size-12 items-center justify-center rounded-full bg-surface-hover text-[16px] font-bold text-text-tertiary">
                 {partner.initial}
               </div>
-              <span className="whitespace-nowrap text-[11px] text-[#999999]">{partner.name}</span>
+              <span className="whitespace-nowrap text-[11px] text-text-tertiary">{partner.name}</span>
             </div>
           ))}
         </div>

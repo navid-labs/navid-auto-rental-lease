@@ -28,7 +28,7 @@ function deriveBadge(vehicle: {
 }
 
 const BADGE_STYLES: Record<NonNullable<BadgeVariant>, { bg: string; label: string }> = {
-  new: { bg: '#0D0D0D', label: 'NEW' },
+  new: { bg: 'var(--foreground)', label: 'NEW' },
   인기: { bg: '#E42313', label: '인기' },
   특가: { bg: '#22C55E', label: '최대할인' },
 }
@@ -60,16 +60,16 @@ export async function FeaturedVehicles() {
   if (vehicles.length === 0) return null
 
   return (
-    <section style={{ background: '#F9FAFB', paddingTop: 48, paddingBottom: 48 }}>
+    <section style={{ background: 'var(--secondary)', paddingTop: 48, paddingBottom: 48 }}>
       <div className="mx-auto max-w-7xl px-4">
         {/* Section header */}
         <div className="mb-6 flex items-center justify-between">
-          <h2 style={{ fontSize: 28, fontWeight: 700, color: '#0D0D0D', lineHeight: 1.2 }}>
+          <h2 style={{ fontSize: 28, fontWeight: 700, color: 'var(--foreground)', lineHeight: 1.2 }}>
             추천 차량
           </h2>
           <Link
             href="/vehicles"
-            style={{ fontSize: 14, fontWeight: 500, color: '#1A6DFF' }}
+            style={{ fontSize: 14, fontWeight: 500, color: 'var(--brand-blue)' }}
             className="transition-opacity hover:opacity-70"
           >
             전체보기 &rarr;
@@ -101,7 +101,7 @@ export async function FeaturedVehicles() {
                 style={{
                   background: '#FFFFFF',
                   borderRadius: 12,
-                  border: '1px solid #EEEEEE',
+                  border: '1px solid var(--border)',
                   overflow: 'hidden',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                 }}
@@ -109,7 +109,7 @@ export async function FeaturedVehicles() {
                 {/* Image area — 180px fixed height */}
                 <div
                   className="relative w-full overflow-hidden"
-                  style={{ height: 180, background: '#F3F4F6' }}
+                  style={{ height: 180, background: 'var(--secondary)' }}
                 >
                   {thumbnail ? (
                     <Image
@@ -126,7 +126,7 @@ export async function FeaturedVehicles() {
                         height="48"
                         fill="none"
                         viewBox="0 0 24 24"
-                        stroke="#D1D5DB"
+                        stroke="var(--border)"
                         strokeWidth={1}
                       >
                         <path
@@ -165,7 +165,7 @@ export async function FeaturedVehicles() {
                     style={{
                       fontSize: 15,
                       fontWeight: 600,
-                      color: '#0D0D0D',
+                      color: 'var(--foreground)',
                       lineHeight: 1.3,
                       margin: 0,
                     }}
@@ -173,11 +173,11 @@ export async function FeaturedVehicles() {
                     {brand.nameKo || brand.name} {model.nameKo || model.name}
                   </p>
 
-                  {/* Details: 연식 · 주행거리 */}
+                  {/* Details: 연식 . 주행거리 */}
                   <p
                     style={{
                       fontSize: 12,
-                      color: '#7A7A7A',
+                      color: 'var(--text-caption)',
                       margin: 0,
                       lineHeight: 1.4,
                     }}
@@ -191,7 +191,7 @@ export async function FeaturedVehicles() {
                       style={{
                         fontSize: 18,
                         fontWeight: 700,
-                        color: '#1A6DFF',
+                        color: 'var(--brand-blue)',
                         margin: 0,
                         lineHeight: 1.2,
                       }}

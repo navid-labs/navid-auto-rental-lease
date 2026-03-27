@@ -5,8 +5,8 @@ import { formatKRW } from '@/lib/utils/format'
 
 /**
  * Determines the badge type for a vehicle card.
- * "특가" — monthlyRental below 500,000 KRW
- * "인기" — both rental and lease are available
+ * "특가" -- monthlyRental below 500,000 KRW
+ * "인기" -- both rental and lease are available
  */
 function resolveBadge(
   monthlyRental: number,
@@ -51,31 +51,31 @@ export async function RentSubscription() {
   if (vehicles.length === 0) return null
 
   return (
-    <section style={{ background: '#F0F4FF', paddingTop: '48px', paddingBottom: '48px' }}>
+    <section style={{ background: 'var(--accent-muted)', paddingTop: '48px', paddingBottom: '48px' }}>
       <div className="mx-auto max-w-7xl px-4">
         {/* Section header */}
         <div className="mb-6 flex items-end justify-between">
           <div>
             <h2
               className="font-bold leading-tight"
-              style={{ fontSize: '28px', color: '#0D0D0D' }}
+              style={{ fontSize: '28px', color: 'var(--foreground)' }}
             >
               렌트 / 구독
             </h2>
-            <p className="mt-1" style={{ fontSize: '14px', color: '#7A7A7A' }}>
+            <p className="mt-1" style={{ fontSize: '14px', color: 'var(--text-caption)' }}>
               월 구독료로 부담없이
             </p>
           </div>
           <Link
             href="/vehicles?type=rental"
             className="shrink-0 transition-opacity hover:opacity-70"
-            style={{ fontSize: '14px', fontWeight: 500, color: '#1A6DFF' }}
+            style={{ fontSize: '14px', fontWeight: 500, color: 'var(--brand-blue)' }}
           >
             전체보기 &rarr;
           </Link>
         </div>
 
-        {/* Card grid: 1 col mobile → 2 col sm → 3 col lg */}
+        {/* Card grid: 1 col mobile -> 2 col sm -> 3 col lg */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {vehicles.map((vehicle) => {
             const brand = vehicle.trim.generation.carModel.brand
@@ -94,7 +94,7 @@ export async function RentSubscription() {
                 style={{
                   background: '#ffffff',
                   borderRadius: '12px',
-                  border: '1px solid #E8E8E8',
+                  border: '1px solid var(--border-subtle)',
                 }}
               >
                 {/* Car image */}
@@ -145,26 +145,26 @@ export async function RentSubscription() {
                   {/* Car name */}
                   <p
                     className="truncate font-semibold leading-snug"
-                    style={{ fontSize: '15px', color: '#0D0D0D' }}
+                    style={{ fontSize: '15px', color: 'var(--foreground)' }}
                   >
                     {displayName}
                   </p>
 
                   {/* Details */}
-                  <p style={{ fontSize: '12px', color: '#7A7A7A' }}>
+                  <p style={{ fontSize: '12px', color: 'var(--text-caption)' }}>
                     연식 · 무보증금 · 보험포함
                   </p>
 
                   {/* Monthly price */}
                   <p
                     className="font-bold leading-tight tracking-tight"
-                    style={{ fontSize: '20px', color: '#1A6DFF' }}
+                    style={{ fontSize: '20px', color: 'var(--brand-blue)' }}
                   >
                     {formatKRW(monthlyRental, { monthly: true })}
                   </p>
 
                   {/* VAT note */}
-                  <p style={{ fontSize: '11px', color: '#B0B0B0' }}>
+                  <p style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>
                     VAT, 취등록세, 보험료 포함
                   </p>
                 </div>

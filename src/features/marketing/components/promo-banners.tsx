@@ -17,7 +17,7 @@ const PROMOS: PromoBanner[] = [
     title: '내차사기 홈서비스',
     subtitle: '집에서 편하게 차량 배송',
     icon: Truck,
-    gradient: 'from-[#1A6DFF] to-[#0D47A1]',
+    gradient: 'from-brand-blue to-[#0D47A1]',
     href: '/vehicles?delivery=free',
   },
   {
@@ -42,7 +42,7 @@ export function PromoBanners() {
   return (
     <section className="bg-white py-10 md:py-12">
       <div className="mx-auto max-w-7xl px-4">
-        <h2 className="mb-5 text-[24px] font-bold text-[#0D0D0D]">서비스</h2>
+        <h2 className="mb-5 text-[24px] font-bold text-foreground">서비스</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {PROMOS.map((promo) => (
             <Link

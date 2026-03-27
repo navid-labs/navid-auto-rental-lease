@@ -65,6 +65,7 @@ export function MegaMenu() {
                             <li key={link.href}>
                               <Link
                                 href={link.href}
+                                prefetch={false}
                                 className="text-[13px] text-muted-foreground transition-colors hover:text-brand-blue"
                                 onClick={() => setActiveMenu(null)}
                               >

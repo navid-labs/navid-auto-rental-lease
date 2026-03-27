@@ -49,6 +49,7 @@ export function RecommendedVehiclesTabs({ popular, newest, deals }: Props) {
         </div>
         <Link
           href={activeTabConfig.moreHref}
+          prefetch={false}
           className="text-sm font-medium text-brand-blue transition-opacity hover:opacity-70"
         >
           더보기 &rarr;

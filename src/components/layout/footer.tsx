@@ -44,6 +44,7 @@ function FooterLinkColumn({
           <li key={href}>
             <Link
               href={href}
+              prefetch={false}
               className={`footer-link text-[13px] leading-none${bold ? ' !font-bold !text-white' : ''}`}
             >
               {label}

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Hardening
-status: completed
-stopped_at: Phase 25 context gathered
-last_updated: "2026-03-27T07:35:51.798Z"
-last_activity: 2026-03-27 — Completed 24-01 Dynamic Import Layout Components (Phase 24 complete)
+status: in-progress
+stopped_at: Completed 25-01-PLAN.md
+last_updated: "2026-03-27T07:49:10Z"
+last_activity: 2026-03-27 — Completed 25-01 API Route Handler Tests
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 11
-  completed_plans: 11
-  percent: 95
+  total_plans: 14
+  completed_plans: 12
+  percent: 86
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-27)
 
 **Core value:** 고객이 중고차를 온라인에서 검색하고, 비교하고, 비대면으로 렌탈/리스 계약까지 완료할 수 있는 원스톱 경험
-**Current focus:** Phase 24 - Performance Optimization
+**Current focus:** Phase 25 - Code Quality & CSP
 
 ## Current Position
 
-Phase: 24 (fourth of 5 in v3.0) — Performance Optimization [COMPLETE]
-Plan: 2 of 2 in current phase (all plans complete, phase done)
-Status: Phase 24 complete, ready for Phase 25
-Last activity: 2026-03-27 — Completed 24-01 Dynamic Import Layout Components (Phase 24 complete)
+Phase: 25 (fifth of 5 in v3.0) — Code Quality & CSP
+Plan: 1 of 3 in current phase (25-01 complete)
+Status: 25-01 API Route Handler Tests complete, ready for 25-02
+Last activity: 2026-03-27 — Completed 25-01 API Route Handler Tests
 
-Progress: [█████████▌] 95%
+Progress: [████████▌░] 86%
 
 ## Performance Metrics
 
@@ -42,6 +42,7 @@ Progress: [█████████▌] 95%
 - 23-04: 3min, 2 tasks, 0 files (verification only)
 - 24-01: 5min, 2 tasks, 2 files
 - 24-02: 2min, 2 tasks, 5 files
+- 25-01: 4min, 1 task, 7 files
 
 ## Accumulated Context
 
@@ -72,6 +73,8 @@ Recent decisions affecting current work:
 - [24-01]: Client wrapper pattern (DynamicOverlays) for next/dynamic ssr:false -- Next.js 16 disallows ssr:false in Server Components
 - [24-02]: ISR revalidate=60 for homepage, revalidate=300 for vehicle detail -- balances freshness with TTFB
 - [24-02]: prefetch={false} on footer (12), mega-menu deep links (~14), "more" link (1) -- ~27 requests eliminated
+- [25-01]: vi.hoisted + vi.mock pattern for API route handler tests -- direct handler import, mock mutations at module boundary
+- [25-01]: Shared API test helpers in tests/helpers/api-test-utils.ts -- MOCK_ADMIN/DEALER/CUSTOMER + request builders
 
 ### Pending Todos
 
@@ -86,6 +89,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-27T07:35:51.796Z
-Stopped at: Phase 25 context gathered
+Last session: 2026-03-27T07:49:10Z
+Stopped at: Completed 25-01-PLAN.md
 Resume file: .planning/phases/25-code-quality-csp/25-CONTEXT.md

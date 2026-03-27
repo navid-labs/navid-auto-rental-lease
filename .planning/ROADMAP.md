@@ -58,7 +58,7 @@
 
 **Milestone Goal:** gstack 종합 피드백(보안/성능/디자인/품질) 전면 개선 -- 프로덕션 수준 품질 관문
 
-- [ ] **Phase 21: Infrastructure Foundation** - Proxy rename, security headers, font fix, CSS tokens, test tooling
+- [x] **Phase 21: Infrastructure Foundation** - Proxy rename, security headers, font fix, CSS tokens, test tooling (completed 2026-03-27)
 - [ ] **Phase 22: Security Fixes** - Auth guards, password hashing, upload validation
 - [ ] **Phase 23: Design System Migration** - Hex-to-CSS variables, brand color, accessibility
 - [ ] **Phase 24: Performance Optimization** - Bundle analysis, dynamic imports, RSC prefetch, ISR
@@ -155,7 +155,7 @@ Plans:
 | 10-12 | v1.1 | 8/8 | Complete | 2026-03-10 |
 | 13-17 | v2.0 | 18/18 | Complete | 2026-03-23 |
 | 18-20 | v2.1 | 4/4 | Complete | 2026-03-23 |
-| 21. Infrastructure Foundation | 2/3 | In Progress|  | - |
+| 21. Infrastructure Foundation | 3/3 | Complete   | 2026-03-27 | - |
 | 22. Security Fixes | v3.0 | 0/2 | Not started | - |
 | 23. Design System Migration | v3.0 | 0/3 | Not started | - |
 | 24. Performance Optimization | v3.0 | 0/2 | Not started | - |

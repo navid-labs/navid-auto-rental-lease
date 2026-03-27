@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Hardening
-status: executing
-stopped_at: Completed 21-02-PLAN.md
-last_updated: "2026-03-27T05:13:03.296Z"
-last_activity: 2026-03-27 — Completed 21-02 Font & Token Foundation
+status: completed
+stopped_at: Completed 21-03-PLAN.md (Phase 21 complete)
+last_updated: "2026-03-27T05:14:26.383Z"
+last_activity: 2026-03-27 — Completed 21-03 Coverage Tooling
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 3
   completed_plans: 3
-  percent: 67
+  percent: 20
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 
 ## Current Position
 
-Phase: 21 (first of 5 in v3.0) — Infrastructure Foundation
-Plan: 2 of 3 in current phase
-Status: Executing
-Last activity: 2026-03-27 — Completed 21-02 Font & Token Foundation
+Phase: 21 (first of 5 in v3.0) — Infrastructure Foundation [COMPLETE]
+Plan: 3 of 3 in current phase (all complete)
+Status: Phase 21 complete, ready for Phase 22
+Last activity: 2026-03-27 — Completed 21-03 Coverage Tooling
 
-Progress: [███████░░░] 67%
+Progress: [██░░░░░░░░] 20%
 
 ## Performance Metrics
 
@@ -51,6 +51,9 @@ Recent decisions affecting current work:
 - [Phase 21]: Security headers applied globally via next.config.ts headers() -- 6 headers on all routes
 - [21-02]: Pretendard CDN dynamic subset replaces @fontsource (3MB to <300KB)
 - [21-02]: 9 brand CSS tokens defined for Phase 23 migration
+- [21-03]: v8 coverage provider over Istanbul for speed; no thresholds (baseline only)
+- [21-03]: Baseline coverage: Stmts 15.34%, Branches 13.23%, Funcs 11.71%, Lines 15.64%
+- [Phase 21]: v8 coverage provider over Istanbul; baseline 15.64% line coverage, no thresholds enforced
 
 ### Pending Todos
 
@@ -65,6 +68,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-27T05:13:03.294Z
-Stopped at: Completed 21-02-PLAN.md
+Last session: 2026-03-27T05:11:53Z
+Stopped at: Completed 21-03-PLAN.md (Phase 21 complete)
 Resume file: None

@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Hardening
 status: completed
-stopped_at: Completed 21-03-PLAN.md (Phase 21 complete)
-last_updated: "2026-03-27T05:18:56.393Z"
+stopped_at: Phase 22 context gathered
+last_updated: "2026-03-27T05:30:25.450Z"
 last_activity: 2026-03-27 — Completed 21-03 Coverage Tooling
 progress:
   total_phases: 5
@@ -68,6 +68,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-27T05:11:53Z
-Stopped at: Completed 21-03-PLAN.md (Phase 21 complete)
-Resume file: None
+Last session: 2026-03-27T05:30:25.448Z
+Stopped at: Phase 22 context gathered
+Resume file: .planning/phases/22-security-fixes/22-CONTEXT.md

@@ -76,12 +76,12 @@
   3. Korean text on the homepage renders in Pretendard font (not system fallback) and font file download is under 300KB per page load
   4. `globals.css` contains named CSS custom properties for all core brand colors, and the `@theme inline` block defines semantic tokens
   5. Running `bun run test:coverage` produces a coverage report with baseline percentages for statements, branches, functions, and lines
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 21-01: TBD
-- [ ] 21-02: TBD
-- [ ] 21-03: TBD
+- [ ] 21-01-PLAN.md -- Proxy rename (middleware.ts to proxy.ts) + security headers in next.config.ts
+- [ ] 21-02-PLAN.md -- Pretendard CDN font migration + brand CSS token definitions
+- [ ] 21-03-PLAN.md -- @vitest/coverage-v8 install + baseline coverage measurement
 
 ### Phase 22: Security Fixes
 **Goal**: All known security vulnerabilities are patched -- every write API endpoint requires authentication, passwords are hashed, and file uploads are validated server-side

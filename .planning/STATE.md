@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Hardening
 status: completed
-stopped_at: Completed 24-01-PLAN.md (Phase 24 complete)
-last_updated: "2026-03-27T07:34:34.846Z"
+stopped_at: Phase 25 context gathered
+last_updated: "2026-03-27T07:35:51.798Z"
 last_activity: 2026-03-27 — Completed 24-01 Dynamic Import Layout Components (Phase 24 complete)
 progress:
   total_phases: 5
@@ -86,6 +86,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-27T07:30:48.413Z
-Stopped at: Completed 24-01-PLAN.md (Phase 24 complete)
-Resume file: None
+Last session: 2026-03-27T07:35:51.796Z
+Stopped at: Phase 25 context gathered
+Resume file: .planning/phases/25-code-quality-csp/25-CONTEXT.md

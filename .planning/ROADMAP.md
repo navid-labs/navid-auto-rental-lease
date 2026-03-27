@@ -124,11 +124,11 @@ Plans:
   2. Recharts and @react-pdf/renderer are loaded only when their respective pages/components are rendered (verified by checking they do not appear in the shared bundle)
   3. Homepage uses ISR with `revalidate: 60` and vehicle detail pages use ISR with `revalidate: 300` (verified by checking response headers for `x-nextjs-cache`)
   4. Homepage renders without triggering 59 simultaneous prefetch requests (prefetch={false} applied to non-critical links)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 24-01: TBD
-- [ ] 24-02: TBD
+- [ ] 24-01-PLAN.md -- Dynamic import framer-motion layout components (FloatingCTA, RecentlyViewedDrawer, ComparisonBar)
+- [ ] 24-02-PLAN.md -- ISR revalidation on public pages + prefetch={false} on non-critical links
 
 ### Phase 25: Code Quality + CSP
 **Goal**: Test coverage reaches 30%+ with meaningful API route tests, accumulated tech debt is cleaned up, and Content-Security-Policy is deployed in report-only mode to prepare for future enforcement

@@ -8,6 +8,7 @@ const REQUIRED_HEADERS = [
   'Referrer-Policy',
   'X-DNS-Prefetch-Control',
   'Permissions-Policy',
+  'Content-Security-Policy-Report-Only',
 ]
 
 describe('security headers in next.config.ts', () => {
@@ -21,7 +22,7 @@ describe('security headers in next.config.ts', () => {
     expect(result[0].source).toBe('/(.*)')
   })
 
-  it('includes all 6 required security headers', async () => {
+  it('includes all 7 required security headers', async () => {
     const result = await nextConfig.headers!()
     const headerKeys = result[0].headers.map((h) => h.key)
 
@@ -54,5 +55,21 @@ describe('security headers in next.config.ts', () => {
     expect(pp?.value).toContain('camera=()')
     expect(pp?.value).toContain('microphone=()')
     expect(pp?.value).toContain('geolocation=()')
+  })
+
+  it('includes Content-Security-Policy-Report-Only header', async () => {
+    const result = await nextConfig.headers!()
+    const csp = result[0].headers.find((h) => h.key === 'Content-Security-Policy-Report-Only')
+    expect(csp).toBeDefined()
+    expect(csp!.value).toContain("default-src 'self'")
+    expect(csp!.value).toContain("report-uri /api/csp-report")
+  })
+
+  it('CSP allows Supabase and Pretendard CDN origins', async () => {
+    const result = await nextConfig.headers!()
+    const csp = result[0].headers.find((h) => h.key === 'Content-Security-Policy-Report-Only')
+    expect(csp!.value).toContain('https://*.supabase.co')
+    expect(csp!.value).toContain('https://cdn.jsdelivr.net')
+    expect(csp!.value).toContain('wss://*.supabase.co')
   })
 })

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Hardening
-status: planning
-stopped_at: Phase 21 context gathered
-last_updated: "2026-03-27T03:53:19.017Z"
-last_activity: 2026-03-27 — Roadmap created for v3.0 Hardening
+status: executing
+stopped_at: Completed 21-02-PLAN.md
+last_updated: "2026-03-27T05:10:18.759Z"
+last_activity: 2026-03-27 — Completed 21-02 Font & Token Foundation
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 3
+  completed_plans: 2
+  percent: 67
 ---
 
 # Project State
@@ -26,16 +26,16 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 ## Current Position
 
 Phase: 21 (first of 5 in v3.0) — Infrastructure Foundation
-Plan: 0 of 3 in current phase
-Status: Ready to plan
-Last activity: 2026-03-27 — Roadmap created for v3.0 Hardening
+Plan: 2 of 3 in current phase
+Status: Executing
+Last activity: 2026-03-27 — Completed 21-02 Font & Token Foundation
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
 **Velocity (all milestones):**
-- Total plans completed: 52
+- Total plans completed: 54
 - Total execution time: ~3 hours across 4 milestones
 
 ## Accumulated Context
@@ -47,6 +47,8 @@ Recent decisions affecting current work:
 
 - [v3.0]: Brand blue unified to #3B82F6 (per REQUIREMENTS.md DS-01)
 - [v3.0]: 5-phase hardening structure: Infrastructure -> Security -> Design System -> Performance -> Code Quality
+- [Phase 21]: Removed middleware matcher config -- Next.js 16 proxy runs on all routes by default
+- [Phase 21]: Security headers applied globally via next.config.ts headers() -- 6 headers on all routes
 
 ### Pending Todos
 
@@ -61,6 +63,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-27T03:53:19.015Z
-Stopped at: Phase 21 context gathered
-Resume file: .planning/phases/21-infrastructure-foundation/21-CONTEXT.md
+Last session: 2026-03-27T05:10:18.758Z
+Stopped at: Completed 21-01-PLAN.md
+Resume file: None

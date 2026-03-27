@@ -95,7 +95,7 @@ export function SellHeroSection() {
           <motion.div variants={fadeUpVariants}>
             <span
               className="inline-block rounded-full px-4 py-1.5 text-[13px] font-semibold text-white"
-              style={{ background: '#1A6DFF' }}
+              style={{ background: 'var(--brand-blue)' }}
             >
               빠르고 간편한 비대면 내차팔기
             </span>
@@ -128,14 +128,14 @@ export function SellHeroSection() {
             <div className="relative flex-1">
               <Search
                 className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2"
-                style={{ color: '#9999AA' }}
+                style={{ color: 'var(--text-tertiary)' }}
               />
               <input
                 type="text"
                 value={plate}
                 onChange={(e) => setPlate(e.target.value)}
                 placeholder="차량 번호를 입력하세요 (예: 12가3456)"
-                className="w-full rounded-lg bg-white pl-11 pr-4 text-[15px] text-[#0D0D0D] outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 placeholder:text-[#AAAAAA]"
+                className="w-full rounded-lg bg-white pl-11 pr-4 text-[15px] text-foreground outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 placeholder:text-text-tertiary"
                 style={{ height: '52px', borderRadius: '10px' }}
               />
             </div>
@@ -143,7 +143,7 @@ export function SellHeroSection() {
               type="submit"
               className="flex shrink-0 items-center justify-center rounded-lg font-semibold text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
               style={{
-                background: '#1A6DFF',
+                background: 'var(--brand-blue)',
                 height: '52px',
                 paddingLeft: '28px',
                 paddingRight: '28px',
@@ -216,10 +216,10 @@ export function BonusSection() {
           >
             최대 30만원 추가 지급
           </span>
-          <h2 className="text-[28px] font-bold text-[#0D0D0D]">
+          <h2 className="text-[28px] font-bold text-foreground">
             Navid Auto에서 팔면 더 받습니다
           </h2>
-          <p className="text-[15px] text-[#7A7A7A]">
+          <p className="text-[15px] text-text-caption">
             경쟁사 대비 최대 30만원까지 추가 보너스를 드립니다
           </p>
         </div>
@@ -230,7 +230,7 @@ export function BonusSection() {
             <div
               key={title}
               className="flex flex-col gap-4 rounded-xl border bg-white p-8"
-              style={{ borderColor: '#E4E4E7' }}
+              style={{ borderColor: 'var(--border-subtle)' }}
             >
               {/* Icon circle */}
               <div
@@ -241,8 +241,8 @@ export function BonusSection() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <p className="text-[17px] font-semibold text-[#0D0D0D]">{title}</p>
-                <p className="whitespace-pre-line text-[14px] leading-relaxed text-[#7A7A7A]">
+                <p className="text-[17px] font-semibold text-foreground">{title}</p>
+                <p className="whitespace-pre-line text-[14px] leading-relaxed text-text-caption">
                   {description}
                 </p>
               </div>
@@ -287,12 +287,12 @@ const STEPS = [
 
 export function ProcessSection() {
   return (
-    <section style={{ background: '#F9FAFB', padding: '60px 0' }}>
+    <section style={{ background: 'var(--secondary)', padding: '60px 0' }}>
       <div className="mx-auto max-w-7xl px-4 md:px-[120px]">
         {/* Header */}
         <div className="mb-12 flex flex-col items-center gap-3 text-center">
-          <h2 className="text-[28px] font-bold text-[#0D0D0D]">간단 4단계로 완료</h2>
-          <p className="text-[15px] text-[#7A7A7A]">
+          <h2 className="text-[28px] font-bold text-foreground">간단 4단계로 완료</h2>
+          <p className="text-[15px] text-text-caption">
             복잡한 절차 없이, 온라인에서 시작하고 방문 없이 끝냅니다
           </p>
         </div>
@@ -304,14 +304,14 @@ export function ProcessSection() {
               {/* Number circle */}
               <div
                 className="flex h-12 w-12 items-center justify-center rounded-full text-[18px] font-bold text-white"
-                style={{ background: '#1A6DFF' }}
+                style={{ background: 'var(--brand-blue)' }}
               >
                 {number}
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <p className="text-[16px] font-semibold text-[#0D0D0D]">{title}</p>
-                <p className="whitespace-pre-line text-[14px] leading-relaxed text-[#7A7A7A]">
+                <p className="text-[16px] font-semibold text-foreground">{title}</p>
+                <p className="whitespace-pre-line text-[14px] leading-relaxed text-text-caption">
                   {description}
                 </p>
               </div>
@@ -356,18 +356,18 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
   return (
     <div
       className="overflow-hidden rounded-xl border"
-      style={{ borderColor: '#E4E4E7' }}
+      style={{ borderColor: 'var(--border-subtle)' }}
     >
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition-colors hover:bg-[#F9FAFB]"
+        className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition-colors hover:bg-secondary"
         aria-expanded={open}
       >
-        <span className="text-[15px] font-semibold text-[#0D0D0D]">{question}</span>
+        <span className="text-[15px] font-semibold text-foreground">{question}</span>
         <ChevronDown
           className="h-5 w-5 shrink-0 transition-transform duration-200"
           style={{
-            color: '#7A7A7A',
+            color: 'var(--text-caption)',
             transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
           }}
         />
@@ -376,9 +376,9 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
       {open && (
         <div
           className="border-t px-6 py-5"
-          style={{ borderColor: '#E4E4E7', background: '#FAFAFA' }}
+          style={{ borderColor: 'var(--border-subtle)', background: 'var(--secondary)' }}
         >
-          <p className="text-[14px] leading-relaxed text-[#555555]">{answer}</p>
+          <p className="text-[14px] leading-relaxed text-muted-foreground">{answer}</p>
         </div>
       )}
     </div>
@@ -390,7 +390,7 @@ export function FaqSection() {
     <section className="bg-white" style={{ padding: '48px 0' }}>
       <div className="mx-auto max-w-7xl px-4 md:px-[120px]">
         {/* Header */}
-        <h2 className="mb-8 text-center text-[24px] font-bold text-[#0D0D0D]">
+        <h2 className="mb-8 text-center text-[24px] font-bold text-foreground">
           자주 묻는 질문
         </h2>
 

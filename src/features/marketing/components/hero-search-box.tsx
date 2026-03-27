@@ -74,12 +74,12 @@ export function HeroSearchBox() {
   return (
     <section className="bg-white py-10 md:py-12">
       <div className="mx-auto max-w-3xl px-4">
-        <h2 className="mb-8 text-center text-[18px] font-bold text-[#0D0D0D]">
+        <h2 className="mb-8 text-center text-[18px] font-bold text-foreground">
           어떤 차를 찾으세요?
         </h2>
-        <div className="rounded-2xl border border-[#E8E8E8] bg-white shadow-sm">
+        <div className="rounded-2xl border border-border-subtle bg-white shadow-sm">
           {/* Tabs */}
-          <div className="flex border-b border-[#E0E0E0]">
+          <div className="flex border-b border-border-subtle">
             {TABS.map((tab) => {
               const isActive = activeTab === tab
               return (
@@ -89,8 +89,8 @@ export function HeroSearchBox() {
                   className="flex-1 px-4 py-3 text-sm font-semibold transition-colors first:rounded-tl-2xl last:rounded-tr-2xl"
                   style={
                     isActive
-                      ? { background: '#1A6DFF', color: '#ffffff' }
-                      : { background: '#F4F4F4', color: '#555555' }
+                      ? { background: 'var(--brand-blue)', color: 'white' }
+                      : { background: 'var(--surface-hover)', color: 'var(--muted-foreground)' }
                   }
                 >
                   {tab}
@@ -108,27 +108,27 @@ export function HeroSearchBox() {
                   <select
                     value={selectedBrand}
                     onChange={(e) => handleBrandChange(e.target.value)}
-                    className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 transition focus:border-[#1A6DFF]"
+                    className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 transition focus:border-brand-blue"
                     style={{
-                      background: '#F8F8F8',
-                      borderColor: '#E0E0E0',
-                      color: selectedBrand ? '#0D0D0D' : '#999999',
+                      background: 'var(--secondary)',
+                      borderColor: 'var(--border-subtle)',
+                      color: selectedBrand ? 'var(--foreground)' : 'var(--text-tertiary)',
                       height: '44px',
                       borderRadius: '8px',
                     }}
                   >
-                    <option value="" style={{ color: '#999999' }}>
+                    <option value="" style={{ color: 'var(--text-tertiary)' }}>
                       브랜드 선택
                     </option>
                     {brands.map((b) => (
-                      <option key={b.id} value={b.id} style={{ color: '#0D0D0D' }}>
+                      <option key={b.id} value={b.id} style={{ color: 'var(--foreground)' }}>
                         {b.nameKo || b.name}
                       </option>
                     ))}
                   </select>
                   <ChevronDown
                     className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2"
-                    style={{ color: '#999999' }}
+                    style={{ color: 'var(--text-tertiary)' }}
                   />
                 </div>
 
@@ -137,27 +137,27 @@ export function HeroSearchBox() {
                     value={selectedModel}
                     onChange={(e) => setSelectedModel(e.target.value)}
                     disabled={!selectedBrand || isPending}
-                    className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 transition focus:border-[#1A6DFF] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 transition focus:border-brand-blue disabled:cursor-not-allowed disabled:opacity-50"
                     style={{
-                      background: '#F8F8F8',
-                      borderColor: '#E0E0E0',
-                      color: selectedModel ? '#0D0D0D' : '#999999',
+                      background: 'var(--secondary)',
+                      borderColor: 'var(--border-subtle)',
+                      color: selectedModel ? 'var(--foreground)' : 'var(--text-tertiary)',
                       height: '44px',
                       borderRadius: '8px',
                     }}
                   >
-                    <option value="" style={{ color: '#999999' }}>
+                    <option value="" style={{ color: 'var(--text-tertiary)' }}>
                       {isPending ? '로딩 중...' : '모델 선택'}
                     </option>
                     {models.map((m) => (
-                      <option key={m.id} value={m.id} style={{ color: '#0D0D0D' }}>
+                      <option key={m.id} value={m.id} style={{ color: 'var(--foreground)' }}>
                         {m.nameKo || m.name}
                       </option>
                     ))}
                   </select>
                   <ChevronDown
                     className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2"
-                    style={{ color: '#999999' }}
+                    style={{ color: 'var(--text-tertiary)' }}
                   />
                 </div>
               </>
@@ -169,27 +169,27 @@ export function HeroSearchBox() {
                 <select
                   value={selectedBudget}
                   onChange={(e) => setSelectedBudget(e.target.value)}
-                  className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 transition focus:border-[#1A6DFF]"
+                  className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 transition focus:border-brand-blue"
                   style={{
-                    background: '#F8F8F8',
-                    borderColor: '#E0E0E0',
-                    color: selectedBudget ? '#0D0D0D' : '#999999',
+                    background: 'var(--secondary)',
+                    borderColor: 'var(--border-subtle)',
+                    color: selectedBudget ? 'var(--foreground)' : 'var(--text-tertiary)',
                     height: '44px',
                     borderRadius: '8px',
                   }}
                 >
-                  <option value="" style={{ color: '#999999' }}>
+                  <option value="" style={{ color: 'var(--text-tertiary)' }}>
                     월 예산 선택
                   </option>
                   {BUDGET_RANGES.map((r) => (
-                    <option key={r.value} value={r.value} style={{ color: '#0D0D0D' }}>
+                    <option key={r.value} value={r.value} style={{ color: 'var(--foreground)' }}>
                       {r.label}
                     </option>
                   ))}
                 </select>
                 <ChevronDown
                   className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2"
-                  style={{ color: '#999999' }}
+                  style={{ color: 'var(--text-tertiary)' }}
                 />
               </div>
             )}
@@ -200,27 +200,27 @@ export function HeroSearchBox() {
                 <select
                   value={selectedBodyType}
                   onChange={(e) => setSelectedBodyType(e.target.value)}
-                  className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 transition focus:border-[#1A6DFF]"
+                  className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 transition focus:border-brand-blue"
                   style={{
-                    background: '#F8F8F8',
-                    borderColor: '#E0E0E0',
-                    color: selectedBodyType ? '#0D0D0D' : '#999999',
+                    background: 'var(--secondary)',
+                    borderColor: 'var(--border-subtle)',
+                    color: selectedBodyType ? 'var(--foreground)' : 'var(--text-tertiary)',
                     height: '44px',
                     borderRadius: '8px',
                   }}
                 >
-                  <option value="" style={{ color: '#999999' }}>
+                  <option value="" style={{ color: 'var(--text-tertiary)' }}>
                     차종 선택
                   </option>
                   {BODY_TYPES.map((bt) => (
-                    <option key={bt} value={bt} style={{ color: '#0D0D0D' }}>
+                    <option key={bt} value={bt} style={{ color: 'var(--foreground)' }}>
                       {bt}
                     </option>
                   ))}
                 </select>
                 <ChevronDown
                   className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2"
-                  style={{ color: '#999999' }}
+                  style={{ color: 'var(--text-tertiary)' }}
                 />
               </div>
             )}
@@ -230,7 +230,7 @@ export function HeroSearchBox() {
               onClick={handleSearch}
               className="flex shrink-0 items-center justify-center gap-2 rounded-lg font-semibold text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
               style={{
-                background: '#1A6DFF',
+                background: 'var(--brand-blue)',
                 width: '140px',
                 height: '44px',
                 borderRadius: '8px',

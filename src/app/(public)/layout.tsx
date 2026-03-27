@@ -1,8 +1,6 @@
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
-import { FloatingCTA } from '@/components/layout/floating-cta'
-import { RecentlyViewedDrawer } from '@/components/layout/recently-viewed-drawer'
-import { ComparisonBar } from '@/components/layout/comparison-bar'
+import { DynamicOverlays } from '@/components/layout/dynamic-overlays'
 import { StoreHydration } from '@/components/layout/store-hydration'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 
@@ -19,9 +17,7 @@ export default function PublicLayout({
         <main className="flex-1 pt-6">{children}</main>
         <Footer />
       </div>
-      <FloatingCTA />
-      <RecentlyViewedDrawer />
-      <ComparisonBar />
+      <DynamicOverlays />
     </NuqsAdapter>
   )
 }

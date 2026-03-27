@@ -11,6 +11,9 @@ export const dynamic = 'force-dynamic'
 export default function HomePage() {
   return (
     <>
+      {/* WCAG 1.3.1: Semantic h1 for heading hierarchy */}
+      <h1 className="sr-only">Navid Auto - 중고차 렌탈 리스</h1>
+
       {/* 1. Hero Banner Carousel */}
       <div className="-mt-6">
         <HeroBanner />

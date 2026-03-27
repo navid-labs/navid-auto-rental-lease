@@ -7,7 +7,7 @@ import { BreadcrumbNav } from '@/components/layout/breadcrumb-nav'
 import type { Metadata } from 'next'
 import type { VehicleDetailData, VehicleWithDetails } from '@/features/vehicles/types'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 const vehicleInclude = {
   trim: {

@@ -6,7 +6,7 @@ import { RecommendedVehicles } from '@/features/marketing/components/recommended
 import { PromoBanners } from '@/features/marketing/components/promo-banners'
 import { PartnerLogos } from '@/features/marketing/components/partner-logos'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 export default function HomePage() {
   return (

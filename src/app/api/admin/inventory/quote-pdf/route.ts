@@ -1,9 +1,13 @@
 import { renderToBuffer } from '@react-pdf/renderer'
 import { createElement } from 'react'
+import { requireAdmin } from '@/lib/api/auth'
 import { QuotePDF } from '@/features/inventory/components/quote-pdf'
 import type { QuotePDFData } from '@/features/inventory/components/quote-pdf'
 
 export async function POST(request: Request) {
+  const auth = await requireAdmin()
+  if (auth.error) return auth.error
+
   try {
     const data: QuotePDFData = await request.json()
 

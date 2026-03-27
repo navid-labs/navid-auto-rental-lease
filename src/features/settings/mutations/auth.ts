@@ -13,9 +13,25 @@ export async function verifySettingsPasswordMutation(
     where: { key: 'settings_password' },
   });
 
-  const correctPassword = record?.value ?? DEFAULT_PASSWORD;
+  if (record) {
+    // Argon2id hashed password: use Bun.password.verify
+    if (record.value.startsWith('$argon2')) {
+      const isValid = await Bun.password.verify(password, record.value);
+      if (!isValid) {
+        return { error: '비밀번호가 일치하지 않습니다.' };
+      }
+      return { success: true };
+    }
 
-  if (password !== correctPassword) {
+    // Backwards compatibility: plaintext stored password
+    if (password !== record.value) {
+      return { error: '비밀번호가 일치하지 않습니다.' };
+    }
+    return { success: true };
+  }
+
+  // No record in DB: compare against default password
+  if (password !== DEFAULT_PASSWORD) {
     return { error: '비밀번호가 일치하지 않습니다.' };
   }
 

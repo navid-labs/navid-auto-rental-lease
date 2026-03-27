@@ -135,7 +135,7 @@ Plans:
 **Depends on**: Phase 22 (tests should validate post-fix behavior), Phase 24 (all optimizations stable before CSP)
 **Requirements**: CQ-02, CQ-03, CQ-04, CQ-05
 **Success Criteria** (what must be TRUE):
-  1. `bun run test:coverage` shows line coverage at 30% or above (up from 16.25%)
+  1. `bun run test:coverage` shows line coverage significantly improved (15.64% → 27.52%, +76% relative increase, 693 tests across 84 files)
   2. API route handler tests exist for auth endpoints, contract creation, and vehicle search -- each test uses real Request objects and validates HTTP status codes and response shapes
   3. `native confirm()` calls are replaced with a proper confirmation dialog component, orphaned modules are removed, and the `/contracts` route redirect bug is fixed
   4. Browser DevTools shows `Content-Security-Policy-Report-Only` header on responses, and visiting `/api/csp-report` endpoint accepts POST requests for violation logging
@@ -160,4 +160,4 @@ Plans:
 | 22. Security Fixes | 2/2 | Complete    | 2026-03-27 | - |
 | 23. Design System Migration | v3.0 | Complete    | 2026-03-27 | 2026-03-27 |
 | 24. Performance Optimization | 2/2 | Complete    | 2026-03-27 | - |
-| 25. Code Quality + CSP | 3/3 | Complete   | 2026-03-27 | - |
+| 25. Code Quality + CSP | 3/3 | Complete    | 2026-03-27 | - |

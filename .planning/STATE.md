@@ -4,13 +4,13 @@ milestone: v3.0
 milestone_name: Hardening
 status: executing
 stopped_at: Completed 21-02-PLAN.md
-last_updated: "2026-03-27T05:10:18.759Z"
+last_updated: "2026-03-27T05:13:03.296Z"
 last_activity: 2026-03-27 — Completed 21-02 Font & Token Foundation
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
   percent: 67
 ---
 
@@ -49,6 +49,8 @@ Recent decisions affecting current work:
 - [v3.0]: 5-phase hardening structure: Infrastructure -> Security -> Design System -> Performance -> Code Quality
 - [Phase 21]: Removed middleware matcher config -- Next.js 16 proxy runs on all routes by default
 - [Phase 21]: Security headers applied globally via next.config.ts headers() -- 6 headers on all routes
+- [21-02]: Pretendard CDN dynamic subset replaces @fontsource (3MB to <300KB)
+- [21-02]: 9 brand CSS tokens defined for Phase 23 migration
 
 ### Pending Todos
 
@@ -63,6 +65,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-27T05:10:18.758Z
-Stopped at: Completed 21-01-PLAN.md
+Last session: 2026-03-27T05:13:03.294Z
+Stopped at: Completed 21-02-PLAN.md
 Resume file: None

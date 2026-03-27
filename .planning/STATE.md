@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Hardening
-status: defining_requirements
+status: ready_to_plan
 stopped_at: null
-last_updated: "2026-03-27T03:55:00Z"
-last_activity: 2026-03-27 -- v3.0 Hardening milestone started
+last_updated: "2026-03-27T04:30:00Z"
+last_activity: 2026-03-27 -- Roadmap created for v3.0 Hardening (5 phases, 22 requirements)
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
-  total_plans: 0
+  total_plans: 13
   completed_plans: 0
   percent: 0
 ---
@@ -21,14 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-27)
 
 **Core value:** 고객이 중고차를 온라인에서 검색하고, 비교하고, 비대면으로 렌탈/리스 계약까지 완료할 수 있는 원스톱 경험
-**Current focus:** v3.0 Hardening — 보안/성능/디자인/품질 전면 개선
+**Current focus:** Phase 21 - Infrastructure Foundation
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-27 — Milestone v3.0 started
+Phase: 21 (first of 5 in v3.0) — Infrastructure Foundation
+Plan: 0 of 3 in current phase
+Status: Ready to plan
+Last activity: 2026-03-27 — Roadmap created for v3.0 Hardening
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -41,6 +43,10 @@ Last activity: 2026-03-27 — Milestone v3.0 started
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
+Recent decisions affecting current work:
+
+- [v3.0]: Brand blue unified to #3B82F6 (per REQUIREMENTS.md DS-01)
+- [v3.0]: 5-phase hardening structure: Infrastructure -> Security -> Design System -> Performance -> Code Quality
 
 ### Pending Todos
 
@@ -50,9 +56,11 @@ None.
 
 - PDF generation Vercel serverless timeout -- carried from v1.0
 - Similar vehicles query fetches 8 but renders 6 (minor DB waste) -- from v2.1
+- Rate limiting approach depends on Vercel plan tier (WAF vs @upstash/ratelimit) -- deferred to v4.0+
+- CSP `img-src`/`connect-src` allowlist needs enumeration from actual network traffic -- Phase 25
 
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Defining v3.0 requirements
+Stopped at: Roadmap created, ready to plan Phase 21
 Resume file: None

@@ -103,7 +103,7 @@ export function PricingCalculator({ vehicle, residualRate }: PricingCalculatorPr
                   setManualPrice(e.target.value)
                   setDeposit(0) // reset deposit on price change
                 }}
-                className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-accent focus:ring-1 focus:ring-accent/30"
+                className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 transition-colors focus:border-accent"
               />
               <span className="shrink-0 text-sm text-muted-foreground">만원</span>
             </div>

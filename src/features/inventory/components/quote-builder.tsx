@@ -149,7 +149,7 @@ export function QuoteBuilder({ selectedVehicles, onClose }: Props) {
                 </label>
                 <select
                   {...register('leasePeriodMonths', { valueAsNumber: true })}
-                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus:border-blue-500"
                 >
                   {LEASE_PERIOD_OPTIONS.map((m) => (
                     <option key={m} value={m}>
@@ -169,7 +169,7 @@ export function QuoteBuilder({ selectedVehicles, onClose }: Props) {
                 </label>
                 <select
                   {...register('residualMethod')}
-                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus:border-blue-500"
                 >
                   <option value="VEHICLE_PRICE">차량가 기준</option>
                   <option value="ACQUISITION_COST">취득원가 기준</option>
@@ -190,7 +190,7 @@ export function QuoteBuilder({ selectedVehicles, onClose }: Props) {
                     setValueAs: (v: string) => Number(v) / 100,
                   })}
                   defaultValue={40}
-                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus:border-blue-500"
                 />
                 {errors.residualRate && (
                   <p className="mt-1 text-xs text-red-500">{errors.residualRate.message}</p>
@@ -211,7 +211,7 @@ export function QuoteBuilder({ selectedVehicles, onClose }: Props) {
                     setValueAs: (v: string) => Number(v) / 100,
                   })}
                   defaultValue={30}
-                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus:border-blue-500"
                 />
                 {errors.depositRate && (
                   <p className="mt-1 text-xs text-red-500">{errors.depositRate.message}</p>
@@ -228,7 +228,7 @@ export function QuoteBuilder({ selectedVehicles, onClose }: Props) {
                   step="10000"
                   min="0"
                   {...register('advancePayment', { valueAsNumber: true })}
-                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus:border-blue-500"
                 />
                 {errors.advancePayment && (
                   <p className="mt-1 text-xs text-red-500">{errors.advancePayment.message}</p>
@@ -242,7 +242,7 @@ export function QuoteBuilder({ selectedVehicles, onClose }: Props) {
                 </label>
                 <select
                   {...register('creditGroup', { valueAsNumber: true })}
-                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus:border-blue-500"
                 >
                   <option value={1}>1등급 (우수)</option>
                   <option value={2}>2등급 (양호)</option>

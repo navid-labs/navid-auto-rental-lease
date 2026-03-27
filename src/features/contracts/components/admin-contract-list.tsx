@@ -343,7 +343,7 @@ export function AdminContractList({ contracts }: AdminContractListProps) {
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
               placeholder="반려 사유를 입력하세요..."
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus:border-primary"
               rows={3}
             />
           </div>

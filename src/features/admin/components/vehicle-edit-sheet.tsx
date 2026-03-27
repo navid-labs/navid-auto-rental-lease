@@ -115,7 +115,7 @@ export function VehicleEditSheet({ vehicle, open, onOpenChange, onSuccess }: Veh
               id="year"
               type="number"
               {...register('year')}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus:border-primary"
             />
             {errors.year && <p className="text-xs text-destructive">{errors.year.message}</p>}
           </div>
@@ -127,7 +127,7 @@ export function VehicleEditSheet({ vehicle, open, onOpenChange, onSuccess }: Veh
               id="mileage"
               type="number"
               {...register('mileage')}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus:border-primary"
             />
             {errors.mileage && <p className="text-xs text-destructive">{errors.mileage.message}</p>}
           </div>
@@ -139,7 +139,7 @@ export function VehicleEditSheet({ vehicle, open, onOpenChange, onSuccess }: Veh
               id="color"
               type="text"
               {...register('color')}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus:border-primary"
             />
             {errors.color && <p className="text-xs text-destructive">{errors.color.message}</p>}
           </div>
@@ -151,7 +151,7 @@ export function VehicleEditSheet({ vehicle, open, onOpenChange, onSuccess }: Veh
               id="price"
               type="number"
               {...register('price')}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus:border-primary"
             />
             {errors.price && <p className="text-xs text-destructive">{errors.price.message}</p>}
           </div>
@@ -162,7 +162,7 @@ export function VehicleEditSheet({ vehicle, open, onOpenChange, onSuccess }: Veh
             <select
               id="status"
               {...register('status')}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus:border-primary"
             >
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -180,7 +180,7 @@ export function VehicleEditSheet({ vehicle, open, onOpenChange, onSuccess }: Veh
               id="description"
               rows={4}
               {...register('description')}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus:border-primary"
               placeholder="차량 설명을 입력해주세요..."
             />
           </div>

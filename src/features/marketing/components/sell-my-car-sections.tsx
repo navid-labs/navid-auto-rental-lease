@@ -135,7 +135,7 @@ export function SellHeroSection() {
                 value={plate}
                 onChange={(e) => setPlate(e.target.value)}
                 placeholder="차량 번호를 입력하세요 (예: 12가3456)"
-                className="w-full rounded-lg bg-white pl-11 pr-4 text-[15px] text-[#0D0D0D] outline-none placeholder:text-[#AAAAAA] focus:ring-2 focus:ring-[#1A6DFF]"
+                className="w-full rounded-lg bg-white pl-11 pr-4 text-[15px] text-[#0D0D0D] outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 placeholder:text-[#AAAAAA]"
                 style={{ height: '52px', borderRadius: '10px' }}
               />
             </div>

@@ -204,7 +204,7 @@ export function HeroSection() {
                     <select
                       value={selectedBrand}
                       onChange={(e) => handleBrandChange(e.target.value)}
-                      className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none transition focus:border-[#1A6DFF] focus:ring-1 focus:ring-[#1A6DFF]"
+                      className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 transition focus:border-[#1A6DFF]"
                       style={{
                         background: '#F8F8F8',
                         borderColor: '#E0E0E0',
@@ -234,7 +234,7 @@ export function HeroSection() {
                       value={selectedModel}
                       onChange={(e) => setSelectedModel(e.target.value)}
                       disabled={!selectedBrand || isPending}
-                      className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none transition focus:border-[#1A6DFF] focus:ring-1 focus:ring-[#1A6DFF] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 transition focus:border-[#1A6DFF] disabled:cursor-not-allowed disabled:opacity-50"
                       style={{
                         background: '#F8F8F8',
                         borderColor: '#E0E0E0',
@@ -265,7 +265,7 @@ export function HeroSection() {
                   <select
                     value={selectedBudget}
                     onChange={(e) => setSelectedBudget(e.target.value)}
-                    className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none transition focus:border-[#1A6DFF] focus:ring-1 focus:ring-[#1A6DFF]"
+                    className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 transition focus:border-[#1A6DFF]"
                     style={{
                       background: '#F8F8F8',
                       borderColor: '#E0E0E0',
@@ -295,7 +295,7 @@ export function HeroSection() {
                   <select
                     value={selectedBodyType}
                     onChange={(e) => setSelectedBodyType(e.target.value)}
-                    className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none transition focus:border-[#1A6DFF] focus:ring-1 focus:ring-[#1A6DFF]"
+                    className="w-full appearance-none rounded-lg border px-4 pr-9 text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 transition focus:border-[#1A6DFF]"
                     style={{
                       background: '#F8F8F8',
                       borderColor: '#E0E0E0',

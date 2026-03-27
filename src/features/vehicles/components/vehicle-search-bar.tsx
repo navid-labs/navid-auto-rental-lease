@@ -31,7 +31,7 @@ export function VehicleSearchBar() {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="차종이나 모델명으로 검색"
-            className="h-12 w-full rounded-xl bg-white pl-10 pr-4 text-sm text-[#0D0D0D] placeholder:text-[#71717A] focus:outline-none focus:ring-2 focus:ring-[#1A6DFF]/30"
+            className="h-12 w-full rounded-xl bg-white pl-10 pr-4 text-sm text-[#0D0D0D] placeholder:text-[#71717A] outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2"
           />
         </div>
         <button

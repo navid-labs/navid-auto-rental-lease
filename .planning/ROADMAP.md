@@ -158,6 +158,6 @@ Plans:
 | 18-20 | v2.1 | 4/4 | Complete | 2026-03-23 |
 | 21. Infrastructure Foundation | 3/3 | Complete    | 2026-03-27 | - |
 | 22. Security Fixes | 2/2 | Complete    | 2026-03-27 | - |
-| 23. Design System Migration | v3.0 | 4/4 | Complete | 2026-03-27 |
+| 23. Design System Migration | v3.0 | Complete    | 2026-03-27 | 2026-03-27 |
 | 24. Performance Optimization | v3.0 | 0/2 | Not started | - |
 | 25. Code Quality + CSP | v3.0 | 0/3 | Not started | - |

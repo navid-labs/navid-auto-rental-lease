@@ -11,14 +11,14 @@ export async function Header() {
   return (
     <>
       {/* Top Bar -- desktop only */}
-      <div className="hidden w-full border-b border-[#E8E8E8] bg-[#F8F8F8] md:block">
+      <div className="hidden w-full border-b border-border-subtle bg-secondary md:block">
         <div className="mx-auto flex max-w-7xl items-center justify-end px-[120px] py-[10px]">
           {user ? (
             <div className="flex items-center gap-4">
               {user.role === 'ADMIN' && (
                 <Link
                   href="/admin"
-                  className="text-[12px] text-[#7A7A7A] transition-colors hover:text-[#0D0D0D]"
+                  className="text-[12px] text-text-caption transition-colors hover:text-foreground"
                 >
                   관리자
                 </Link>
@@ -26,43 +26,43 @@ export async function Header() {
               {user.role === 'DEALER' && (
                 <Link
                   href="/dealer"
-                  className="text-[12px] text-[#7A7A7A] transition-colors hover:text-[#0D0D0D]"
+                  className="text-[12px] text-text-caption transition-colors hover:text-foreground"
                 >
                   딜러포털
                 </Link>
               )}
               <Link
                 href="/mypage"
-                className="text-[12px] text-[#7A7A7A] transition-colors hover:text-[#0D0D0D]"
+                className="text-[12px] text-text-caption transition-colors hover:text-foreground"
               >
                 마이페이지
               </Link>
-              <span className="text-[#E8E8E8]">|</span>
-              <span className="text-[12px] text-[#7A7A7A]">
+              <span className="text-border-subtle">|</span>
+              <span className="text-[12px] text-text-caption">
                 {user.name || user.email}
               </span>
-              <span className="text-[#E8E8E8]">|</span>
+              <span className="text-border-subtle">|</span>
               <LogoutButton />
             </div>
           ) : (
             <div className="flex items-center gap-4">
               <Link
                 href="/login"
-                className="text-[12px] text-[#7A7A7A] transition-colors hover:text-[#0D0D0D]"
+                className="text-[12px] text-text-caption transition-colors hover:text-foreground"
               >
                 로그인
               </Link>
-              <span className="text-[#E8E8E8]">|</span>
+              <span className="text-border-subtle">|</span>
               <Link
                 href="/signup"
-                className="text-[12px] text-[#7A7A7A] transition-colors hover:text-[#0D0D0D]"
+                className="text-[12px] text-text-caption transition-colors hover:text-foreground"
               >
                 회원가입
               </Link>
-              <span className="text-[#E8E8E8]">|</span>
+              <span className="text-border-subtle">|</span>
               <Link
                 href="/inquiry?type=support"
-                className="text-[12px] text-[#7A7A7A] transition-colors hover:text-[#0D0D0D]"
+                className="text-[12px] text-text-caption transition-colors hover:text-foreground"
               >
                 고객센터
               </Link>
@@ -72,16 +72,16 @@ export async function Header() {
       </div>
 
       {/* Main Header Bar */}
-      <header className="sticky top-0 z-40 w-full border-b border-[#E8E8E8] bg-white">
+      <header className="sticky top-0 z-40 w-full border-b border-border-subtle bg-white">
         <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-4 md:px-[120px]">
           {/* Logo */}
           <Link href="/" className="flex shrink-0 items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1A6DFF]">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-blue">
               <span className="text-[16px] font-extrabold leading-none text-white">
                 N
               </span>
             </div>
-            <span className="text-[22px] font-bold leading-none text-[#0D0D0D]">
+            <span className="text-[22px] font-bold leading-none text-foreground">
               Navid Auto
             </span>
           </Link>
@@ -97,13 +97,13 @@ export async function Header() {
                 <>
                   <Link
                     href="/login"
-                    className="text-[13px] font-medium text-[#555555] transition-colors hover:text-[#0D0D0D]"
+                    className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
                     로그인
                   </Link>
                   <Link
                     href="/signup"
-                    className="rounded-lg bg-[#1A6DFF] px-4 py-2 text-[13px] font-medium text-white transition-opacity hover:opacity-90"
+                    className="rounded-lg bg-brand-blue px-4 py-2 text-[13px] font-medium text-white transition-opacity hover:opacity-90"
                   >
                     회원가입
                   </Link>

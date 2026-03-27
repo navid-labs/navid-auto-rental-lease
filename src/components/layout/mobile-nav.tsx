@@ -39,14 +39,14 @@ export function MobileNav({ user }: MobileNavProps) {
         side="left"
         className="w-[300px] overflow-y-auto bg-white p-0"
       >
-        <SheetHeader className="border-b border-[#E8E8E8] p-4">
+        <SheetHeader className="border-b border-border-subtle p-4">
           <SheetTitle className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1A6DFF]">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-blue">
               <span className="text-[14px] font-extrabold leading-none text-white">
                 N
               </span>
             </div>
-            <span className="text-[18px] font-bold text-[#0D0D0D]">
+            <span className="text-[18px] font-bold text-foreground">
               Navid Auto
             </span>
           </SheetTitle>
@@ -58,13 +58,13 @@ export function MobileNav({ user }: MobileNavProps) {
             category.hasMegaMenu && category.sections ? (
               <Accordion key={category.label} defaultValue={[]}>
                 <AccordionItem value={category.label} className="border-0">
-                  <AccordionTrigger className="rounded-lg px-3 py-2.5 text-sm font-medium text-[#0D0D0D] hover:bg-[#F5F5F5] hover:no-underline">
+                  <AccordionTrigger className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-hover hover:no-underline">
                     {category.label}
                   </AccordionTrigger>
                   <AccordionContent className="pb-1">
                     {category.sections.map((section) => (
                       <div key={section.title} className="px-3 py-1">
-                        <p className="mb-1 px-3 text-[11px] font-bold uppercase text-[#999999]">
+                        <p className="mb-1 px-3 text-[11px] font-bold uppercase text-text-tertiary">
                           {section.title}
                         </p>
                         {section.links.map((link) => (
@@ -72,7 +72,7 @@ export function MobileNav({ user }: MobileNavProps) {
                             key={link.href}
                             href={link.href}
                             onClick={() => setOpen(false)}
-                            className="block rounded-md px-3 py-1.5 text-[13px] text-[#555555] transition-colors hover:bg-[#F5F5F5] hover:text-[#1A6DFF]"
+                            className="block rounded-md px-3 py-1.5 text-[13px] text-muted-foreground transition-colors hover:bg-surface-hover hover:text-brand-blue"
                           >
                             {link.label}
                           </Link>
@@ -83,7 +83,7 @@ export function MobileNav({ user }: MobileNavProps) {
                     <Link
                       href={category.href}
                       onClick={() => setOpen(false)}
-                      className="block rounded-md px-6 py-2 text-[13px] font-medium text-[#1A6DFF] transition-colors hover:bg-[#EBF3FF]"
+                      className="block rounded-md px-6 py-2 text-[13px] font-medium text-brand-blue transition-colors hover:bg-accent-muted"
                     >
                       전체보기 &rarr;
                     </Link>
@@ -95,25 +95,25 @@ export function MobileNav({ user }: MobileNavProps) {
                 key={category.label}
                 href={category.href}
                 onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-[#0D0D0D] transition-colors hover:bg-[#F5F5F5]"
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-hover"
               >
                 {category.label}
               </Link>
             ),
           )}
 
-          <Separator className="my-2 bg-[#E8E8E8]" />
+          <Separator className="my-2 bg-border-subtle" />
 
           {/* User section */}
           {user ? (
             <div className="space-y-1 px-3 py-2">
-              <p className="text-sm font-medium text-[#0D0D0D]">
+              <p className="text-sm font-medium text-foreground">
                 {user.name || user.email}
               </p>
               <Link
                 href="/mypage"
                 onClick={() => setOpen(false)}
-                className="block rounded-md py-1.5 text-sm text-[#555555] transition-colors hover:text-[#1A6DFF]"
+                className="block rounded-md py-1.5 text-sm text-muted-foreground transition-colors hover:text-brand-blue"
               >
                 마이페이지
               </Link>
@@ -124,14 +124,14 @@ export function MobileNav({ user }: MobileNavProps) {
               <Link
                 href="/login"
                 onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-[#1A6DFF] transition-colors hover:bg-[#EBF3FF]"
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-brand-blue transition-colors hover:bg-accent-muted"
               >
                 로그인
               </Link>
               <Link
                 href="/signup"
                 onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-[#555555] transition-colors hover:bg-[#F5F5F5]"
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-surface-hover"
               >
                 회원가입
               </Link>

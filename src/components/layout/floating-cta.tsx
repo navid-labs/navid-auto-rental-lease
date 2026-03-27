@@ -132,7 +132,7 @@ export function FloatingCTA() {
       {/* Main FAB button */}
       <motion.button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-[#3B82F6] text-white shadow-xl transition-shadow hover:shadow-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6] focus-visible:ring-offset-2 md:h-14 md:w-14"
+        className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-blue text-white shadow-xl transition-shadow hover:shadow-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 md:h-14 md:w-14"
         aria-label={isOpen ? '상담 메뉴 닫기' : '상담 메뉴 열기'}
         aria-expanded={isOpen}
         whileHover={{ scale: 1.07 }}

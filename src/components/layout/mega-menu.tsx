@@ -23,7 +23,7 @@ export function MegaMenu() {
   }, [])
 
   return (
-    <nav className="hidden border-t border-[#F0F0F0] md:block">
+    <nav className="hidden border-t border-surface-hover md:block">
       <div className="mx-auto flex max-w-7xl items-center gap-0 px-4 md:px-[120px]">
         {MENU_DATA.map((category) => (
           <div
@@ -38,8 +38,8 @@ export function MegaMenu() {
               href={category.href}
               className={`flex h-[52px] items-center px-5 text-[14px] font-medium transition-colors ${
                 activeMenu === category.label
-                  ? 'border-b-2 border-[#1A6DFF] text-[#1A6DFF]'
-                  : 'text-[#555555] hover:text-[#0D0D0D]'
+                  ? 'border-b-2 border-brand-blue text-brand-blue'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {category.label}
@@ -50,14 +50,14 @@ export function MegaMenu() {
               activeMenu === category.label &&
               category.sections && (
                 <div
-                  className="absolute left-0 top-full z-50 w-[600px] rounded-b-xl border border-t-0 border-[#E8E8E8] bg-white p-6 shadow-lg"
+                  className="absolute left-0 top-full z-50 w-[600px] rounded-b-xl border border-t-0 border-border-subtle bg-white p-6 shadow-lg"
                   onMouseEnter={() => handleMouseEnter(category.label)}
                   onMouseLeave={handleMouseLeave}
                 >
                   <div className="grid grid-cols-3 gap-6">
                     {category.sections.map((section) => (
                       <div key={section.title}>
-                        <p className="mb-2 text-[13px] font-bold text-[#0D0D0D]">
+                        <p className="mb-2 text-[13px] font-bold text-foreground">
                           {section.title}
                         </p>
                         <ul className="flex flex-col gap-1.5">
@@ -65,7 +65,7 @@ export function MegaMenu() {
                             <li key={link.href}>
                               <Link
                                 href={link.href}
-                                className="text-[13px] text-[#555555] transition-colors hover:text-[#1A6DFF]"
+                                className="text-[13px] text-muted-foreground transition-colors hover:text-brand-blue"
                                 onClick={() => setActiveMenu(null)}
                               >
                                 {link.label}

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Hardening
-status: completed
-stopped_at: Phase 22 context gathered
-last_updated: "2026-03-27T05:30:25.450Z"
-last_activity: 2026-03-27 — Completed 21-03 Coverage Tooling
+status: executing
+stopped_at: Completed 22-01-PLAN.md
+last_updated: "2026-03-27T05:45:32.680Z"
+last_activity: 2026-03-27 — Completed 22-02 Image Upload Validation
 progress:
   total_phases: 5
-  completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
-  percent: 20
+  completed_phases: 2
+  total_plans: 5
+  completed_plans: 5
+  percent: 80
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-27)
 
 **Core value:** 고객이 중고차를 온라인에서 검색하고, 비교하고, 비대면으로 렌탈/리스 계약까지 완료할 수 있는 원스톱 경험
-**Current focus:** Phase 21 - Infrastructure Foundation
+**Current focus:** Phase 22 - Security Fixes
 
 ## Current Position
 
-Phase: 21 (first of 5 in v3.0) — Infrastructure Foundation [COMPLETE]
-Plan: 3 of 3 in current phase (all complete)
-Status: Phase 21 complete, ready for Phase 22
-Last activity: 2026-03-27 — Completed 21-03 Coverage Tooling
+Phase: 22 (second of 5 in v3.0) — Security Fixes [IN PROGRESS]
+Plan: 2 of 2 in current phase (22-02 complete)
+Status: Executing Phase 22 security hardening
+Last activity: 2026-03-27 — Completed 22-02 Image Upload Validation
 
-Progress: [██░░░░░░░░] 20%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -54,6 +54,10 @@ Recent decisions affecting current work:
 - [21-03]: v8 coverage provider over Istanbul for speed; no thresholds (baseline only)
 - [21-03]: Baseline coverage: Stmts 15.34%, Branches 13.23%, Funcs 11.71%, Lines 15.64%
 - [Phase 21]: v8 coverage provider over Istanbul; baseline 15.64% line coverage, no thresholds enforced
+- [22-02]: Magic byte validation reads first 12 bytes to verify actual image format (JPEG/PNG/WebP/GIF)
+- [22-02]: File extension derived from validated MIME type, not user-supplied filename
+- [Phase 22]: Argon2id detection by $argon2 prefix in stored value, plaintext fallback for backwards compat
+- [Phase 22]: requireAuth (not requireAdmin) for ekyc/send-code -- any authenticated user can request verification codes
 
 ### Pending Todos
 
@@ -68,6 +72,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-27T05:30:25.448Z
-Stopped at: Phase 22 context gathered
-Resume file: .planning/phases/22-security-fixes/22-CONTEXT.md
+Last session: 2026-03-27T05:45:32.673Z
+Stopped at: Completed 22-01-PLAN.md
+Resume file: None

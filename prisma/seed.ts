@@ -844,6 +844,160 @@ async function main() {
   console.log(`    DRAFT: 2, PENDING_EKYC: 1, PENDING_APPROVAL: 2`)
   console.log(`    APPROVED: 2, ACTIVE: 3, COMPLETED: 2, CANCELED: 1`)
 
+  // ─── 6. Quote Requests & Dealer Bids ───
+  console.log('\nCreating quote requests and dealer bids...')
+
+  // Resolve Hyundai brand id for preferred brand on request 1
+  const hyundaiBrand = await prisma.brand.findFirst({ where: { name: 'Hyundai' } })
+  const sonataModel = hyundaiBrand
+    ? await prisma.carModel.findFirst({ where: { brandId: hyundaiBrand.id, name: 'Sonata' } })
+    : null
+
+  // Pick vehicles for bids (need real vehicleIds)
+  const bidVehicles = await prisma.vehicle.findMany({
+    take: 5,
+    orderBy: { createdAt: 'asc' },
+    select: { id: true, price: true },
+  })
+
+  // QuoteRequest 1: RENTAL, 현대 소나타 선호, 36개월, 예산 500,000원, BIDDING 상태
+  const quoteRequest1 = await prisma.quoteRequest.create({
+    data: {
+      customerId: customerIds[0],
+      contractType: 'RENTAL',
+      preferredBrandId: hyundaiBrand?.id ?? null,
+      preferredModelId: sonataModel?.id ?? null,
+      yearMin: 2022,
+      yearMax: 2024,
+      budgetMin: 350000,
+      budgetMax: 500000,
+      contractMonths: 36,
+      depositMax: 5000000,
+      mileageLimit: 20000,
+      specialRequests: '무사고 차량 선호, 흰색 또는 은색',
+      status: 'BIDDING',
+      expiresAt: monthsFromNow(1),
+    },
+  })
+
+  // QuoteRequest 2: LEASE, 브랜드 무관, 48개월, 예산 700,000원, COMPARING 상태
+  const quoteRequest2 = await prisma.quoteRequest.create({
+    data: {
+      customerId: customerIds[1],
+      contractType: 'LEASE',
+      yearMin: 2023,
+      yearMax: 2024,
+      budgetMin: 500000,
+      budgetMax: 700000,
+      contractMonths: 48,
+      depositMax: 8000000,
+      specialRequests: 'SUV 선호, 하이브리드 또는 전기차',
+      status: 'COMPARING',
+      expiresAt: monthsFromNow(2),
+    },
+  })
+
+  // QuoteRequest 3: RENTAL, 만료된 요청
+  await prisma.quoteRequest.create({
+    data: {
+      customerId: customerIds[2],
+      contractType: 'RENTAL',
+      budgetMax: 450000,
+      contractMonths: 24,
+      status: 'EXPIRED',
+      expiresAt: monthsAgo(1),
+    },
+  })
+
+  // DealerBids on QuoteRequest 1 (BIDDING) — 3개 딜러 입찰
+  const bid1Monthly = 420000
+  const bid1Deposit = 3000000
+  await prisma.dealerBid.create({
+    data: {
+      quoteRequestId: quoteRequest1.id,
+      dealerId: dealerIds[0],
+      vehicleId: bidVehicles[0]?.id ?? null,
+      monthlyPayment: bid1Monthly,
+      deposit: bid1Deposit,
+      totalCost: bid1Monthly * 36 + bid1Deposit,
+      interestRate: null,
+      promotionNote: '신규 가입 고객 첫 달 50% 할인 적용',
+      status: 'SUBMITTED',
+      submittedAt: new Date(),
+    },
+  })
+
+  await prisma.dealerBid.create({
+    data: {
+      quoteRequestId: quoteRequest1.id,
+      dealerId: dealerIds[1],
+      vehicleId: bidVehicles[1]?.id ?? null,
+      monthlyPayment: 450000,
+      deposit: 2500000,
+      totalCost: 450000 * 36 + 2500000,
+      interestRate: null,
+      promotionNote: '보증금 낮추고 월납 소폭 상향, 블랙박스 무상 설치',
+      status: 'SUBMITTED',
+      submittedAt: new Date(),
+    },
+  })
+
+  await prisma.dealerBid.create({
+    data: {
+      quoteRequestId: quoteRequest1.id,
+      dealerId: dealerIds[2],
+      vehicleId: bidVehicles[2]?.id ?? null,
+      monthlyPayment: 390000,
+      deposit: 4000000,
+      totalCost: 390000 * 36 + 4000000,
+      interestRate: null,
+      promotionNote: '월 최저가 보장, 전국 무료 탁송',
+      status: 'SUBMITTED',
+      submittedAt: new Date(),
+    },
+  })
+
+  // DealerBids on QuoteRequest 2 (COMPARING) — 2개 딜러 입찰
+  await prisma.dealerBid.create({
+    data: {
+      quoteRequestId: quoteRequest2.id,
+      dealerId: dealerIds[0],
+      vehicleId: bidVehicles[3]?.id ?? null,
+      monthlyPayment: 650000,
+      deposit: 7000000,
+      totalCost: 650000 * 48 + 7000000,
+      residualValue: bidVehicles[3] ? Math.round(bidVehicles[3].price * 0.45) : null,
+      interestRate: 3.9,
+      contractTerms: { annualMileage: 20000, penaltyPerKm: 150 },
+      promotionNote: 'GV70 재고 특가, 이자율 3.9% 고정',
+      status: 'SUBMITTED',
+      submittedAt: new Date(),
+    },
+  })
+
+  await prisma.dealerBid.create({
+    data: {
+      quoteRequestId: quoteRequest2.id,
+      dealerId: dealerIds[1],
+      vehicleId: bidVehicles[4]?.id ?? null,
+      monthlyPayment: 680000,
+      deposit: 6000000,
+      totalCost: 680000 * 48 + 6000000,
+      residualValue: bidVehicles[4] ? Math.round(bidVehicles[4].price * 0.44) : null,
+      interestRate: 4.2,
+      contractTerms: { annualMileage: 20000, penaltyPerKm: 200 },
+      promotionNote: '스포티지 하이브리드 즉시 출고 가능, 내비 무상 업그레이드',
+      status: 'SUBMITTED',
+      submittedAt: new Date(),
+    },
+  })
+
+  const [quoteCount, bidCount] = await Promise.all([
+    prisma.quoteRequest.count(),
+    prisma.dealerBid.count(),
+  ])
+  console.log(`  [OK] ${quoteCount} quote requests, ${bidCount} dealer bids`)
+
   // ─── Summary ───
   const counts = await Promise.all([
     prisma.brand.count(),
@@ -856,6 +1010,8 @@ async function main() {
     prisma.rentalContract.count(),
     prisma.leaseContract.count(),
     prisma.ekycVerification.count(),
+    prisma.quoteRequest.count(),
+    prisma.dealerBid.count(),
   ])
   console.log('\n===================================')
   console.log(`  Brands:          ${counts[0]}`)
@@ -868,6 +1024,8 @@ async function main() {
   console.log(`  Rental Contracts:${counts[7]}`)
   console.log(`  Lease Contracts: ${counts[8]}`)
   console.log(`  eKYC Records:    ${counts[9]}`)
+  console.log(`  Quote Requests:  ${counts[10]}`)
+  console.log(`  Dealer Bids:     ${counts[11]}`)
   console.log('===================================')
   console.log('Seed complete!')
 }

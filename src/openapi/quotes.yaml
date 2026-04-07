@@ -1,0 +1,617 @@
+openapi: 3.1.0
+info:
+  title: Quotes & Bids API
+  version: 1.0.0
+
+tags:
+  - name: quotes
+    description: 견적 요청 (고객)
+  - name: dealer-quotes
+    description: 딜러 견적/입찰 관리
+
+components:
+  schemas:
+    QuoteStatus:
+      type: string
+      enum: [OPEN, BIDDING, SELECTED, EXPIRED, CANCELED]
+      description: 견적 요청 상태
+
+    BidStatus:
+      type: string
+      enum: [PENDING, SELECTED, REJECTED, WITHDRAWN]
+      description: 입찰 상태
+
+    QuoteRequest:
+      type: object
+      required:
+        - id
+        - contractType
+        - budgetMax
+        - contractMonths
+        - status
+        - expiresAt
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        contractType:
+          $ref: 'openapi.yaml#/components/schemas/ContractType'
+        budgetMax:
+          type: integer
+          description: 최대 예산 (월 납입금 기준, 원)
+        budgetMin:
+          type: integer
+          nullable: true
+          description: 최소 예산 (원)
+        contractMonths:
+          type: integer
+          description: 계약 기간 (개월)
+        depositMax:
+          type: integer
+          nullable: true
+          description: 최대 보증금 (원)
+        mileageLimit:
+          type: integer
+          nullable: true
+          description: 연간 주행거리 제한 (km)
+        preferredBrandId:
+          type: string
+          format: uuid
+          nullable: true
+          description: 선호 브랜드 ID
+        preferredModelId:
+          type: string
+          format: uuid
+          nullable: true
+          description: 선호 모델 ID
+        yearMin:
+          type: integer
+          nullable: true
+          description: 최소 연식
+        yearMax:
+          type: integer
+          nullable: true
+          description: 최대 연식
+        specialRequests:
+          type: string
+          nullable: true
+          description: 기타 요청사항
+        status:
+          $ref: '#/components/schemas/QuoteStatus'
+        expiresAt:
+          type: string
+          format: date-time
+          description: 견적 요청 만료 일시
+        createdAt:
+          type: string
+          format: date-time
+
+    QuoteListItem:
+      allOf:
+        - $ref: '#/components/schemas/QuoteRequest'
+        - type: object
+          properties:
+            bidCount:
+              type: integer
+              description: 입찰 수
+
+    Bid:
+      type: object
+      required:
+        - id
+        - quoteRequestId
+        - monthlyPayment
+        - deposit
+        - totalCost
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        quoteRequestId:
+          type: string
+          format: uuid
+        monthlyPayment:
+          type: integer
+          description: 월 납입금 (원)
+        deposit:
+          type: integer
+          description: 보증금 (원)
+        totalCost:
+          type: integer
+          description: 총 비용 (원)
+        insuranceIncluded:
+          type: boolean
+          nullable: true
+          description: 보험 포함 여부
+        maintenanceIncluded:
+          type: boolean
+          nullable: true
+          description: 정비 포함 여부
+        notes:
+          type: string
+          nullable: true
+          description: 딜러 메모
+        status:
+          $ref: '#/components/schemas/BidStatus'
+        createdAt:
+          type: string
+          format: date-time
+
+    BidWithQuote:
+      allOf:
+        - $ref: '#/components/schemas/Bid'
+        - type: object
+          properties:
+            quoteRequest:
+              $ref: '#/components/schemas/QuoteRequest'
+
+    QuoteWithBids:
+      allOf:
+        - $ref: '#/components/schemas/QuoteRequest'
+        - type: object
+          properties:
+            bids:
+              type: array
+              items:
+                $ref: '#/components/schemas/Bid'
+
+paths:
+  /quotes:
+    post:
+      tags: [quotes]
+      summary: 견적 요청 생성 (고객)
+      description: 고객이 렌탈/리스 견적 요청을 생성합니다. CUSTOMER 권한이 필요합니다.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contractType, budgetMax, contractMonths, expiresInDays]
+              properties:
+                contractType:
+                  $ref: 'openapi.yaml#/components/schemas/ContractType'
+                budgetMax:
+                  type: integer
+                  minimum: 1
+                  description: 최대 예산 (월 납입금 기준, 원)
+                budgetMin:
+                  type: integer
+                  minimum: 0
+                  nullable: true
+                  description: 최소 예산 (원)
+                contractMonths:
+                  type: integer
+                  minimum: 12
+                  maximum: 60
+                  description: 계약 기간 (개월, 12~60)
+                expiresInDays:
+                  type: integer
+                  minimum: 1
+                  maximum: 30
+                  description: 견적 요청 유효 기간 (일)
+                preferredBrandId:
+                  type: string
+                  format: uuid
+                  nullable: true
+                  description: 선호 브랜드 ID
+                preferredModelId:
+                  type: string
+                  format: uuid
+                  nullable: true
+                  description: 선호 모델 ID
+                yearMin:
+                  type: integer
+                  nullable: true
+                  description: 최소 연식
+                yearMax:
+                  type: integer
+                  nullable: true
+                  description: 최대 연식
+                depositMax:
+                  type: integer
+                  minimum: 0
+                  nullable: true
+                  description: 최대 보증금 (원)
+                mileageLimit:
+                  type: integer
+                  minimum: 0
+                  nullable: true
+                  description: 연간 주행거리 제한 (km)
+                specialRequests:
+                  type: string
+                  nullable: true
+                  description: 기타 요청사항
+      responses:
+        '201':
+          description: 견적 요청 생성 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/QuoteRequest'
+        '400':
+          description: 잘못된 요청 (유효성 검사 실패)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ValidationError'
+        '401':
+          description: 인증 필요
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '403':
+          description: 권한 없음 (CUSTOMER 전용)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+
+  /quotes/my:
+    get:
+      tags: [quotes]
+      summary: 내 견적 요청 목록 조회 (고객)
+      description: 로그인한 고객의 견적 요청 목록을 반환합니다. 각 항목에 입찰 수가 포함됩니다.
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: 견적 요청 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/QuoteListItem'
+        '401':
+          description: 인증 필요
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '403':
+          description: 권한 없음 (CUSTOMER 전용)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+
+  /quotes/{id}:
+    get:
+      tags: [quotes]
+      summary: 견적 요청 상세 조회 (입찰 목록 포함)
+      description: 견적 요청 상세 정보와 접수된 입찰 목록을 반환합니다. 요청 소유자만 조회 가능합니다.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 견적 요청 상세 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/QuoteWithBids'
+        '401':
+          description: 인증 필요
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '403':
+          description: 권한 없음 (소유자 전용)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '404':
+          description: 견적 요청 없음
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+
+  /quotes/{id}/select:
+    patch:
+      tags: [quotes]
+      summary: 입찰 선택 (고객)
+      description: 고객이 마음에 드는 입찰을 선택합니다. 견적 상태가 BIDDING일 때만 가능합니다.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 견적 요청 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bidId]
+              properties:
+                bidId:
+                  type: string
+                  format: uuid
+                  description: 선택할 입찰 ID
+      responses:
+        '200':
+          description: 입찰 선택 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [quoteRequestId, selectedBidId]
+                    properties:
+                      quoteRequestId:
+                        type: string
+                        format: uuid
+                      selectedBidId:
+                        type: string
+                        format: uuid
+        '400':
+          description: 잘못된 요청 (견적 상태 불가 또는 해당 입찰 없음)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ValidationError'
+        '401':
+          description: 인증 필요
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '403':
+          description: 권한 없음 (소유자 전용)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '404':
+          description: 견적 요청 없음
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+
+  /dealer/quotes:
+    get:
+      tags: [dealer-quotes]
+      summary: 열린 견적 요청 목록 조회 (딜러)
+      description: 딜러가 입찰 가능한 OPEN 또는 BIDDING 상태의 견적 요청 목록을 반환합니다. DEALER 권한이 필요합니다.
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: 견적 요청 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/QuoteListItem'
+        '401':
+          description: 인증 필요
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '403':
+          description: 권한 없음 (DEALER 전용)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+
+  /dealer/bids:
+    post:
+      tags: [dealer-quotes]
+      summary: 입찰 제출 (딜러)
+      description: 딜러가 견적 요청에 입찰을 제출합니다. 동일 견적에 중복 입찰은 불가합니다. DEALER 권한이 필요합니다.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quoteRequestId, monthlyPayment, deposit, totalCost]
+              properties:
+                quoteRequestId:
+                  type: string
+                  format: uuid
+                  description: 입찰 대상 견적 요청 ID
+                monthlyPayment:
+                  type: integer
+                  minimum: 1
+                  description: 월 납입금 (원)
+                deposit:
+                  type: integer
+                  minimum: 0
+                  description: 보증금 (원)
+                totalCost:
+                  type: integer
+                  minimum: 1
+                  description: 총 비용 (원)
+                insuranceIncluded:
+                  type: boolean
+                  nullable: true
+                  description: 보험 포함 여부
+                maintenanceIncluded:
+                  type: boolean
+                  nullable: true
+                  description: 정비 포함 여부
+                notes:
+                  type: string
+                  nullable: true
+                  description: 딜러 메모 (차량 상세, 특이사항 등)
+      responses:
+        '201':
+          description: 입찰 제출 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [id, status]
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      status:
+                        $ref: '#/components/schemas/BidStatus'
+        '400':
+          description: 잘못된 요청 (유효성 검사 실패 또는 중복 입찰)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ValidationError'
+        '401':
+          description: 인증 필요
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '403':
+          description: 권한 없음 (DEALER 전용)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '404':
+          description: 견적 요청 없음
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+
+  /dealer/bids/my:
+    get:
+      tags: [dealer-quotes]
+      summary: 내 입찰 목록 조회 (딜러)
+      description: 로그인한 딜러가 제출한 입찰 목록을 견적 요청 정보와 함께 반환합니다.
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: 입찰 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BidWithQuote'
+        '401':
+          description: 인증 필요
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '403':
+          description: 권한 없음 (DEALER 전용)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+
+  /dealer/bids/{id}:
+    delete:
+      tags: [dealer-quotes]
+      summary: 입찰 철회 (딜러)
+      description: 딜러가 PENDING 상태의 입찰을 철회합니다. 이미 선택된 입찰은 철회 불가합니다.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 입찰 ID
+      responses:
+        '200':
+          description: 입찰 철회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [id, status]
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      status:
+                        type: string
+                        enum: [WITHDRAWN]
+        '400':
+          description: 잘못된 요청 (이미 선택된 입찰 등)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '401':
+          description: 인증 필요
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '403':
+          description: 권한 없음 (소유 딜러 전용)
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'
+        '404':
+          description: 입찰 없음
+          content:
+            application/json:
+              schema:
+                $ref: 'openapi.yaml#/components/schemas/ApiError'

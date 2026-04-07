@@ -15,6 +15,10 @@ tags:
     description: 차량 관리
   - name: contracts
     description: 계약 관리
+  - name: quotes
+    description: 견적 요청 (고객)
+  - name: dealer-quotes
+    description: 딜러 견적/입찰 관리
   - name: admin
     description: 관리자 전용
   - name: inventory
@@ -68,6 +72,7 @@ paths:
   # Contracts
   /contracts:
     $ref: './contracts.yaml#/paths/~1contracts'
+
   /contracts/my:
     $ref: './contracts.yaml#/paths/~1contracts~1my'
   /contracts/{id}/status:
@@ -130,6 +135,24 @@ paths:
     $ref: './settings.yaml#/paths/~1admin~1settings~1defaults~1{id}'
   /admin/settings/verify-password:
     $ref: './settings.yaml#/paths/~1admin~1settings~1verify-password'
+
+  # Quotes & Bids
+  /quotes:
+    $ref: './quotes.yaml#/paths/~1quotes'
+  /quotes/my:
+    $ref: './quotes.yaml#/paths/~1quotes~1my'
+  /quotes/{id}:
+    $ref: './quotes.yaml#/paths/~1quotes~1{id}'
+  /quotes/{id}/select:
+    $ref: './quotes.yaml#/paths/~1quotes~1{id}~1select'
+  /dealer/quotes:
+    $ref: './quotes.yaml#/paths/~1dealer~1quotes'
+  /dealer/bids:
+    $ref: './quotes.yaml#/paths/~1dealer~1bids'
+  /dealer/bids/my:
+    $ref: './quotes.yaml#/paths/~1dealer~1bids~1my'
+  /dealer/bids/{id}:
+    $ref: './quotes.yaml#/paths/~1dealer~1bids~1{id}'
 
 components:
   schemas:

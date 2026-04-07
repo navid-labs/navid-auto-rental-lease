@@ -9,6 +9,7 @@ import { VehicleTable } from '@/features/vehicles/components/vehicle-table'
 import { DealerStatsSidebar } from '@/features/vehicles/components/dealer-stats-sidebar'
 import type { VehicleWithDetails } from '@/features/vehicles/types'
 import { Plus } from 'lucide-react'
+import { BidActivityWidget } from '@/features/quotes/components/dealer/bid-activity-widget'
 
 export default async function DealerDashboardPage() {
   const user = await getCurrentUser()
@@ -74,6 +75,9 @@ export default async function DealerDashboardPage() {
           차량 등록
         </Button>
       </div>
+
+      {/* Bid activity widget */}
+      <BidActivityWidget />
 
       {/* Main content: table + sidebar */}
       <div className="flex flex-col gap-6 md:flex-row">

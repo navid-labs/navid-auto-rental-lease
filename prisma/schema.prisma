@@ -122,6 +122,8 @@ model Profile {
   vehicleStatusLogs   VehicleStatusLog[]
   approvalLogs        VehicleApprovalLog[]
   ekycVerifications   EkycVerification[]
+  quoteRequests       QuoteRequest[]      @relation("CustomerQuotes")
+  dealerBids          DealerBid[]         @relation("DealerBids")
 
   @@map("profiles")
 }
@@ -137,6 +139,7 @@ model Brand {
   carModels          CarModel[]
   residualValueRates ResidualValueRate[]
   promoRates         PromoRate[]
+  quoteRequests      QuoteRequest[]
 
   @@map("brands")
 }
@@ -152,6 +155,7 @@ model CarModel {
   brand              Brand              @relation(fields: [brandId], references: [id])
   generations        Generation[]
   residualValueRates ResidualValueRate[]
+  quoteRequests      QuoteRequest[]
 
   @@map("car_models")
 }
@@ -221,6 +225,7 @@ model Vehicle {
   inquiries       Inquiry[]
   statusLogs      VehicleStatusLog[]
   approvalLogs    VehicleApprovalLog[]
+  dealerBids      DealerBid[]
 
   @@index([status, approvalStatus])
   @@index([dealerId, status])
@@ -403,6 +408,66 @@ model EkycVerification {
   profile Profile @relation(fields: [profileId], references: [id])
 
   @@map("ekyc_verifications")
+}
+
+// ─── Quote / Auction ─────────────────────────────────────
+
+model QuoteRequest {
+  id               String             @id @default(uuid()) @db.Uuid
+  customerId       String             @map("customer_id") @db.Uuid
+  contractType     ContractType       @map("contract_type")
+  preferredBrandId String?            @map("preferred_brand_id") @db.Uuid
+  preferredModelId String?            @map("preferred_model_id") @db.Uuid
+  yearMin          Int?               @map("year_min")
+  yearMax          Int?               @map("year_max")
+  budgetMin        Int?               @map("budget_min")
+  budgetMax        Int                @map("budget_max")
+  contractMonths   Int                @map("contract_months")
+  depositMax       Int?               @map("deposit_max")
+  mileageLimit     Int?               @map("mileage_limit")
+  specialRequests  String?            @map("special_requests")
+  status           QuoteRequestStatus @default(OPEN)
+  expiresAt        DateTime           @map("expires_at")
+  selectedBidId    String?            @unique @map("selected_bid_id") @db.Uuid
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+
+  customer       Profile     @relation("CustomerQuotes", fields: [customerId], references: [id])
+  preferredBrand Brand?      @relation(fields: [preferredBrandId], references: [id])
+  preferredModel CarModel?   @relation(fields: [preferredModelId], references: [id])
+  bids           DealerBid[]
+  selectedBid    DealerBid?  @relation("SelectedBid", fields: [selectedBidId], references: [id])
+
+  @@index([customerId, status])
+  @@index([status, expiresAt])
+  @@map("quote_requests")
+}
+
+model DealerBid {
+  id             String    @id @default(uuid()) @db.Uuid
+  quoteRequestId String    @map("quote_request_id") @db.Uuid
+  dealerId       String    @map("dealer_id") @db.Uuid
+  vehicleId      String?   @map("vehicle_id") @db.Uuid
+  monthlyPayment Int       @map("monthly_payment")
+  deposit        Int
+  totalCost      Int       @map("total_cost")
+  residualValue  Int?      @map("residual_value")
+  interestRate   Float?    @map("interest_rate")
+  contractTerms  Json?     @map("contract_terms")
+  promotionNote  String?   @map("promotion_note")
+  status         BidStatus @default(PENDING)
+  submittedAt    DateTime? @map("submitted_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  quoteRequest    QuoteRequest  @relation(fields: [quoteRequestId], references: [id])
+  dealer          Profile       @relation("DealerBids", fields: [dealerId], references: [id])
+  vehicle         Vehicle?      @relation(fields: [vehicleId], references: [id])
+  selectedByQuote QuoteRequest? @relation("SelectedBid")
+
+  @@index([quoteRequestId, status])
+  @@index([dealerId, status])
+  @@map("dealer_bids")
 }
 
 // ─── Settings ─────────────────────────────────────────────

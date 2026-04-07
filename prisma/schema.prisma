@@ -82,6 +82,23 @@ enum ImageCategory {
   OTHER
 }
 
+enum QuoteRequestStatus {
+  OPEN
+  BIDDING
+  COMPARING
+  SELECTED
+  CONTRACTED
+  EXPIRED
+}
+
+enum BidStatus {
+  PENDING
+  SUBMITTED
+  SELECTED
+  REJECTED
+  WITHDRAWN
+}
+
 // ─── Models ──────────────────────────────────────────────
 
 model Profile {
@@ -205,6 +222,9 @@ model Vehicle {
   statusLogs      VehicleStatusLog[]
   approvalLogs    VehicleApprovalLog[]
 
+  @@index([status, approvalStatus])
+  @@index([dealerId, status])
+  @@index([year])
   @@map("vehicles")
 }
 
@@ -243,6 +263,8 @@ model RentalContract {
   dealer   Profile  @relation("DealerRentals", fields: [dealerId], references: [id])
   payments Payment[]
 
+  @@index([customerId, status])
+  @@index([dealerId, status])
   @@map("rental_contracts")
 }
 
@@ -268,6 +290,8 @@ model LeaseContract {
   dealer   Profile  @relation("DealerLeases", fields: [dealerId], references: [id])
   payments Payment[]
 
+  @@index([customerId, status])
+  @@index([dealerId, status])
   @@map("lease_contracts")
 }
 
@@ -286,6 +310,8 @@ model Payment {
   rentalContract RentalContract? @relation(fields: [rentalContractId], references: [id])
   leaseContract  LeaseContract?  @relation(fields: [leaseContractId], references: [id])
 
+  @@index([rentalContractId])
+  @@index([leaseContractId])
   @@map("payments")
 }
 
@@ -367,6 +393,8 @@ model EkycVerification {
   carrier      String
   birthDate    String       @map("birth_date")
   gender       String
+  ci          String?   @db.VarChar(88)    // 연계정보 (cross-site ID)
+  di          String?   @db.VarChar(64)    // 중복가입확인정보 (site-unique ID)
   verified     Boolean      @default(false)
   verifiedAt   DateTime?    @map("verified_at")
   createdAt    DateTime     @default(now()) @map("created_at")

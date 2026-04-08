@@ -11,92 +11,54 @@ datasource db {
 // ─── Enums ───────────────────────────────────────────────
 
 enum UserRole {
-  CUSTOMER
+  BUYER
+  SELLER
   DEALER
   ADMIN
 }
 
-enum FuelType {
-  GASOLINE
-  DIESEL
-  LPG
-  HYBRID
-  ELECTRIC
-  HYDROGEN
+enum ListingType {
+  TRANSFER     // 승계
+  USED_LEASE   // 중고 리스
+  USED_RENTAL  // 중고 렌트
 }
 
-enum Transmission {
-  AUTOMATIC
-  MANUAL
-  CVT
-  DCT
+enum ListingStatus {
+  DRAFT       // 작성중
+  PENDING     // 승인 대기
+  ACTIVE      // 게시중
+  RESERVED    // 예약중
+  SOLD        // 거래완료
+  HIDDEN      // 숨김
 }
 
-enum VehicleStatus {
-  AVAILABLE
-  RESERVED
-  RENTED
-  LEASED
-  MAINTENANCE
-  HIDDEN
+enum MessageType {
+  TEXT
+  IMAGE
+  SYSTEM
 }
 
-enum ApprovalStatus {
-  PENDING
-  APPROVED
-  REJECTED
+enum LeadStatus {
+  WAITING     // 대기
+  CONSULTING  // 상담중
+  CONTRACTED  // 계약완료
+  CANCELED    // 취소
 }
 
-enum ContractStatus {
-  DRAFT
-  PENDING_EKYC
-  PENDING_APPROVAL
-  APPROVED
-  ACTIVE
-  COMPLETED
-  CANCELED
+enum EscrowStatus {
+  PENDING     // 결제 대기
+  PAID        // 입금 완료
+  RELEASED    // 판매자 지급 완료
+  REFUNDED    // 환불 완료
+  DISPUTED    // 분쟁중
 }
 
-enum ContractType {
-  RENTAL
-  LEASE
-}
-
-enum PaymentStatus {
-  PENDING
-  COMPLETED
-  FAILED
-  REFUNDED
-}
-
-enum InquiryStatus {
-  NEW
-  IN_PROGRESS
-  COMPLETED
-}
-
-enum ImageCategory {
-  EXTERIOR
-  INTERIOR
-  ENGINE
-  OTHER
-}
-
-enum QuoteRequestStatus {
-  OPEN
-  BIDDING
-  COMPARING
-  SELECTED
-  CONTRACTED
-  EXPIRED
-}
-
-enum BidStatus {
-  PENDING
-  SUBMITTED
-  SELECTED
-  REJECTED
-  WITHDRAWN
+enum NotificationType {
+  CHAT_MESSAGE
+  ESCROW_STATUS
+  LEAD_ASSIGNED
+  LISTING_APPROVED
+  LISTING_LIKED
 }
 
 // ─── Models ──────────────────────────────────────────────
@@ -106,425 +68,202 @@ model Profile {
   email     String   @unique
   name      String?
   phone     String?
-  role      UserRole @default(CUSTOMER)
+  role      UserRole @default(BUYER)
   avatarUrl String?  @map("avatar_url")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  dealerVehicles      Vehicle[]           @relation("DealerVehicles")
-  approvedVehicles    Vehicle[]           @relation("VehicleApprovers")
-  customerRentals     RentalContract[]    @relation("CustomerRentals")
-  dealerRentals       RentalContract[]    @relation("DealerRentals")
-  customerLeases      LeaseContract[]     @relation("CustomerLeases")
-  dealerLeases        LeaseContract[]     @relation("DealerLeases")
-  inquiries           Inquiry[]
-  vehicleStatusLogs   VehicleStatusLog[]
-  approvalLogs        VehicleApprovalLog[]
-  ekycVerifications   EkycVerification[]
-  quoteRequests       QuoteRequest[]      @relation("CustomerQuotes")
-  dealerBids          DealerBid[]         @relation("DealerBids")
+  sellerListings  Listing[]           @relation("SellerListings")
+  buyerChats      ChatRoom[]          @relation("BuyerChats")
+  sellerChats     ChatRoom[]          @relation("SellerChats")
+  sentMessages    ChatMessage[]       @relation("SentMessages")
+  userLeads       ConsultationLead[]  @relation("UserLeads")
+  assignedLeads   ConsultationLead[]  @relation("AssignedLeads")
+  buyerPayments   EscrowPayment[]     @relation("BuyerPayments")
+  sellerPayments  EscrowPayment[]     @relation("SellerPayments")
+  favorites       Favorite[]          @relation("UserFavorites")
+  notifications   Notification[]      @relation("UserNotifications")
 
   @@map("profiles")
 }
 
-model Brand {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String   @unique
-  nameKo    String?  @map("name_ko")
-  logoUrl   String?  @map("logo_url")
-  createdAt DateTime @default(now()) @map("created_at")
+model Listing {
+  id              String        @id @default(uuid()) @db.Uuid
+  sellerId        String        @map("seller_id") @db.Uuid
+  type            ListingType
+  status          ListingStatus @default(DRAFT)
 
-  // Relations
-  carModels          CarModel[]
-  residualValueRates ResidualValueRate[]
-  promoRates         PromoRate[]
-  quoteRequests      QuoteRequest[]
+  // 차량 기본 정보 (Step 2에서 입력, Step 1에선 미입력 가능)
+  brand           String?
+  model           String?
+  year            Int?
+  trim            String?
+  fuelType        String?       @map("fuel_type")
+  transmission    String?
+  seatingCapacity Int?          @map("seating_capacity")
+  mileage         Int?
+  color           String?
+  plateNumber     String?       @map("plate_number")
 
-  @@map("brands")
-}
+  // 금융 정보 (핵심 — Step 1 필수)
+  monthlyPayment  Int           @map("monthly_payment")
+  initialCost     Int           @default(0) @map("initial_cost")
+  remainingMonths Int           @map("remaining_months")
+  totalPrice      Int?          @map("total_price")
+  remainingBalance Int?         @map("remaining_balance")
+  capitalCompany  String?       @map("capital_company")
+  transferFee     Int           @default(0) @map("transfer_fee")
 
-model CarModel {
-  id        String   @id @default(uuid()) @db.Uuid
-  brandId   String   @map("brand_id") @db.Uuid
-  name      String
-  nameKo    String?  @map("name_ko")
-  createdAt DateTime @default(now()) @map("created_at")
+  // 통계
+  viewCount       Int           @default(0) @map("view_count")
+  favoriteCount   Int           @default(0) @map("favorite_count")
 
-  // Relations
-  brand              Brand              @relation(fields: [brandId], references: [id])
-  generations        Generation[]
-  residualValueRates ResidualValueRate[]
-  quoteRequests      QuoteRequest[]
-
-  @@map("car_models")
-}
-
-model Generation {
-  id         String   @id @default(uuid()) @db.Uuid
-  carModelId String   @map("car_model_id") @db.Uuid
-  name       String
-  startYear  Int      @map("start_year")
-  endYear    Int?     @map("end_year")
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  // Relations
-  carModel CarModel @relation(fields: [carModelId], references: [id])
-  trims    Trim[]
-
-  @@map("generations")
-}
-
-model Trim {
-  id           String       @id @default(uuid()) @db.Uuid
-  generationId String       @map("generation_id") @db.Uuid
-  name         String
-  fuelType     FuelType     @map("fuel_type")
-  engineCC     Int?         @map("engine_cc")
-  transmission Transmission
-  createdAt    DateTime     @default(now()) @map("created_at")
-
-  // Relations
-  generation Generation @relation(fields: [generationId], references: [id])
-  vehicles   Vehicle[]
-
-  @@map("trims")
-}
-
-model Vehicle {
-  id             String        @id @default(uuid()) @db.Uuid
-  trimId         String        @map("trim_id") @db.Uuid
-  dealerId       String        @map("dealer_id") @db.Uuid
-  year           Int
-  mileage        Int
-  color          String
-  licensePlate   String?       @map("license_plate")
-  price          Int
-  monthlyRental  Int?          @map("monthly_rental")
-  monthlyLease   Int?          @map("monthly_lease")
-  status          VehicleStatus  @default(AVAILABLE)
+  // 상태
+  isVerified      Boolean       @default(false) @map("is_verified")
+  accidentFree    Boolean?      @map("accident_free")
   description     String?
-  approvalStatus  ApprovalStatus @default(PENDING) @map("approval_status")
-  rejectionReason String?        @map("rejection_reason")
-  approvedBy      String?        @map("approved_by") @db.Uuid
-  approvedAt      DateTime?      @map("approved_at")
-  createdAt       DateTime       @default(now()) @map("created_at")
-  updatedAt       DateTime       @updatedAt @map("updated_at")
-  inspectionData  Json?          @map("inspection_data")
-  historyData     Json?          @map("history_data")
-  warrantyEndDate DateTime?      @map("warranty_end_date")
-  warrantyMileage Int?           @map("warranty_mileage")
+
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
 
   // Relations
-  trim            Trim             @relation(fields: [trimId], references: [id])
-  dealer          Profile          @relation("DealerVehicles", fields: [dealerId], references: [id])
-  approver        Profile?         @relation("VehicleApprovers", fields: [approvedBy], references: [id])
-  images          VehicleImage[]
-  rentalContracts RentalContract[]
-  leaseContracts  LeaseContract[]
-  inquiries       Inquiry[]
-  statusLogs      VehicleStatusLog[]
-  approvalLogs    VehicleApprovalLog[]
-  dealerBids      DealerBid[]
+  seller          Profile       @relation("SellerListings", fields: [sellerId], references: [id])
+  images          ListingImage[]
+  chatRooms       ChatRoom[]
+  leads           ConsultationLead[]
+  escrowPayments  EscrowPayment[]
+  favorites       Favorite[]
 
-  @@index([status, approvalStatus])
-  @@index([dealerId, status])
-  @@index([year])
-  @@map("vehicles")
+  @@index([type, status])
+  @@index([sellerId, status])
+  @@index([monthlyPayment])
+  @@index([status, isVerified])
+  @@map("listings")
 }
 
-model VehicleImage {
+model ListingImage {
   id        String   @id @default(uuid()) @db.Uuid
-  vehicleId String   @map("vehicle_id") @db.Uuid
+  listingId String   @map("listing_id") @db.Uuid
   url       String
   order     Int      @default(0)
-  isPrimary Boolean       @default(false) @map("is_primary")
-  category  ImageCategory @default(OTHER)
-  createdAt DateTime      @default(now()) @map("created_at")
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at")
 
-  // Relations
-  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
-  @@map("vehicle_images")
+  @@map("listing_images")
 }
 
-model RentalContract {
-  id             String         @id @default(uuid()) @db.Uuid
-  vehicleId      String         @map("vehicle_id") @db.Uuid
-  customerId     String         @map("customer_id") @db.Uuid
-  dealerId       String         @map("dealer_id") @db.Uuid
-  status         ContractStatus @default(DRAFT)
-  startDate      DateTime?      @map("start_date")
-  endDate        DateTime?      @map("end_date")
-  monthlyPayment Int            @map("monthly_payment")
-  deposit        Int            @default(0)
-  totalAmount    Int            @map("total_amount")
-  createdAt      DateTime       @default(now()) @map("created_at")
-  updatedAt      DateTime       @updatedAt @map("updated_at")
-
-  // Relations
-  vehicle  Vehicle  @relation(fields: [vehicleId], references: [id])
-  customer Profile  @relation("CustomerRentals", fields: [customerId], references: [id])
-  dealer   Profile  @relation("DealerRentals", fields: [dealerId], references: [id])
-  payments Payment[]
-
-  @@index([customerId, status])
-  @@index([dealerId, status])
-  @@map("rental_contracts")
-}
-
-model LeaseContract {
-  id             String         @id @default(uuid()) @db.Uuid
-  vehicleId      String         @map("vehicle_id") @db.Uuid
-  customerId     String         @map("customer_id") @db.Uuid
-  dealerId       String         @map("dealer_id") @db.Uuid
-  status         ContractStatus @default(DRAFT)
-  startDate      DateTime?      @map("start_date")
-  endDate        DateTime?      @map("end_date")
-  monthlyPayment Int            @map("monthly_payment")
-  deposit        Int            @default(0)
-  residualValue  Int?           @map("residual_value")
-  residualRate   Decimal?       @map("residual_rate")
-  totalAmount    Int            @map("total_amount")
-  createdAt      DateTime       @default(now()) @map("created_at")
-  updatedAt      DateTime       @updatedAt @map("updated_at")
-
-  // Relations
-  vehicle  Vehicle  @relation(fields: [vehicleId], references: [id])
-  customer Profile  @relation("CustomerLeases", fields: [customerId], references: [id])
-  dealer   Profile  @relation("DealerLeases", fields: [dealerId], references: [id])
-  payments Payment[]
-
-  @@index([customerId, status])
-  @@index([dealerId, status])
-  @@map("lease_contracts")
-}
-
-model Payment {
-  id               String        @id @default(uuid()) @db.Uuid
-  rentalContractId String?       @map("rental_contract_id") @db.Uuid
-  leaseContractId  String?       @map("lease_contract_id") @db.Uuid
-  contractType     ContractType  @map("contract_type")
-  amount           Int
-  paymentDate      DateTime      @map("payment_date")
-  status           PaymentStatus @default(PENDING)
-  method           String?
-  createdAt        DateTime      @default(now()) @map("created_at")
-
-  // Relations
-  rentalContract RentalContract? @relation(fields: [rentalContractId], references: [id])
-  leaseContract  LeaseContract?  @relation(fields: [leaseContractId], references: [id])
-
-  @@index([rentalContractId])
-  @@index([leaseContractId])
-  @@map("payments")
-}
-
-model Inquiry {
-  id         String        @id @default(uuid()) @db.Uuid
-  customerId String?       @map("customer_id") @db.Uuid
-  vehicleId  String?       @map("vehicle_id") @db.Uuid
-  name       String
-  phone      String
-  email      String?
-  message    String
-  status     InquiryStatus @default(NEW)
-  createdAt  DateTime      @default(now()) @map("created_at")
-  updatedAt  DateTime      @updatedAt @map("updated_at")
-
-  // Relations
-  customer Profile? @relation(fields: [customerId], references: [id])
-  vehicle  Vehicle? @relation(fields: [vehicleId], references: [id])
-
-  @@map("inquiries")
-}
-
-model ResidualValueRate {
-  id         String   @id @default(uuid()) @db.Uuid
-  brandId    String   @map("brand_id") @db.Uuid
-  carModelId String   @map("car_model_id") @db.Uuid
-  year       Int
-  rate       Decimal
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  brand    Brand    @relation(fields: [brandId], references: [id])
-  carModel CarModel @relation(fields: [carModelId], references: [id])
-
-  @@unique([brandId, carModelId, year])
-  @@map("residual_value_rates")
-}
-
-model VehicleStatusLog {
-  id         String        @id @default(uuid()) @db.Uuid
-  vehicleId  String        @map("vehicle_id") @db.Uuid
-  fromStatus VehicleStatus @map("from_status")
-  toStatus   VehicleStatus @map("to_status")
-  note       String?
-  changedBy  String        @map("changed_by") @db.Uuid
-  createdAt  DateTime      @default(now()) @map("created_at")
-
-  // Relations
-  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
-  profile Profile @relation(fields: [changedBy], references: [id])
-
-  @@map("vehicle_status_logs")
-}
-
-model VehicleApprovalLog {
-  id         String         @id @default(uuid()) @db.Uuid
-  vehicleId  String         @map("vehicle_id") @db.Uuid
-  fromStatus ApprovalStatus @map("from_status")
-  toStatus   ApprovalStatus @map("to_status")
-  reason     String?
-  changedBy  String         @map("changed_by") @db.Uuid
-  createdAt  DateTime       @default(now()) @map("created_at")
-
-  // Relations
-  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
-  profile Profile @relation(fields: [changedBy], references: [id])
-
-  @@map("vehicle_approval_logs")
-}
-
-model EkycVerification {
-  id           String       @id @default(uuid()) @db.Uuid
-  profileId    String       @map("profile_id") @db.Uuid
-  contractType ContractType @map("contract_type")
-  contractId   String?      @map("contract_id") @db.Uuid
-  name         String
-  phone        String
-  carrier      String
-  birthDate    String       @map("birth_date")
-  gender       String
-  ci          String?   @db.VarChar(88)    // 연계정보 (cross-site ID)
-  di          String?   @db.VarChar(64)    // 중복가입확인정보 (site-unique ID)
-  verified     Boolean      @default(false)
-  verifiedAt   DateTime?    @map("verified_at")
-  createdAt    DateTime     @default(now()) @map("created_at")
-
-  // Relations
-  profile Profile @relation(fields: [profileId], references: [id])
-
-  @@map("ekyc_verifications")
-}
-
-// ─── Quote / Auction ─────────────────────────────────────
-
-model QuoteRequest {
-  id               String             @id @default(uuid()) @db.Uuid
-  customerId       String             @map("customer_id") @db.Uuid
-  contractType     ContractType       @map("contract_type")
-  preferredBrandId String?            @map("preferred_brand_id") @db.Uuid
-  preferredModelId String?            @map("preferred_model_id") @db.Uuid
-  yearMin          Int?               @map("year_min")
-  yearMax          Int?               @map("year_max")
-  budgetMin        Int?               @map("budget_min")
-  budgetMax        Int                @map("budget_max")
-  contractMonths   Int                @map("contract_months")
-  depositMax       Int?               @map("deposit_max")
-  mileageLimit     Int?               @map("mileage_limit")
-  specialRequests  String?            @map("special_requests")
-  status           QuoteRequestStatus @default(OPEN)
-  expiresAt        DateTime           @map("expires_at")
-  selectedBidId    String?            @unique @map("selected_bid_id") @db.Uuid
-  createdAt        DateTime           @default(now()) @map("created_at")
-  updatedAt        DateTime           @updatedAt @map("updated_at")
-
-  customer       Profile     @relation("CustomerQuotes", fields: [customerId], references: [id])
-  preferredBrand Brand?      @relation(fields: [preferredBrandId], references: [id])
-  preferredModel CarModel?   @relation(fields: [preferredModelId], references: [id])
-  bids           DealerBid[]
-  selectedBid    DealerBid?  @relation("SelectedBid", fields: [selectedBidId], references: [id])
-
-  @@index([customerId, status])
-  @@index([status, expiresAt])
-  @@map("quote_requests")
-}
-
-model DealerBid {
-  id             String    @id @default(uuid()) @db.Uuid
-  quoteRequestId String    @map("quote_request_id") @db.Uuid
-  dealerId       String    @map("dealer_id") @db.Uuid
-  vehicleId      String?   @map("vehicle_id") @db.Uuid
-  monthlyPayment Int       @map("monthly_payment")
-  deposit        Int
-  totalCost      Int       @map("total_cost")
-  residualValue  Int?      @map("residual_value")
-  interestRate   Float?    @map("interest_rate")
-  contractTerms  Json?     @map("contract_terms")
-  promotionNote  String?   @map("promotion_note")
-  status         BidStatus @default(PENDING)
-  submittedAt    DateTime? @map("submitted_at")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-
-  quoteRequest    QuoteRequest  @relation(fields: [quoteRequestId], references: [id])
-  dealer          Profile       @relation("DealerBids", fields: [dealerId], references: [id])
-  vehicle         Vehicle?      @relation(fields: [vehicleId], references: [id])
-  selectedByQuote QuoteRequest? @relation("SelectedBid")
-
-  @@index([quoteRequestId, status])
-  @@index([dealerId, status])
-  @@map("dealer_bids")
-}
-
-// ─── Settings ─────────────────────────────────────────────
-
-model PromoRate {
+model ChatRoom {
   id        String   @id @default(uuid()) @db.Uuid
-  brandId   String   @map("brand_id") @db.Uuid
-  rate      Decimal  // 0.03 = 3%
-  label     String?
+  listingId String   @map("listing_id") @db.Uuid
+  buyerId   String   @map("buyer_id") @db.Uuid
+  sellerId  String   @map("seller_id") @db.Uuid
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  // Relations
-  brand Brand @relation(fields: [brandId], references: [id])
+  listing   Listing      @relation(fields: [listingId], references: [id])
+  buyer     Profile      @relation("BuyerChats", fields: [buyerId], references: [id])
+  seller    Profile      @relation("SellerChats", fields: [sellerId], references: [id])
+  messages  ChatMessage[]
 
-  @@unique([brandId])
-  @@map("promo_rates")
+  @@unique([listingId, buyerId])
+  @@index([buyerId])
+  @@index([sellerId])
+  @@map("chat_rooms")
 }
 
-model DefaultSetting {
+model ChatMessage {
+  id         String      @id @default(uuid()) @db.Uuid
+  chatRoomId String      @map("chat_room_id") @db.Uuid
+  senderId   String      @map("sender_id") @db.Uuid
+  type       MessageType @default(TEXT)
+  content    String
+  imageUrl   String?     @map("image_url")
+  isRead     Boolean     @default(false) @map("is_read")
+  createdAt  DateTime    @default(now()) @map("created_at")
+
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  sender     Profile  @relation("SentMessages", fields: [senderId], references: [id])
+
+  @@index([chatRoomId, createdAt])
+  @@map("chat_messages")
+}
+
+model ConsultationLead {
+  id         String      @id @default(uuid()) @db.Uuid
+  userId     String      @map("user_id") @db.Uuid
+  listingId  String      @map("listing_id") @db.Uuid
+  type       ListingType
+  status     LeadStatus  @default(WAITING)
+  assignedTo String?     @map("assigned_to") @db.Uuid
+  note       String?
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+
+  user       Profile     @relation("UserLeads", fields: [userId], references: [id])
+  listing    Listing     @relation(fields: [listingId], references: [id])
+  assignee   Profile?    @relation("AssignedLeads", fields: [assignedTo], references: [id])
+
+  @@index([status])
+  @@index([assignedTo, status])
+  @@map("consultation_leads")
+}
+
+model EscrowPayment {
+  id            String       @id @default(uuid()) @db.Uuid
+  listingId     String       @map("listing_id") @db.Uuid
+  buyerId       String       @map("buyer_id") @db.Uuid
+  sellerId      String       @map("seller_id") @db.Uuid
+  depositAmount Int          @map("deposit_amount")
+  transferFee   Int          @map("transfer_fee")
+  totalAmount   Int          @map("total_amount")
+  status        EscrowStatus @default(PENDING)
+  paidAt        DateTime?    @map("paid_at")
+  releasedAt    DateTime?    @map("released_at")
+  refundedAt    DateTime?    @map("refunded_at")
+  pgOrderId     String?      @map("pg_order_id")
+  pgPaymentKey  String?      @map("pg_payment_key")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  listing       Listing      @relation(fields: [listingId], references: [id])
+  buyer         Profile      @relation("BuyerPayments", fields: [buyerId], references: [id])
+  seller        Profile      @relation("SellerPayments", fields: [sellerId], references: [id])
+
+  @@index([listingId])
+  @@index([buyerId])
+  @@index([sellerId])
+  @@map("escrow_payments")
+}
+
+model Favorite {
   id        String   @id @default(uuid()) @db.Uuid
-  key       String   @unique
-  value     String
-  label     String
-  updatedAt DateTime @updatedAt @map("updated_at")
+  userId    String   @map("user_id") @db.Uuid
+  listingId String   @map("listing_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
 
-  @@map("default_settings")
+  user      Profile  @relation("UserFavorites", fields: [userId], references: [id])
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
+  @@map("favorites")
 }
 
-// ─── Inventory ────────────────────────────────────────────
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  type      NotificationType
+  title     String
+  message   String
+  linkUrl   String?          @map("link_url")
+  isRead    Boolean          @default(false) @map("is_read")
+  createdAt DateTime         @default(now()) @map("created_at")
 
-enum InventoryCategory {
-  STRATEGIC // 전략구매
-  GENERAL   // 일반구매
-}
+  user      Profile          @relation("UserNotifications", fields: [userId], references: [id])
 
-model InventoryItem {
-  id                String            @id @default(uuid()) @db.Uuid
-  category          InventoryCategory // 구분 (전략/일반)
-  itemNumber        String            @map("item_number")       // 번호
-  promotion         String?           // 프로모션
-  representModel    String            @map("represent_model")   // 대표차종
-  modelName         String            @map("model_name")        // 차종명
-  options           String?           // 옵션
-  modelYear         Int               @map("model_year")        // 차량연식
-  exteriorColor     String            @map("exterior_color")    // 외장색
-  interiorColor     String            @map("interior_color")    // 내장색
-  price             Int               // 가격 (원)
-  subsidy           Int               @default(0)               // 보조금
-  availableQuantity Int               @map("available_quantity") // 판매가능수량
-  immediateQuantity Int               @map("immediate_quantity") // 즉시출고수량
-  productionDate    String?           @map("production_date")   // 생산예시일
-  notice            String?           // 공지
-  brand             String?           // 브랜드 (parsed from representModel)
-  loadedAt          DateTime          @default(now()) @map("loaded_at")
-  createdAt         DateTime          @default(now()) @map("created_at")
-
-  @@map("inventory_items")
+  @@index([userId, isRead])
+  @@map("notifications")
 }

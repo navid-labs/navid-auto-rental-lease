@@ -1,23 +1,29 @@
-import type { Metadata } from 'next'
-import { Toaster } from 'sonner'
-import './globals.css'
+import type { Metadata } from "next";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: 'Navid Auto - 중고차 렌탈/리스',
-  description: '프리미엄 중고차 렌탈 및 리스 플랫폼',
-}
+  title: { default: "차용 — 승계·리스·렌트 플랫폼", template: "%s | 차용" },
+  description:
+    "안전하게 승계하는 가장 쉬운 방법, 차용. 월 납입금만 보고 간편하게 비교하세요.",
+  openGraph: {
+    title: "차용 — 승계·리스·렌트 플랫폼",
+    description: "월 납입금만 보고 간편하게 비교하세요.",
+    siteName: "차용",
+    locale: "ko_KR",
+    type: "website",
+  },
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" suppressHydrationWarning>
-      <body className="font-sans antialiased">
+    <html lang="ko">
+      <body className="min-h-screen bg-[var(--chayong-bg)] antialiased">
         {children}
-        <Toaster position="top-right" richColors closeButton />
       </body>
     </html>
-  )
+  );
 }

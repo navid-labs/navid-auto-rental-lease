@@ -1,0 +1,68 @@
+"use client";
+
+import Link from "next/link";
+import { Heart } from "lucide-react";
+import { PriceDisplay } from "@/components/ui/price-display";
+
+interface ListingCtaSidebarProps {
+  monthlyPayment: number;
+  initialCost: number;
+  remainingMonths: number;
+  listingId: string;
+}
+
+export function ListingCtaSidebar({
+  monthlyPayment,
+  initialCost,
+  remainingMonths,
+  listingId,
+}: ListingCtaSidebarProps) {
+  function handleFavorite() {
+    // TODO: implement favorite toggle (requires auth)
+    alert("찜하기 기능은 로그인 후 이용 가능합니다.");
+  }
+
+  return (
+    <div
+      className="rounded-xl border p-5"
+      style={{ borderColor: "var(--chayong-border)", backgroundColor: "var(--chayong-bg)" }}
+    >
+      {/* Price */}
+      <div className="mb-1">
+        <PriceDisplay monthlyPayment={monthlyPayment} size="lg" />
+      </div>
+
+      {/* Meta */}
+      <p className="mb-5 text-sm" style={{ color: "var(--chayong-text-caption)" }}>
+        초기비용 {initialCost ? `${Math.round(initialCost / 10_000).toLocaleString("ko-KR")}만원` : "없음"}
+        {" · "}
+        잔여 {remainingMonths}개월
+      </p>
+
+      {/* CTAs */}
+      <div className="flex flex-col gap-2">
+        <Link
+          href={`/chat?listing=${listingId}`}
+          className="block w-full rounded-xl py-3 text-center text-sm font-semibold text-white transition-colors"
+          style={{ backgroundColor: "var(--chayong-primary)" }}
+        >
+          상담 신청하기
+        </Link>
+
+        <button
+          type="button"
+          onClick={handleFavorite}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border py-3 text-sm font-medium transition-colors"
+          style={{
+            borderColor: "var(--chayong-border)",
+            color: "var(--chayong-text-sub)",
+            backgroundColor: "var(--chayong-bg)",
+          }}
+        >
+          <Heart size={16} />
+          찜하기
+        </button>
+      </div>
+    </div>
+  );
+}

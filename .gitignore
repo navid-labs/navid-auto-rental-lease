@@ -50,3 +50,4 @@ next-env.d.ts
 # Generated API client (regenerate with `bun run api:generate`)
 src/lib/api/generated/
 src/openapi/bundled.yaml
+.gstack/

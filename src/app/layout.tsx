@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
+import { MobileNav } from "@/components/layout/mobile-nav";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,7 +25,10 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="min-h-screen bg-[var(--chayong-bg)] antialiased">
-        {children}
+        <Header />
+        <main className="pb-16 md:pb-0">{children}</main>
+        <Footer />
+        <MobileNav />
       </body>
     </html>
   );

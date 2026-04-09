@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/db/prisma";
 import { EscrowAdminTable } from "@/features/admin/components/escrow-admin-table";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = { title: "에스크로 관리" };
 
 export default async function AdminEscrowPage() {

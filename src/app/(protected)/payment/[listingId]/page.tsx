@@ -5,6 +5,8 @@ import { prisma } from "@/lib/db/prisma";
 import { EscrowCheckout } from "@/features/payment/components/escrow-checkout";
 import { ChevronLeft } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ listingId: string }>;
 }

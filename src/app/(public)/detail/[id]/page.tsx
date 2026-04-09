@@ -7,6 +7,8 @@ import { ListingGallery } from "@/features/listings/components/listing-gallery";
 import { ListingCostCalculator } from "@/features/listings/components/listing-cost-calculator";
 import { ListingCtaSidebar } from "@/features/listings/components/listing-cta-sidebar";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }

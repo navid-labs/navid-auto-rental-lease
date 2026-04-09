@@ -4,6 +4,8 @@ import { ListingGrid } from "@/features/listings/components/listing-grid";
 import type { ListingCardData, ListingType } from "@/types";
 import type { Prisma } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
+
 const PAGE_SIZE = 12;
 
 const TYPE_LABEL: Record<string, string> = {

@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db/prisma";
 import { VehicleCard } from "@/components/ui/vehicle-card";
 import type { ListingCardData } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 async function getRecommendedListings(): Promise<ListingCardData[]> {
   // Try verified+active first, fall back to newest active
   const [verified, newest] = await Promise.all([

@@ -5,6 +5,8 @@ import { prisma } from "@/lib/db/prisma";
 import { ChatMessageArea } from "@/features/chat/components/chat-message-area";
 import { ChevronLeft, ShieldCheck } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ roomId: string }>;
 }

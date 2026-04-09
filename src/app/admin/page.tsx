@@ -6,6 +6,8 @@ import {
   CreditCard,
 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = { title: "대시보드" };
 
 async function getStats() {

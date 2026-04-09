@@ -117,7 +117,9 @@ export function SellWizard() {
           trim: form.trim || null,
           mileage: form.mileage ? Number(form.mileage) : null,
           color: form.color || null,
+          capitalCompany: form.capitalCompany || null,
           description: form.description || null,
+          options: form.options,
         }),
       });
 

@@ -1,11 +1,13 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ShieldCheck, CheckCircle, ArrowRight } from "lucide-react";
+import { ShieldCheck, CheckCircle, ArrowRight, BadgeCheck } from "lucide-react";
 import { prisma } from "@/lib/db/prisma";
 import { TrustBadge } from "@/components/ui/trust-badge";
 import { ListingGallery } from "@/features/listings/components/listing-gallery";
 import { ListingCostCalculator } from "@/features/listings/components/listing-cost-calculator";
 import { ListingCtaSidebar } from "@/features/listings/components/listing-cta-sidebar";
+import { ShareButton } from "@/features/listings/components/share-button";
+import { MobileCTABar } from "@/features/listings/components/mobile-cta-bar";
 
 export const dynamic = "force-dynamic";
 
@@ -99,7 +101,7 @@ export default async function DetailPage({ params }: PageProps) {
   ];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
+    <div className="mx-auto max-w-7xl px-4 py-8 pb-20 md:pb-8">
       {/* Breadcrumb */}
       <div className="mb-4 flex items-center gap-1.5 text-xs" style={{ color: "var(--chayong-text-caption)" }}>
         <span>{TYPE_LABEL[listing.type] ?? listing.type}</span>
@@ -110,11 +112,29 @@ export default async function DetailPage({ params }: PageProps) {
       </div>
 
       {/* Title row */}
-      <div className="mb-6 flex items-start gap-2">
-        <h1 className="text-2xl font-bold leading-tight" style={{ color: "var(--chayong-text)" }}>
-          {vehicleName}
-        </h1>
-        {listing.isVerified && <TrustBadge />}
+      <div className="mb-6 flex items-start justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="text-2xl font-bold leading-tight" style={{ color: "var(--chayong-text)" }}>
+            {vehicleName}
+          </h1>
+          {listing.isVerified && <TrustBadge />}
+          {listing.capitalCompany && (
+            <span
+              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium"
+              style={{
+                backgroundColor: "var(--chayong-primary-light)",
+                color: "var(--chayong-primary)",
+              }}
+            >
+              <BadgeCheck size={14} />
+              금융사 승인 가능
+            </span>
+          )}
+        </div>
+        <ShareButton
+          title={`${vehicleName} - 월 ${listing.monthlyPayment.toLocaleString("ko-KR")}원`}
+          url={`${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/detail/${listing.id}`}
+        />
       </div>
 
       {/* Main layout: 2 cols on desktop */}
@@ -164,6 +184,33 @@ export default async function DetailPage({ params }: PageProps) {
               </tbody>
             </table>
           </div>
+
+          {/* 추가 옵션 */}
+          {listing.options && listing.options.length > 0 && (
+            <div
+              className="rounded-xl border p-4"
+              style={{ borderColor: "var(--chayong-border)" }}
+            >
+              <h3 className="mb-3 text-sm font-semibold" style={{ color: "var(--chayong-text)" }}>
+                추가 옵션
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {listing.options.map((opt) => (
+                  <span
+                    key={opt}
+                    className="rounded-full px-3 py-1 text-xs font-medium"
+                    style={{
+                      backgroundColor: "var(--chayong-surface)",
+                      color: "var(--chayong-text-sub)",
+                      border: "1px solid var(--chayong-border)",
+                    }}
+                  >
+                    {opt}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ── Right column (sticky sidebar) ── */}
@@ -237,6 +284,9 @@ export default async function DetailPage({ params }: PageProps) {
           </div>
         </section>
       )}
+
+      {/* Mobile fixed bottom CTA */}
+      <MobileCTABar monthlyPayment={listing.monthlyPayment} listingId={listing.id} />
     </div>
   );
 }

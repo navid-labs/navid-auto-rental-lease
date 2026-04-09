@@ -123,6 +123,7 @@ model Listing {
   isVerified      Boolean       @default(false) @map("is_verified")
   accidentFree    Boolean?      @map("accident_free")
   description     String?
+  options         String[]      @default([])
 
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt @map("updated_at")

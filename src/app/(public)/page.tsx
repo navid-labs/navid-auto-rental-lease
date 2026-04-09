@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Shield, BadgeCheck, MessageCircle, RefreshCw } from "lucide-react";
 import { prisma } from "@/lib/db/prisma";
 import { VehicleCard } from "@/components/ui/vehicle-card";
@@ -98,42 +99,96 @@ export default async function HomePage() {
   return (
     <div className="mx-auto max-w-7xl px-4">
       {/* ── Hero ── */}
-      <section className="py-16 text-center">
-        <h1 className="text-3xl font-bold leading-tight md:text-5xl" style={{ color: "var(--chayong-text)" }}>
-          안전하게 승계하는
-          <br />
-          <span style={{ color: "var(--chayong-primary)" }}>가장 쉬운 방법, 차용</span>
-        </h1>
-        <p className="mt-4 text-base md:text-lg" style={{ color: "var(--chayong-text-sub)" }}>
-          월 납입금만 보고 간편하게 비교하세요.
-          {newListingCount > 0 && (
-            <span
-              className="ml-2 rounded-full px-2.5 py-0.5 text-xs font-semibold text-white"
-              style={{ backgroundColor: "var(--chayong-danger)" }}
+      <section className="py-16">
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+          {/* Left: headline + CTAs */}
+          <div>
+            <h1 className="text-3xl font-bold leading-tight md:text-5xl" style={{ color: "var(--chayong-text)" }}>
+              안전하게 승계하는
+              <br />
+              <span style={{ color: "var(--chayong-primary)" }}>가장 쉬운 방법, 차용</span>
+            </h1>
+            <p className="mt-4 text-base md:text-lg" style={{ color: "var(--chayong-text-sub)" }}>
+              월 납입금만 보고 간편하게 비교하세요.
+              {newListingCount > 0 && (
+                <span
+                  className="ml-2 rounded-full px-2.5 py-0.5 text-xs font-semibold text-white"
+                  style={{ backgroundColor: "var(--chayong-danger)" }}
+                >
+                  이번 달 {newListingCount}건 신규
+                </span>
+              )}
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="/list"
+                className="rounded-xl px-6 py-3 font-semibold text-white transition-colors"
+                style={{ backgroundColor: "var(--chayong-primary)" }}
+              >
+                매물 보러가기
+              </Link>
+              <Link
+                href="/sell"
+                className="rounded-xl border px-6 py-3 font-semibold transition-colors"
+                style={{
+                  borderColor: "var(--chayong-border)",
+                  color: "var(--chayong-text)",
+                  backgroundColor: "var(--chayong-bg)",
+                }}
+              >
+                내 차 등록하기
+              </Link>
+            </div>
+          </div>
+
+          {/* Right: preview widget card */}
+          <div className="flex justify-center lg:justify-end">
+            <div
+              className="w-full max-w-sm rounded-2xl border p-6 shadow-lg"
+              style={{
+                backgroundColor: "var(--chayong-bg)",
+                borderColor: "var(--chayong-border)",
+              }}
             >
-              이번 달 {newListingCount}건 신규
-            </span>
-          )}
-        </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link
-            href="/list"
-            className="rounded-xl px-6 py-3 font-semibold text-white transition-colors"
-            style={{ backgroundColor: "var(--chayong-primary)" }}
-          >
-            매물 보러가기
-          </Link>
-          <Link
-            href="/sell"
-            className="rounded-xl border px-6 py-3 font-semibold transition-colors"
-            style={{
-              borderColor: "var(--chayong-border)",
-              color: "var(--chayong-text)",
-              backgroundColor: "var(--chayong-bg)",
-            }}
-          >
-            내 차 등록하기
-          </Link>
+              <div className="mb-4 flex items-center justify-between">
+                <span className="text-sm font-semibold" style={{ color: "var(--chayong-text-sub)" }}>
+                  차용
+                </span>
+                <span className="text-2xl font-bold" style={{ color: "var(--chayong-primary)" }}>
+                  월 580,000원
+                </span>
+              </div>
+              <div
+                className="my-4 h-px"
+                style={{ backgroundColor: "var(--chayong-divider)" }}
+              />
+              <div className="flex flex-col gap-3">
+                {[
+                  { label: "초기비용", value: "1,400,000원" },
+                  { label: "남은 총 납입금", value: "18,560,000원" },
+                  { label: "실질 총 비용", value: "21,400,000원" },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex items-center justify-between text-sm">
+                    <span style={{ color: "var(--chayong-text-caption)" }}>· {label}</span>
+                    <span className="font-semibold" style={{ color: "var(--chayong-text)" }}>
+                      {value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div
+                className="my-4 h-px"
+                style={{ backgroundColor: "var(--chayong-divider)" }}
+              />
+              <Link
+                href="/list"
+                className="block w-full rounded-xl py-2.5 text-center text-sm font-semibold text-white transition-colors"
+                style={{ backgroundColor: "var(--chayong-primary)" }}
+              >
+                계산 결과 보기
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -159,6 +214,67 @@ export default async function HomePage() {
           </Link>
         </div>
       </section>
+
+      {/* ── 지금, 이 매물 어때요? ── */}
+      {listings.length > 0 && (
+        <section className="py-6">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold" style={{ color: "var(--chayong-text)" }}>
+                지금, 이 매물 어때요?
+              </h2>
+              <p className="mt-0.5 text-sm" style={{ color: "var(--chayong-text-sub)" }}>
+                실시간으로 매칭되는 승계 매물을 확인해보세요.
+              </p>
+            </div>
+            <Link href="/list" className="shrink-0 text-sm font-medium" style={{ color: "var(--chayong-primary)" }}>
+              전체보기 &gt;
+            </Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+            {listings.slice(0, 5).map((listing) => (
+              <Link
+                key={listing.id}
+                href={`/detail/${listing.id}`}
+                className="flex shrink-0 w-36 flex-col gap-2 rounded-xl border p-3 transition-colors hover:border-[var(--chayong-primary)]"
+                style={{
+                  borderColor: "var(--chayong-border)",
+                  backgroundColor: "var(--chayong-bg)",
+                }}
+              >
+                {/* Thumbnail */}
+                <div
+                  className="h-24 w-full overflow-hidden rounded-lg"
+                  style={{ backgroundColor: "var(--chayong-surface)" }}
+                >
+                  {listing.primaryImage ? (
+                    <Image
+                      src={listing.primaryImage}
+                      alt={[listing.brand, listing.model].filter(Boolean).join(" ") || "차량"}
+                      width={144}
+                      height={96}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-xs" style={{ color: "var(--chayong-text-caption)" }}>
+                      사진 없음
+                    </div>
+                  )}
+                </div>
+                {/* Info */}
+                <div>
+                  <p className="truncate text-xs font-semibold leading-tight" style={{ color: "var(--chayong-text)" }}>
+                    {[listing.brand, listing.model].filter(Boolean).join(" ") || "차량"}
+                  </p>
+                  <p className="mt-1 text-xs font-bold" style={{ color: "var(--chayong-primary)" }}>
+                    월 {listing.monthlyPayment.toLocaleString("ko-KR")}원
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── Recommended Listings ── */}
       <section className="py-8">

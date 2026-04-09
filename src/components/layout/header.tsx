@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const NAV_LINKS = [
   { href: "/list", label: "매물보기" },
-  { href: "/used", label: "중고 리스·렌트" },
+  { href: "/list?type=USED_LEASE", label: "중고 리스·렌트" },
   { href: "/sell", label: "매물등록" },
   { href: "/guide", label: "이용가이드" },
 ];

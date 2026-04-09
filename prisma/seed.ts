@@ -1,1041 +1,281 @@
-import { PrismaClient } from '@prisma/client'
-import { createClient } from '@supabase/supabase-js'
-import { calculateGrade } from '../src/features/vehicles/lib/diagnosis-grade'
-import type { InspectionData } from '../src/features/vehicles/schemas/inspection-data'
-import type { HistoryData } from '../src/features/vehicles/schemas/history-data'
+import { PrismaClient, UserRole, ListingType, ListingStatus, MessageType, LeadStatus } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-// ─── Supabase Admin Client (optional, for demo auth accounts) ───
+// ─── Hardcoded UUIDs for reproducibility ─────────────────────────────────────
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+const ADMIN_ID  = '00000000-0000-0000-0000-000000000001'
+const SELLER_ID = '00000000-0000-0000-0000-000000000002'
+const BUYER_ID  = '00000000-0000-0000-0000-000000000003'
 
-const supabaseAdmin = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
-  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    })
-  : null
+// ─── Listing seed data ────────────────────────────────────────────────────────
 
-/**
- * Idempotent auth user creation.
- * Creates a Supabase Auth user or fetches the existing one by email.
- * Returns the user ID (UUID).
- */
-async function ensureAuthUser(
-  email: string,
-  password: string,
-  metadata: { role: string; name: string }
-): Promise<string | null> {
-  if (!supabaseAdmin) return null
-
-  // Try to create the user
-  const { data, error } = await supabaseAdmin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: metadata,
-  })
-
-  if (data?.user) {
-    return data.user.id
-  }
-
-  // If user already exists, fetch by email
-  if (error && (error.message.includes('already') || error.message.includes('exists'))) {
-    const { data: listData } = await supabaseAdmin.auth.admin.listUsers()
-    const existing = listData?.users?.find((u) => u.email === email)
-    if (existing) return existing.id
-  }
-
-  console.warn(`  ! Could not create/fetch auth user ${email}: ${error?.message}`)
-  return null
-}
-
-// ─── Seed Data ──────────────────────────────────────────────
-
-type FuelType = 'GASOLINE' | 'DIESEL' | 'HYBRID' | 'ELECTRIC'
-type Transmission = 'AUTOMATIC' | 'MANUAL' | 'DCT'
-
-interface TrimData {
-  name: string
-  fuel: FuelType
-  cc: number
-  trans: Transmission
-}
-
-interface ModelData {
-  name: string
-  nameKo?: string
-  gen: string
-  startYear: number
-  trims: TrimData[]
-}
-
-interface BrandData {
-  name: string
-  nameKo: string
-  models: ModelData[]
-}
-
-// 브랜드 → 모델 → 세대 → 트림 (엑셀 데이터 + 국산차 수동 추가)
-const brands: BrandData[] = [
-  // ─── 국산 브랜드 ───
+const listingSeeds = [
   {
-    name: 'Hyundai', nameKo: '현대',
-    models: [
-      { name: 'Sonata', nameKo: '소나타', gen: 'DN8', startYear: 2019, trims: [
-        { name: '가솔린 2.0 모던', fuel: 'GASOLINE', cc: 1999, trans: 'AUTOMATIC' },
-        { name: '가솔린 2.0 인스퍼레이션', fuel: 'GASOLINE', cc: 1999, trans: 'AUTOMATIC' },
-        { name: '하이브리드 2.0 프리미엄', fuel: 'HYBRID', cc: 1999, trans: 'AUTOMATIC' },
-      ]},
-      { name: 'Avante', nameKo: '아반떼', gen: 'CN7', startYear: 2020, trims: [
-        { name: '가솔린 1.6 스마트', fuel: 'GASOLINE', cc: 1598, trans: 'AUTOMATIC' },
-        { name: '가솔린 1.6 프리미엄', fuel: 'GASOLINE', cc: 1598, trans: 'AUTOMATIC' },
-      ]},
-      { name: 'Tucson', nameKo: '투싼', gen: 'NX4', startYear: 2021, trims: [
-        { name: '가솔린 1.6T 모던', fuel: 'GASOLINE', cc: 1598, trans: 'DCT' },
-        { name: '디젤 2.0 프리미엄', fuel: 'DIESEL', cc: 1997, trans: 'AUTOMATIC' },
-        { name: '하이브리드 1.6T 프리미엄', fuel: 'HYBRID', cc: 1598, trans: 'AUTOMATIC' },
-      ]},
-      { name: 'Grandeur', nameKo: '그랜저', gen: 'GN7', startYear: 2022, trims: [
-        { name: '가솔린 2.5 프리미엄', fuel: 'GASOLINE', cc: 2497, trans: 'AUTOMATIC' },
-        { name: '하이브리드 1.6T 캘리그래피', fuel: 'HYBRID', cc: 1598, trans: 'AUTOMATIC' },
-      ]},
-      { name: 'Palisade', nameKo: '팰리세이드', gen: 'LX2', startYear: 2018, trims: [
-        { name: '디젤 2.2 캘리그래피 7인승', fuel: 'DIESEL', cc: 2199, trans: 'AUTOMATIC' },
-        { name: '가솔린 3.8 캘리그래피 7인승', fuel: 'GASOLINE', cc: 3778, trans: 'AUTOMATIC' },
-      ]},
-    ],
+    brand: '현대',
+    model: '싼타페 하이브리드',
+    type: ListingType.TRANSFER,
+    monthlyPayment: 580000,
+    initialCost: 0,
+    remainingMonths: 32,
+    isVerified: true,
+    options: ['파노라마 선루프', 'HUD'],
+    year: 2022,
+    trim: '하이브리드 2.5T 프리미엄',
+    mileage: 28000,
+    color: '어비스블랙펄',
+    fuelType: '하이브리드',
+    transmission: '자동',
+    capitalCompany: '현대캐피탈',
+    imageText: '현대+싼타페',
   },
   {
-    name: 'Kia', nameKo: '기아',
-    models: [
-      { name: 'K5', nameKo: 'K5', gen: 'DL3', startYear: 2019, trims: [
-        { name: '가솔린 2.0 트렌디', fuel: 'GASOLINE', cc: 1999, trans: 'AUTOMATIC' },
-        { name: '가솔린 2.0 프레스티지', fuel: 'GASOLINE', cc: 1999, trans: 'AUTOMATIC' },
-        { name: '하이브리드 1.6T 프레스티지', fuel: 'HYBRID', cc: 1598, trans: 'AUTOMATIC' },
-      ]},
-      { name: 'Sportage', nameKo: '스포티지', gen: 'NQ5', startYear: 2021, trims: [
-        { name: '가솔린 1.6T 트렌디', fuel: 'GASOLINE', cc: 1598, trans: 'DCT' },
-        { name: '디젤 2.0 프레스티지', fuel: 'DIESEL', cc: 1997, trans: 'AUTOMATIC' },
-        { name: '하이브리드 1.6T 프레스티지', fuel: 'HYBRID', cc: 1598, trans: 'AUTOMATIC' },
-      ]},
-      { name: 'Sorento', nameKo: '쏘렌토', gen: 'MQ4', startYear: 2020, trims: [
-        { name: '디젤 2.2 프레스티지 7인승', fuel: 'DIESEL', cc: 2199, trans: 'AUTOMATIC' },
-        { name: '하이브리드 1.6T 시그니처 7인승', fuel: 'HYBRID', cc: 1598, trans: 'AUTOMATIC' },
-      ]},
-      { name: 'EV6', nameKo: 'EV6', gen: 'CV', startYear: 2021, trims: [
-        { name: 'Standard RWD', fuel: 'ELECTRIC', cc: 0, trans: 'AUTOMATIC' },
-        { name: 'Long Range AWD', fuel: 'ELECTRIC', cc: 0, trans: 'AUTOMATIC' },
-      ]},
-    ],
+    brand: 'BMW',
+    model: '520i M 스포츠',
+    type: ListingType.TRANSFER,
+    monthlyPayment: 760000,
+    initialCost: 2000000,
+    remainingMonths: 28,
+    isVerified: true,
+    options: ['BOSE 사운드'],
+    year: 2022,
+    trim: '520i M 스포츠 패키지',
+    mileage: 35000,
+    color: '알파인화이트',
+    fuelType: '가솔린',
+    transmission: '자동',
+    capitalCompany: 'BMW파이낸셜',
+    imageText: 'BMW+520i',
   },
   {
-    name: 'Genesis', nameKo: '제네시스',
-    models: [
-      { name: 'G80', nameKo: 'G80', gen: 'RG3', startYear: 2020, trims: [
-        { name: '가솔린 2.5T 럭셔리', fuel: 'GASOLINE', cc: 2497, trans: 'AUTOMATIC' },
-        { name: '디젤 2.2 프레스티지', fuel: 'DIESEL', cc: 2199, trans: 'AUTOMATIC' },
-      ]},
-      { name: 'GV70', nameKo: 'GV70', gen: 'JK1', startYear: 2021, trims: [
-        { name: '가솔린 2.5T 스포트', fuel: 'GASOLINE', cc: 2497, trans: 'AUTOMATIC' },
-        { name: '디젤 2.2 럭셔리', fuel: 'DIESEL', cc: 2199, trans: 'AUTOMATIC' },
-      ]},
-      { name: 'GV80', nameKo: 'GV80', gen: 'JX1', startYear: 2020, trims: [
-        { name: '가솔린 2.5T 럭셔리 5인승', fuel: 'GASOLINE', cc: 2497, trans: 'AUTOMATIC' },
-        { name: '디젤 3.0 캘리그래피 7인승', fuel: 'DIESEL', cc: 2996, trans: 'AUTOMATIC' },
-      ]},
-    ],
-  },
-
-  // ─── 수입 브랜드 (엑셀 기반) ───
-  {
-    name: 'BMW', nameKo: 'BMW',
-    models: [
-      { name: '3 Series', gen: 'G20', startYear: 2018, trims: [
-        { name: '320i', fuel: 'GASOLINE', cc: 1998, trans: 'AUTOMATIC' },
-        { name: '320d xDrive', fuel: 'DIESEL', cc: 1995, trans: 'AUTOMATIC' },
-        { name: '330i M Sport', fuel: 'GASOLINE', cc: 1998, trans: 'AUTOMATIC' },
-      ]},
-      { name: '5 Series', gen: 'G30', startYear: 2016, trims: [
-        { name: '520i Luxury', fuel: 'GASOLINE', cc: 1998, trans: 'AUTOMATIC' },
-        { name: '520d Luxury', fuel: 'DIESEL', cc: 1995, trans: 'AUTOMATIC' },
-        { name: '530i M Sport', fuel: 'GASOLINE', cc: 1998, trans: 'AUTOMATIC' },
-        { name: '540i xDrive M Sport', fuel: 'GASOLINE', cc: 2998, trans: 'AUTOMATIC' },
-      ]},
-      { name: 'X3', gen: 'G01', startYear: 2017, trims: [
-        { name: 'xDrive20d', fuel: 'DIESEL', cc: 1995, trans: 'AUTOMATIC' },
-        { name: 'xDrive30i M Sport', fuel: 'GASOLINE', cc: 1998, trans: 'AUTOMATIC' },
-      ]},
-      { name: 'X5', gen: 'G05', startYear: 2018, trims: [
-        { name: 'xDrive30d', fuel: 'DIESEL', cc: 2993, trans: 'AUTOMATIC' },
-        { name: 'xDrive40i M Sport', fuel: 'GASOLINE', cc: 2998, trans: 'AUTOMATIC' },
-      ]},
-    ],
+    brand: '제네시스',
+    model: 'GV80 2.5T',
+    type: ListingType.USED_LEASE,
+    monthlyPayment: 950000,
+    initialCost: 5000000,
+    remainingMonths: 35,
+    isVerified: true,
+    options: ['빌트인캠', 'HUD'],
+    year: 2023,
+    trim: '2.5T 프레스티지',
+    mileage: 15000,
+    color: '마제스틱블랙',
+    fuelType: '가솔린',
+    transmission: '자동',
+    capitalCompany: '현대캐피탈',
+    imageText: '제네시스+GV80',
   },
   {
-    name: 'Mercedes-Benz', nameKo: '벤츠',
-    models: [
-      { name: 'C-Class', gen: 'W206', startYear: 2021, trims: [
-        { name: 'C 200 Avantgarde', fuel: 'GASOLINE', cc: 1496, trans: 'AUTOMATIC' },
-        { name: 'C 220d AMG Line', fuel: 'DIESEL', cc: 1993, trans: 'AUTOMATIC' },
-        { name: 'C 300 4MATIC AMG Line', fuel: 'GASOLINE', cc: 1999, trans: 'AUTOMATIC' },
-      ]},
-      { name: 'E-Class', gen: 'W214', startYear: 2023, trims: [
-        { name: 'E 200 Exclusive', fuel: 'GASOLINE', cc: 1999, trans: 'AUTOMATIC' },
-        { name: 'E 220d 4MATIC AMG Line', fuel: 'DIESEL', cc: 1993, trans: 'AUTOMATIC' },
-        { name: 'E 300 4MATIC Exclusive', fuel: 'GASOLINE', cc: 1999, trans: 'AUTOMATIC' },
-      ]},
-      { name: 'GLC', gen: 'X254', startYear: 2022, trims: [
-        { name: 'GLC 200 4MATIC', fuel: 'GASOLINE', cc: 1999, trans: 'AUTOMATIC' },
-        { name: 'GLC 300 4MATIC AMG Line', fuel: 'GASOLINE', cc: 1999, trans: 'AUTOMATIC' },
-      ]},
-    ],
+    brand: '기아',
+    model: 'K8 하이브리드',
+    type: ListingType.USED_RENTAL,
+    monthlyPayment: 530000,
+    initialCost: 0,
+    remainingMonths: 30,
+    isVerified: true,
+    options: [],
+    year: 2022,
+    trim: '하이브리드 시그니처',
+    mileage: 42000,
+    color: '스노우화이트펄',
+    fuelType: '하이브리드',
+    transmission: '자동',
+    capitalCompany: '기아캐피탈',
+    imageText: '기아+K8',
   },
   {
-    name: 'Audi', nameKo: '아우디',
-    models: [
-      { name: 'A6', gen: 'C8', startYear: 2018, trims: [
-        { name: '45 TFSI quattro Premium', fuel: 'GASOLINE', cc: 1984, trans: 'AUTOMATIC' },
-        { name: '40 TDI Premium', fuel: 'DIESEL', cc: 1968, trans: 'AUTOMATIC' },
-      ]},
-      { name: 'Q5', gen: 'FY', startYear: 2017, trims: [
-        { name: '45 TFSI quattro Premium', fuel: 'GASOLINE', cc: 1984, trans: 'AUTOMATIC' },
-        { name: '40 TDI quattro Premium', fuel: 'DIESEL', cc: 1968, trans: 'AUTOMATIC' },
-      ]},
-    ],
+    brand: '벤츠',
+    model: 'C 300 4MATIC',
+    type: ListingType.TRANSFER,
+    monthlyPayment: 890000,
+    initialCost: 3000000,
+    remainingMonths: 28,
+    isVerified: false,
+    options: [],
+    imageText: '벤츠+C300',
   },
   {
-    name: 'Volvo', nameKo: '볼보',
-    models: [
-      { name: 'XC60', gen: 'SPA', startYear: 2017, trims: [
-        { name: 'B5 Momentum', fuel: 'GASOLINE', cc: 1969, trans: 'AUTOMATIC' },
-        { name: 'B6 Inscription', fuel: 'GASOLINE', cc: 1969, trans: 'AUTOMATIC' },
-      ]},
-      { name: 'XC90', gen: 'SPA', startYear: 2015, trims: [
-        { name: 'B6 Momentum', fuel: 'GASOLINE', cc: 1969, trans: 'AUTOMATIC' },
-        { name: 'Recharge T8 Inscription', fuel: 'HYBRID', cc: 1969, trans: 'AUTOMATIC' },
-      ]},
-    ],
-  },
-  {
-    name: 'Porsche', nameKo: '포르쉐',
-    models: [
-      { name: 'Cayenne', gen: 'E3', startYear: 2018, trims: [
-        { name: 'Cayenne', fuel: 'GASOLINE', cc: 2995, trans: 'AUTOMATIC' },
-        { name: 'Cayenne S', fuel: 'GASOLINE', cc: 2894, trans: 'AUTOMATIC' },
-      ]},
-      { name: 'Macan', gen: '95B', startYear: 2014, trims: [
-        { name: 'Macan', fuel: 'GASOLINE', cc: 1984, trans: 'DCT' },
-        { name: 'Macan S', fuel: 'GASOLINE', cc: 2894, trans: 'DCT' },
-      ]},
-    ],
+    brand: '현대',
+    model: '그랜저 하이브리드',
+    type: ListingType.USED_LEASE,
+    monthlyPayment: 490000,
+    initialCost: 0,
+    remainingMonths: 26,
+    isVerified: false,
+    options: ['파노라마 선루프'],
+    imageText: '현대+그랜저',
   },
 ]
 
-// 중고차 가격 생성 (트림/연식 기반)
-const BASE_PRICES: Record<string, Record<string, number>> = {
-  Hyundai:         { Sonata: 2200, Avante: 1600, Tucson: 2600, Grandeur: 3200, Palisade: 3800 },
-  Kia:             { K5: 2100, Sportage: 2500, Sorento: 3000, EV6: 3500 },
-  Genesis:         { G80: 4200, GV70: 4000, GV80: 5500 },
-  BMW:             { '3 Series': 3500, '5 Series': 5000, X3: 4500, X5: 7000 },
-  'Mercedes-Benz': { 'C-Class': 3800, 'E-Class': 5500, GLC: 5000 },
-  Audi:            { A6: 4200, Q5: 4500 },
-  Volvo:           { XC60: 4000, XC90: 5500 },
-  Porsche:         { Cayenne: 8000, Macan: 5500 },
+// ─── Helper ───────────────────────────────────────────────────────────────────
+
+function calcTotalPrice(monthly: number, months: number, initial: number): number {
+  return monthly * months + initial
 }
 
-// Unsplash 차량 이미지 (카테고리별)
-const CAR_IMAGES: Record<string, string[]> = {
-  sedan: [
-    'photo-1555215695-3004980ad54e',
-    'photo-1549399542-7e3f8b79c341',
-    'photo-1553440569-bcc63803a83d',
-    'photo-1619682817481-e994891cd1f5',
-    'photo-1580273916550-e323be2ae537',
-  ],
-  suv: [
-    'photo-1519641471654-76ce0107ad1b',
-    'photo-1551830820-330a71b99659',
-    'photo-1609521263047-f8f205293f24',
-    'photo-1603584173870-7f23fdae1b7a',
-    'photo-1542362567-b07e54358753',
-  ],
-  luxury: [
-    'photo-1563720223185-11003d516935',
-    'photo-1617814076367-b759c7d7e738',
-    'photo-1616422285623-13ff0162193c',
-  ],
-  ev: [
-    'photo-1560958089-b8a1929cea89',
-    'photo-1593941707882-a5bba14938c7',
-  ],
+function calcRemainingBalance(monthly: number, months: number): number {
+  return monthly * months
 }
 
-const MODEL_CATEGORY: Record<string, Record<string, string>> = {
-  Hyundai:         { Sonata: 'sedan', Avante: 'sedan', Tucson: 'suv', Grandeur: 'luxury', Palisade: 'suv' },
-  Kia:             { K5: 'sedan', Sportage: 'suv', Sorento: 'suv', EV6: 'ev' },
-  Genesis:         { G80: 'luxury', GV70: 'suv', GV80: 'suv' },
-  BMW:             { '3 Series': 'sedan', '5 Series': 'sedan', X3: 'suv', X5: 'suv' },
-  'Mercedes-Benz': { 'C-Class': 'sedan', 'E-Class': 'luxury', GLC: 'suv' },
-  Audi:            { A6: 'sedan', Q5: 'suv' },
-  Volvo:           { XC60: 'suv', XC90: 'suv' },
-  Porsche:         { Cayenne: 'suv', Macan: 'suv' },
-}
-
-function getImageUrl(brand: string, model: string, index: number): string {
-  const cat = MODEL_CATEGORY[brand]?.[model] || 'sedan'
-  const photos = CAR_IMAGES[cat]
-  const photoId = photos[index % photos.length]
-  return `https://images.unsplash.com/${photoId}?w=800&h=500&fit=crop&auto=format`
-}
-
-const COLORS = ['흰색', '검정', '은색', '회색', '네이비', '레드', '블루']
-const YEARS = [2021, 2022, 2023, 2024]
-
-function randomInt(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1)) + min
-}
-
-function randomPick<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]
-}
-
-// 연식별 감가율
-function depreciatedPrice(baseMW: number, year: number): number {
-  const age = 2026 - year
-  const factor = age === 1 ? 0.85 : age === 2 ? 0.75 : age === 3 ? 0.65 : age === 4 ? 0.55 : 0.50
-  // 만원 단위 → 원 단위, 10만원 단위 반올림
-  return Math.round((baseMW * factor) / 10) * 10 * 10000
-}
-
-// 연식별 주행거리
-function mileageForYear(year: number): number {
-  const age = 2026 - year
-  const base = age * 15000
-  return base + randomInt(-3000, 5000)
-}
-
-// ─── Inspection & History Data Generators ───
-
-const PANEL_KEYS = [
-  'hood', 'frontBumper', 'rearBumper', 'trunk', 'roof',
-  'frontLeftFender', 'frontRightFender', 'rearLeftFender', 'rearRightFender',
-  'frontLeftDoor', 'frontRightDoor', 'rearLeftDoor', 'rearRightDoor',
-  'leftRocker', 'rightRocker',
-] as const
-
-const EVALUATOR_NAMES = ['김진수', '이상호', '박영민', '최동욱', '정하늘']
-const EVALUATOR_BRANCHES = ['서울센터', '강남센터', '부산센터', '대구센터', '인천센터']
-
-function generateInspectionData(): InspectionData {
-  const overallScore = randomInt(70, 95)
-  const overallGrade = calculateGrade(overallScore)
-
-  const panels: Record<string, string> = {}
-  let repaintCount = 0
-  let replacedCount = 0
-  for (const key of PANEL_KEYS) {
-    const roll = Math.random()
-    if (roll < 0.70) {
-      panels[key] = 'normal'
-    } else if (roll < 0.90) {
-      panels[key] = 'repainted'
-      repaintCount++
-    } else {
-      panels[key] = 'replaced'
-      replacedCount++
-    }
-  }
-
-  const makeCategory = () => {
-    const score = randomInt(60, 100)
-    const totalItems = randomInt(5, 15)
-    const failedItems = score < 70 ? randomInt(1, 3) : 0
-    const warningItems = score < 85 ? randomInt(0, 2) : 0
-    const passedItems = totalItems - failedItems - warningItems
-    return { score, totalItems, passedItems, warningItems, failedItems }
-  }
-
-  const hasEvaluator = Math.random() < 0.6
-  const evaluator = hasEvaluator ? {
-    name: randomPick(EVALUATOR_NAMES),
-    branch: randomPick(EVALUATOR_BRANCHES),
-    employeeId: `E${randomInt(100, 999)}`,
-    photoUrl: null,
-    recommendation: overallScore >= 80 ? '상태 양호, 구매 추천합니다.' : '일부 소모품 교체 필요, 전체적으로 양호합니다.',
-  } : null
-
-  return {
-    overallScore,
-    overallGrade,
-    panels: panels as any,
-    repaintCount,
-    replacedCount,
-    categories: {
-      interior: makeCategory(),
-      exterior: makeCategory(),
-      tires: makeCategory(),
-      consumables: makeCategory(),
-      undercarriage: makeCategory(),
-    },
-    accidentDiagnosis: repaintCount + replacedCount === 0 ? 'none' : replacedCount > 2 ? 'moderate' : 'minor',
-    evaluator,
-    inspectedAt: `2026-0${randomInt(1, 3)}-${String(randomInt(1, 28)).padStart(2, '0')}`,
-  }
-}
-
-function generateHistoryData(): HistoryData {
-  const accidentCount = Math.random() < 0.3 ? randomInt(1, 2) : 0
-  const ownerCount = randomInt(1, 3)
-
-  const ownershipHistory = Array.from({ length: ownerCount }, (_, i) => ({
-    ownerNumber: i + 1,
-    usageType: i === 0 ? 'personal' as const : randomPick(['personal', 'commercial', 'rental'] as const),
-    startDate: `${2020 + i}-0${randomInt(1, 9)}-01`,
-    endDate: i < ownerCount - 1 ? `${2021 + i}-0${randomInt(1, 9)}-01` : null,
-  }))
-
-  const myDamageCount = accidentCount > 0 ? randomInt(0, accidentCount) : 0
-  const otherDamageCount = accidentCount - myDamageCount
-  const myDamageAmount = myDamageCount * randomInt(200000, 800000)
-  const otherDamageAmount = otherDamageCount * randomInt(100000, 500000)
-
-  const insuranceClaims = []
-  for (let i = 0; i < myDamageCount; i++) {
-    insuranceClaims.push({
-      date: `202${randomInt(2, 5)}-${String(randomInt(1, 12)).padStart(2, '0')}-${String(randomInt(1, 28)).padStart(2, '0')}`,
-      type: 'myDamage' as const,
-      amount: randomInt(200000, 800000),
-      description: randomPick(['앞범퍼 찰과', '후면 접촉사고', '측면 긁힘', null]),
-    })
-  }
-  for (let i = 0; i < otherDamageCount; i++) {
-    insuranceClaims.push({
-      date: `202${randomInt(2, 5)}-${String(randomInt(1, 12)).padStart(2, '0')}-${String(randomInt(1, 28)).padStart(2, '0')}`,
-      type: 'otherDamage' as const,
-      amount: randomInt(100000, 500000),
-      description: randomPick(['상대방 과실 접촉', '주차장 접촉사고', null]),
-    })
-  }
-
-  const hasWarning = Math.random() < 0.1
-  const warnings = {
-    flood: hasWarning && Math.random() < 0.4,
-    theft: hasWarning && Math.random() < 0.2,
-    totalLoss: hasWarning && Math.random() < 0.1,
-  }
-
-  return {
-    accidentCount,
-    myDamageCount,
-    myDamageAmount,
-    otherDamageCount,
-    otherDamageAmount,
-    ownerCount,
-    ownershipHistory,
-    insuranceClaims,
-    warnings,
-  }
-}
-
-// ─── Demo Account Definitions ───
-
-const DEMO_PASSWORD = 'navid1234!'
-
-const DEMO_ACCOUNTS = {
-  admin: { email: 'admin@navid.kr', name: '관리자', role: 'ADMIN' as const },
-  dealers: [
-    { email: 'dealer1@navid.kr', name: '서울모터스', phone: '02-1234-5678', role: 'DEALER' as const },
-    { email: 'dealer2@navid.kr', name: '강남오토', phone: '02-9876-5432', role: 'DEALER' as const },
-    { email: 'dealer3@navid.kr', name: '부산카센터', phone: '051-555-1234', role: 'DEALER' as const },
-  ],
-  customers: [
-    { email: 'customer1@navid.kr', name: '김민수', phone: '010-1111-1111', role: 'CUSTOMER' as const },
-    { email: 'customer2@navid.kr', name: '이영희', phone: '010-2222-2222', role: 'CUSTOMER' as const },
-    { email: 'customer3@navid.kr', name: '박정훈', phone: '010-3333-3333', role: 'CUSTOMER' as const },
-    { email: 'customer4@navid.kr', name: '최수진', phone: '010-4444-4444', role: 'CUSTOMER' as const },
-    { email: 'customer5@navid.kr', name: '정대한', phone: '010-5555-5555', role: 'CUSTOMER' as const },
-  ],
-}
-
-// Fixed UUIDs for fallback (when Supabase Auth is not available)
-const FALLBACK_IDS = {
-  admin: '00000000-0000-0000-0000-000000000001',
-  dealers: [
-    '00000000-0000-0000-0000-000000000002',
-    '00000000-0000-0000-0000-000000000003',
-    '00000000-0000-0000-0000-000000000004',
-  ],
-  customers: [
-    '00000000-0000-0000-0000-000000000011',
-    '00000000-0000-0000-0000-000000000012',
-    '00000000-0000-0000-0000-000000000013',
-    '00000000-0000-0000-0000-000000000014',
-    '00000000-0000-0000-0000-000000000015',
-  ],
-}
+// ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
-  console.log('Starting comprehensive seed...\n')
+  console.log('Seeding database...')
 
-  // ─── 1. Profiles with optional Supabase Auth ───
-  if (supabaseAdmin) {
-    console.log('[Auth] Supabase Admin client available -- creating auth users')
-  } else {
-    console.log('[Auth] SUPABASE_SERVICE_ROLE_KEY not set -- using fixed UUIDs (no login support)')
-  }
+  await prisma.$transaction(async (tx) => {
+    // Clean slate — order matters due to FK constraints
+    await tx.chatMessage.deleteMany()
+    await tx.chatRoom.deleteMany()
+    await tx.consultationLead.deleteMany()
+    await tx.escrowPayment.deleteMany()
+    await tx.favorite.deleteMany()
+    await tx.notification.deleteMany()
+    await tx.listingImage.deleteMany()
+    await tx.listing.deleteMany()
+    await tx.profile.deleteMany()
 
-  // Admin
-  const adminAuthId = await ensureAuthUser(
-    DEMO_ACCOUNTS.admin.email,
-    DEMO_PASSWORD,
-    { role: 'ADMIN', name: DEMO_ACCOUNTS.admin.name }
-  )
-  const adminId = adminAuthId ?? FALLBACK_IDS.admin
-  await prisma.profile.upsert({
-    where: { id: adminId },
-    create: { id: adminId, email: DEMO_ACCOUNTS.admin.email, name: DEMO_ACCOUNTS.admin.name, role: 'ADMIN' },
-    update: { name: DEMO_ACCOUNTS.admin.name, role: 'ADMIN', email: DEMO_ACCOUNTS.admin.email },
-  })
-  console.log(`  [OK] Admin: ${DEMO_ACCOUNTS.admin.email} (${adminId.slice(0, 8)}...)`)
+    // ── 1. Profiles ──────────────────────────────────────────────────────────
 
-  // Dealers
-  const dealerIds: string[] = []
-  for (let i = 0; i < DEMO_ACCOUNTS.dealers.length; i++) {
-    const d = DEMO_ACCOUNTS.dealers[i]
-    const authId = await ensureAuthUser(d.email, DEMO_PASSWORD, { role: 'DEALER', name: d.name })
-    const id = authId ?? FALLBACK_IDS.dealers[i]
-    await prisma.profile.upsert({
-      where: { id },
-      create: { id, email: d.email, name: d.name, phone: d.phone, role: 'DEALER' },
-      update: { name: d.name, role: 'DEALER', phone: d.phone, email: d.email },
-    })
-    dealerIds.push(id)
-    console.log(`  [OK] Dealer: ${d.email} (${id.slice(0, 8)}...)`)
-  }
+    const [admin, seller, buyer] = await Promise.all([
+      tx.profile.upsert({
+        where: { id: ADMIN_ID },
+        update: {},
+        create: {
+          id: ADMIN_ID,
+          email: 'admin@chayong.kr',
+          name: '관리자',
+          role: UserRole.ADMIN,
+        },
+      }),
+      tx.profile.upsert({
+        where: { id: SELLER_ID },
+        update: {},
+        create: {
+          id: SELLER_ID,
+          email: 'seller@chayong.kr',
+          name: '김차용',
+          phone: '010-1234-5678',
+          role: UserRole.SELLER,
+        },
+      }),
+      tx.profile.upsert({
+        where: { id: BUYER_ID },
+        update: {},
+        create: {
+          id: BUYER_ID,
+          email: 'buyer@chayong.kr',
+          name: '이매수',
+          phone: '010-9876-5432',
+          role: UserRole.BUYER,
+        },
+      }),
+    ])
 
-  // Customers
-  const customerIds: string[] = []
-  for (let i = 0; i < DEMO_ACCOUNTS.customers.length; i++) {
-    const c = DEMO_ACCOUNTS.customers[i]
-    const authId = await ensureAuthUser(c.email, DEMO_PASSWORD, { role: 'CUSTOMER', name: c.name })
-    const id = authId ?? FALLBACK_IDS.customers[i]
-    await prisma.profile.upsert({
-      where: { id },
-      create: { id, email: c.email, name: c.name, phone: c.phone, role: 'CUSTOMER' },
-      update: { name: c.name, role: 'CUSTOMER', phone: c.phone, email: c.email },
-    })
-    customerIds.push(id)
-    console.log(`  [OK] Customer: ${c.email} (${id.slice(0, 8)}...)`)
-  }
-  console.log(`  Total: ${1 + dealerIds.length + customerIds.length} profiles`)
+    console.log(`  Created profiles: ${admin.name}, ${seller.name}, ${buyer.name}`)
 
-  // ─── 2. Brands -> CarModels -> Generations -> Trims ───
-  console.log('\nCreating brand/model/trim hierarchy...')
-  const trimIds: { trimId: string; brandName: string; modelName: string; trimName: string }[] = []
+    // ── 2. Listings ──────────────────────────────────────────────────────────
 
-  for (const brandData of brands) {
-    const brand = await prisma.brand.upsert({
-      where: { name: brandData.name },
-      create: { name: brandData.name, nameKo: brandData.nameKo },
-      update: { nameKo: brandData.nameKo },
-    })
-
-    for (const modelData of brandData.models) {
-      let carModel = await prisma.carModel.findFirst({
-        where: { brandId: brand.id, name: modelData.name },
-      })
-      if (!carModel) {
-        carModel = await prisma.carModel.create({
-          data: { brandId: brand.id, name: modelData.name, nameKo: modelData.nameKo },
-        })
-      }
-
-      let generation = await prisma.generation.findFirst({
-        where: { carModelId: carModel.id, name: modelData.gen },
-      })
-      if (!generation) {
-        generation = await prisma.generation.create({
+    const listings = await Promise.all(
+      listingSeeds.map((seed) =>
+        tx.listing.create({
           data: {
-            carModelId: carModel.id,
-            name: modelData.gen,
-            startYear: modelData.startYear,
+            sellerId: SELLER_ID,
+            type: seed.type,
+            status: ListingStatus.ACTIVE,
+            brand: seed.brand,
+            model: seed.model,
+            year: seed.year ?? null,
+            trim: seed.trim ?? null,
+            fuelType: seed.fuelType ?? null,
+            transmission: seed.transmission ?? null,
+            mileage: seed.mileage ?? null,
+            color: seed.color ?? null,
+            monthlyPayment: seed.monthlyPayment,
+            initialCost: seed.initialCost,
+            remainingMonths: seed.remainingMonths,
+            totalPrice: calcTotalPrice(seed.monthlyPayment, seed.remainingMonths, seed.initialCost),
+            remainingBalance: calcRemainingBalance(seed.monthlyPayment, seed.remainingMonths),
+            capitalCompany: seed.capitalCompany ?? null,
+            isVerified: seed.isVerified,
+            accidentFree: true,
+            options: seed.options,
           },
         })
-      }
+      )
+    )
 
-      for (const trimData of modelData.trims) {
-        let trim = await prisma.trim.findFirst({
-          where: { generationId: generation.id, name: trimData.name },
-        })
-        if (!trim) {
-          trim = await prisma.trim.create({
-            data: {
-              generationId: generation.id,
-              name: trimData.name,
-              fuelType: trimData.fuel,
-              engineCC: trimData.cc || null,
-              transmission: trimData.trans,
-            },
-          })
-        }
-        trimIds.push({
-          trimId: trim.id,
-          brandName: brandData.name,
-          modelName: modelData.name,
-          trimName: trimData.name,
-        })
-      }
-    }
-    console.log(`  [OK] ${brandData.nameKo} (${brandData.name}): ${brandData.models.length} models`)
-  }
+    console.log(`  Created ${listings.length} listings`)
 
-  // ─── 3. Vehicles ───
-  console.log('\nCreating vehicles...')
-  let vehicleCount = 0
-  let imageCount = 0
+    // ── 3. Listing Images (1 per listing) ────────────────────────────────────
 
-  for (const t of trimIds) {
-    const numVehicles = randomInt(1, 2)
-    const basePriceMW = BASE_PRICES[t.brandName]?.[t.modelName] || 3000
-
-    for (let i = 0; i < numVehicles; i++) {
-      const year = randomPick(YEARS)
-      const price = depreciatedPrice(basePriceMW, year)
-      const mileage = mileageForYear(year)
-      const dealerId = randomPick(dealerIds)
-
-      // Generate optional inspection/history/warranty data
-      const hasInspection = Math.random() < 0.7
-      const hasHistory = Math.random() < 0.8
-      const hasWarranty = Math.random() < 0.5
-
-      const vehicle = await prisma.vehicle.create({
-        data: {
-          trimId: t.trimId,
-          dealerId,
-          year,
-          mileage: Math.max(1000, mileage),
-          color: randomPick(COLORS),
-          price,
-          status: 'AVAILABLE',
-          approvalStatus: 'APPROVED',
-          approvedBy: adminId,
-          approvedAt: new Date(),
-          description: `${year}년식 ${t.brandName} ${t.modelName} ${t.trimName}. 정비 완료, 즉시 출고 가능.`,
-          inspectionData: hasInspection ? generateInspectionData() : undefined,
-          historyData: hasHistory ? generateHistoryData() : undefined,
-          warrantyEndDate: hasWarranty ? new Date(new Date().getFullYear() + randomInt(1, 3), new Date().getMonth(), new Date().getDate()) : undefined,
-          warrantyMileage: hasWarranty ? randomPick([100000, 120000, 150000]) : undefined,
-        },
-      })
-
-      // Add 1~3 images per vehicle with categories
-      const numImages = randomInt(1, 3)
-      const IMAGE_CATEGORIES = ['EXTERIOR', 'EXTERIOR', 'EXTERIOR', 'INTERIOR', 'ENGINE', 'OTHER'] as const
-      for (let imgIdx = 0; imgIdx < numImages; imgIdx++) {
-        // Distribute: first 60% EXTERIOR, next 25% INTERIOR, next 10% ENGINE, rest OTHER
-        const catRatio = imgIdx / numImages
-        const category = catRatio < 0.6 ? 'EXTERIOR' : catRatio < 0.85 ? 'INTERIOR' : catRatio < 0.95 ? 'ENGINE' : 'OTHER'
-        await prisma.vehicleImage.create({
+    await Promise.all(
+      listings.map((listing, i) => {
+        const seed = listingSeeds[i]
+        const label = encodeURIComponent(seed.imageText)
+        return tx.listingImage.create({
           data: {
-            vehicleId: vehicle.id,
-            url: getImageUrl(t.brandName, t.modelName, vehicleCount + imgIdx),
-            order: imgIdx,
-            isPrimary: imgIdx === 0,
-            category: numImages === 1 ? 'EXTERIOR' : category,
+            listingId: listing.id,
+            url: `https://placehold.co/800x600/e2e8f0/64748b?text=${label}`,
+            order: 0,
+            isPrimary: true,
           },
         })
-      }
-      imageCount += numImages
-      vehicleCount++
-    }
-  }
-  console.log(`  [OK] ${vehicleCount} vehicles, ${imageCount} images`)
+      })
+    )
 
-  // ─── 4. Residual Value Rates ───
-  console.log('\nSeeding residual value rates...')
-  const sampleRates = [
-    { brand: 'Hyundai', model: 'Sonata', year: 2024, rate: 0.42 },
-    { brand: 'Hyundai', model: 'Sonata', year: 2023, rate: 0.38 },
-    { brand: 'Hyundai', model: 'Tucson', year: 2024, rate: 0.45 },
-    { brand: 'Hyundai', model: 'Avante', year: 2024, rate: 0.36 },
-    { brand: 'Hyundai', model: 'Grandeur', year: 2024, rate: 0.44 },
-    { brand: 'Hyundai', model: 'Palisade', year: 2024, rate: 0.48 },
-    { brand: 'Kia', model: 'K5', year: 2024, rate: 0.40 },
-    { brand: 'Kia', model: 'Sportage', year: 2024, rate: 0.44 },
-    { brand: 'Kia', model: 'Sorento', year: 2024, rate: 0.46 },
-    { brand: 'Kia', model: 'EV6', year: 2024, rate: 0.38 },
-    { brand: 'Genesis', model: 'G80', year: 2024, rate: 0.48 },
-    { brand: 'Genesis', model: 'GV70', year: 2024, rate: 0.50 },
-    { brand: 'Genesis', model: 'GV80', year: 2024, rate: 0.52 },
-    { brand: 'BMW', model: '3 Series', year: 2024, rate: 0.46 },
-    { brand: 'BMW', model: '5 Series', year: 2024, rate: 0.44 },
-    { brand: 'BMW', model: 'X3', year: 2024, rate: 0.47 },
-    { brand: 'BMW', model: 'X5', year: 2024, rate: 0.50 },
-    { brand: 'Mercedes-Benz', model: 'C-Class', year: 2024, rate: 0.45 },
-    { brand: 'Mercedes-Benz', model: 'E-Class', year: 2024, rate: 0.47 },
-    { brand: 'Mercedes-Benz', model: 'GLC', year: 2024, rate: 0.48 },
-    { brand: 'Audi', model: 'A6', year: 2024, rate: 0.42 },
-    { brand: 'Audi', model: 'Q5', year: 2024, rate: 0.44 },
-    { brand: 'Volvo', model: 'XC60', year: 2024, rate: 0.43 },
-    { brand: 'Volvo', model: 'XC90', year: 2024, rate: 0.46 },
-    { brand: 'Porsche', model: 'Cayenne', year: 2024, rate: 0.55 },
-    { brand: 'Porsche', model: 'Macan', year: 2024, rate: 0.52 },
-  ]
+    console.log('  Created listing images')
 
-  let rateSeeded = 0
-  for (const entry of sampleRates) {
-    const brand = await prisma.brand.findFirst({ where: { name: entry.brand } })
-    if (!brand) continue
-    const carModel = await prisma.carModel.findFirst({
-      where: { brandId: brand.id, name: entry.model },
-    })
-    if (!carModel) continue
+    // ── 4. ChatRoom + Messages (buyer ↔ seller for first listing) ────────────
 
-    await prisma.residualValueRate.upsert({
-      where: {
-        brandId_carModelId_year: {
-          brandId: brand.id,
-          carModelId: carModel.id,
-          year: entry.year,
-        },
+    const firstListing = listings[0]
+
+    const chatRoom = await tx.chatRoom.create({
+      data: {
+        listingId: firstListing.id,
+        buyerId: BUYER_ID,
+        sellerId: SELLER_ID,
       },
-      create: { brandId: brand.id, carModelId: carModel.id, year: entry.year, rate: entry.rate },
-      update: { rate: entry.rate },
     })
-    rateSeeded++
-  }
-  console.log(`  [OK] ${rateSeeded} residual value rates`)
 
-  // ─── 5. Demo Contracts in All Statuses ───
-  console.log('\nCreating demo contracts...')
+    const messages: Array<{ senderId: string; type: MessageType; content: string }> = [
+      { senderId: SELLER_ID, type: MessageType.SYSTEM,  content: '안전거래 시 보호됩니다.' },
+      { senderId: BUYER_ID,  type: MessageType.TEXT,    content: '안녕하세요, 매물 아직도 있나요?' },
+      { senderId: SELLER_ID, type: MessageType.TEXT,    content: '네, 아직 있습니다!' },
+    ]
 
-  // Get some vehicles for contracts
-  const vehicles = await prisma.vehicle.findMany({
-    take: 20,
-    include: {
-      trim: {
-        include: {
-          generation: {
-            include: { carModel: { include: { brand: true } } },
-          },
+    for (const msg of messages) {
+      await tx.chatMessage.create({
+        data: {
+          chatRoomId: chatRoom.id,
+          senderId: msg.senderId,
+          type: msg.type,
+          content: msg.content,
         },
+      })
+    }
+
+    console.log('  Created chat room with 3 messages')
+
+    // ── 5. ConsultationLead ──────────────────────────────────────────────────
+
+    await tx.consultationLead.create({
+      data: {
+        userId: BUYER_ID,
+        listingId: firstListing.id,
+        type: firstListing.type,
+        status: LeadStatus.WAITING,
       },
-    },
-    orderBy: { createdAt: 'desc' },
+    })
+
+    console.log('  Created consultation lead')
   })
 
-  if (vehicles.length < 13) {
-    console.warn('  ! Not enough vehicles for contract demo data')
-  }
-
-  const now = new Date()
-  const monthsAgo = (m: number) => new Date(now.getFullYear(), now.getMonth() - m, now.getDate())
-  const monthsFromNow = (m: number) => new Date(now.getFullYear(), now.getMonth() + m, now.getDate())
-
-  type ContractSpec = {
-    type: 'RENTAL' | 'LEASE'
-    status: 'DRAFT' | 'PENDING_EKYC' | 'PENDING_APPROVAL' | 'APPROVED' | 'ACTIVE' | 'COMPLETED' | 'CANCELED'
-    monthly: number
-    deposit: number
-    startDate?: Date
-    endDate?: Date
-    residualRate?: number
-  }
-
-  const contractSpecs: ContractSpec[] = [
-    // DRAFT (2)
-    { type: 'RENTAL', status: 'DRAFT', monthly: 450000, deposit: 3000000 },
-    { type: 'LEASE', status: 'DRAFT', monthly: 550000, deposit: 5000000, residualRate: 0.42 },
-    // PENDING_EKYC (1)
-    { type: 'RENTAL', status: 'PENDING_EKYC', monthly: 380000, deposit: 3000000 },
-    // PENDING_APPROVAL (2)
-    { type: 'RENTAL', status: 'PENDING_APPROVAL', monthly: 420000, deposit: 4000000 },
-    { type: 'LEASE', status: 'PENDING_APPROVAL', monthly: 680000, deposit: 8000000, residualRate: 0.45 },
-    // APPROVED (2)
-    { type: 'RENTAL', status: 'APPROVED', monthly: 350000, deposit: 3000000 },
-    { type: 'LEASE', status: 'APPROVED', monthly: 520000, deposit: 6000000, residualRate: 0.40 },
-    // ACTIVE (3)
-    { type: 'RENTAL', status: 'ACTIVE', monthly: 480000, deposit: 5000000, startDate: monthsAgo(3), endDate: monthsFromNow(9) },
-    { type: 'RENTAL', status: 'ACTIVE', monthly: 320000, deposit: 3000000, startDate: monthsAgo(6), endDate: monthsFromNow(6) },
-    { type: 'LEASE', status: 'ACTIVE', monthly: 750000, deposit: 10000000, startDate: monthsAgo(2), endDate: monthsFromNow(22), residualRate: 0.48 },
-    // COMPLETED (2)
-    { type: 'RENTAL', status: 'COMPLETED', monthly: 400000, deposit: 4000000, startDate: monthsAgo(14), endDate: monthsAgo(2) },
-    { type: 'LEASE', status: 'COMPLETED', monthly: 600000, deposit: 7000000, startDate: monthsAgo(26), endDate: monthsAgo(2), residualRate: 0.44 },
-    // CANCELED (1)
-    { type: 'LEASE', status: 'CANCELED', monthly: 500000, deposit: 5000000, residualRate: 0.38 },
-  ]
-
-  let rentalCount = 0
-  let leaseCount = 0
-
-  for (let i = 0; i < contractSpecs.length; i++) {
-    const spec = contractSpecs[i]
-    const vehicle = vehicles[i % vehicles.length]
-    const customerId = customerIds[i % customerIds.length]
-    const dealerId = vehicle.dealerId
-    const duration = spec.startDate && spec.endDate
-      ? Math.round((spec.endDate.getTime() - spec.startDate.getTime()) / (1000 * 60 * 60 * 24 * 30))
-      : 12
-    const totalAmount = spec.monthly * duration + spec.deposit
-
-    if (spec.type === 'RENTAL') {
-      await prisma.rentalContract.create({
-        data: {
-          vehicleId: vehicle.id,
-          customerId,
-          dealerId,
-          status: spec.status,
-          startDate: spec.startDate ?? null,
-          endDate: spec.endDate ?? null,
-          monthlyPayment: spec.monthly,
-          deposit: spec.deposit,
-          totalAmount,
-        },
-      })
-      rentalCount++
-    } else {
-      const residualValue = spec.residualRate
-        ? Math.round(vehicle.price * spec.residualRate)
-        : null
-      await prisma.leaseContract.create({
-        data: {
-          vehicleId: vehicle.id,
-          customerId,
-          dealerId,
-          status: spec.status,
-          startDate: spec.startDate ?? null,
-          endDate: spec.endDate ?? null,
-          monthlyPayment: spec.monthly,
-          deposit: spec.deposit,
-          residualValue,
-          residualRate: spec.residualRate ?? null,
-          totalAmount,
-        },
-      })
-      leaseCount++
-    }
-
-    // Create EkycVerification for contracts past PENDING_EKYC
-    const pastEkyc = ['PENDING_APPROVAL', 'APPROVED', 'ACTIVE', 'COMPLETED'].includes(spec.status)
-    if (pastEkyc) {
-      const customer = DEMO_ACCOUNTS.customers[i % DEMO_ACCOUNTS.customers.length]
-      await prisma.ekycVerification.create({
-        data: {
-          profileId: customerId,
-          contractType: spec.type,
-          name: customer.name,
-          phone: customer.phone,
-          carrier: randomPick(['SKT', 'KT', 'LG U+']),
-          birthDate: `19${randomInt(85, 99)}${String(randomInt(1, 12)).padStart(2, '0')}${String(randomInt(1, 28)).padStart(2, '0')}`,
-          gender: randomPick(['M', 'F']),
-          verified: true,
-          verifiedAt: new Date(),
-        },
-      })
-    }
-  }
-
-  console.log(`  [OK] ${rentalCount} rental contracts, ${leaseCount} lease contracts`)
-  console.log(`  Contract status distribution:`)
-  console.log(`    DRAFT: 2, PENDING_EKYC: 1, PENDING_APPROVAL: 2`)
-  console.log(`    APPROVED: 2, ACTIVE: 3, COMPLETED: 2, CANCELED: 1`)
-
-  // ─── 6. Quote Requests & Dealer Bids ───
-  console.log('\nCreating quote requests and dealer bids...')
-
-  // Resolve Hyundai brand id for preferred brand on request 1
-  const hyundaiBrand = await prisma.brand.findFirst({ where: { name: 'Hyundai' } })
-  const sonataModel = hyundaiBrand
-    ? await prisma.carModel.findFirst({ where: { brandId: hyundaiBrand.id, name: 'Sonata' } })
-    : null
-
-  // Pick vehicles for bids (need real vehicleIds)
-  const bidVehicles = await prisma.vehicle.findMany({
-    take: 5,
-    orderBy: { createdAt: 'asc' },
-    select: { id: true, price: true },
-  })
-
-  // QuoteRequest 1: RENTAL, 현대 소나타 선호, 36개월, 예산 500,000원, BIDDING 상태
-  const quoteRequest1 = await prisma.quoteRequest.create({
-    data: {
-      customerId: customerIds[0],
-      contractType: 'RENTAL',
-      preferredBrandId: hyundaiBrand?.id ?? null,
-      preferredModelId: sonataModel?.id ?? null,
-      yearMin: 2022,
-      yearMax: 2024,
-      budgetMin: 350000,
-      budgetMax: 500000,
-      contractMonths: 36,
-      depositMax: 5000000,
-      mileageLimit: 20000,
-      specialRequests: '무사고 차량 선호, 흰색 또는 은색',
-      status: 'BIDDING',
-      expiresAt: monthsFromNow(1),
-    },
-  })
-
-  // QuoteRequest 2: LEASE, 브랜드 무관, 48개월, 예산 700,000원, COMPARING 상태
-  const quoteRequest2 = await prisma.quoteRequest.create({
-    data: {
-      customerId: customerIds[1],
-      contractType: 'LEASE',
-      yearMin: 2023,
-      yearMax: 2024,
-      budgetMin: 500000,
-      budgetMax: 700000,
-      contractMonths: 48,
-      depositMax: 8000000,
-      specialRequests: 'SUV 선호, 하이브리드 또는 전기차',
-      status: 'COMPARING',
-      expiresAt: monthsFromNow(2),
-    },
-  })
-
-  // QuoteRequest 3: RENTAL, 만료된 요청
-  await prisma.quoteRequest.create({
-    data: {
-      customerId: customerIds[2],
-      contractType: 'RENTAL',
-      budgetMax: 450000,
-      contractMonths: 24,
-      status: 'EXPIRED',
-      expiresAt: monthsAgo(1),
-    },
-  })
-
-  // DealerBids on QuoteRequest 1 (BIDDING) — 3개 딜러 입찰
-  const bid1Monthly = 420000
-  const bid1Deposit = 3000000
-  await prisma.dealerBid.create({
-    data: {
-      quoteRequestId: quoteRequest1.id,
-      dealerId: dealerIds[0],
-      vehicleId: bidVehicles[0]?.id ?? null,
-      monthlyPayment: bid1Monthly,
-      deposit: bid1Deposit,
-      totalCost: bid1Monthly * 36 + bid1Deposit,
-      interestRate: null,
-      promotionNote: '신규 가입 고객 첫 달 50% 할인 적용',
-      status: 'SUBMITTED',
-      submittedAt: new Date(),
-    },
-  })
-
-  await prisma.dealerBid.create({
-    data: {
-      quoteRequestId: quoteRequest1.id,
-      dealerId: dealerIds[1],
-      vehicleId: bidVehicles[1]?.id ?? null,
-      monthlyPayment: 450000,
-      deposit: 2500000,
-      totalCost: 450000 * 36 + 2500000,
-      interestRate: null,
-      promotionNote: '보증금 낮추고 월납 소폭 상향, 블랙박스 무상 설치',
-      status: 'SUBMITTED',
-      submittedAt: new Date(),
-    },
-  })
-
-  await prisma.dealerBid.create({
-    data: {
-      quoteRequestId: quoteRequest1.id,
-      dealerId: dealerIds[2],
-      vehicleId: bidVehicles[2]?.id ?? null,
-      monthlyPayment: 390000,
-      deposit: 4000000,
-      totalCost: 390000 * 36 + 4000000,
-      interestRate: null,
-      promotionNote: '월 최저가 보장, 전국 무료 탁송',
-      status: 'SUBMITTED',
-      submittedAt: new Date(),
-    },
-  })
-
-  // DealerBids on QuoteRequest 2 (COMPARING) — 2개 딜러 입찰
-  await prisma.dealerBid.create({
-    data: {
-      quoteRequestId: quoteRequest2.id,
-      dealerId: dealerIds[0],
-      vehicleId: bidVehicles[3]?.id ?? null,
-      monthlyPayment: 650000,
-      deposit: 7000000,
-      totalCost: 650000 * 48 + 7000000,
-      residualValue: bidVehicles[3] ? Math.round(bidVehicles[3].price * 0.45) : null,
-      interestRate: 3.9,
-      contractTerms: { annualMileage: 20000, penaltyPerKm: 150 },
-      promotionNote: 'GV70 재고 특가, 이자율 3.9% 고정',
-      status: 'SUBMITTED',
-      submittedAt: new Date(),
-    },
-  })
-
-  await prisma.dealerBid.create({
-    data: {
-      quoteRequestId: quoteRequest2.id,
-      dealerId: dealerIds[1],
-      vehicleId: bidVehicles[4]?.id ?? null,
-      monthlyPayment: 680000,
-      deposit: 6000000,
-      totalCost: 680000 * 48 + 6000000,
-      residualValue: bidVehicles[4] ? Math.round(bidVehicles[4].price * 0.44) : null,
-      interestRate: 4.2,
-      contractTerms: { annualMileage: 20000, penaltyPerKm: 200 },
-      promotionNote: '스포티지 하이브리드 즉시 출고 가능, 내비 무상 업그레이드',
-      status: 'SUBMITTED',
-      submittedAt: new Date(),
-    },
-  })
-
-  const [quoteCount, bidCount] = await Promise.all([
-    prisma.quoteRequest.count(),
-    prisma.dealerBid.count(),
-  ])
-  console.log(`  [OK] ${quoteCount} quote requests, ${bidCount} dealer bids`)
-
-  // ─── Summary ───
-  const counts = await Promise.all([
-    prisma.brand.count(),
-    prisma.carModel.count(),
-    prisma.trim.count(),
-    prisma.vehicle.count(),
-    prisma.vehicleImage.count(),
-    prisma.residualValueRate.count(),
-    prisma.profile.count(),
-    prisma.rentalContract.count(),
-    prisma.leaseContract.count(),
-    prisma.ekycVerification.count(),
-    prisma.quoteRequest.count(),
-    prisma.dealerBid.count(),
-  ])
-  console.log('\n===================================')
-  console.log(`  Brands:          ${counts[0]}`)
-  console.log(`  Models:          ${counts[1]}`)
-  console.log(`  Trims:           ${counts[2]}`)
-  console.log(`  Vehicles:        ${counts[3]}`)
-  console.log(`  Images:          ${counts[4]}`)
-  console.log(`  Residual Rates:  ${counts[5]}`)
-  console.log(`  Profiles:        ${counts[6]}`)
-  console.log(`  Rental Contracts:${counts[7]}`)
-  console.log(`  Lease Contracts: ${counts[8]}`)
-  console.log(`  eKYC Records:    ${counts[9]}`)
-  console.log(`  Quote Requests:  ${counts[10]}`)
-  console.log(`  Dealer Bids:     ${counts[11]}`)
-  console.log('===================================')
-  console.log('Seed complete!')
+  console.log('Seed complete.')
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect()
-  })
-  .catch(async (e) => {
+  .catch((e) => {
     console.error(e)
-    await prisma.$disconnect()
     process.exit(1)
   })
+  .finally(() => prisma.$disconnect())

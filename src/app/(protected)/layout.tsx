@@ -1,9 +1,12 @@
-// Protected route group layout.
-// Auth guard will be added here once Supabase session integration is complete.
-export default function ProtectedLayout({
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/supabase/auth";
+
+export default async function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getSession();
+  if (!session) redirect("/login");
   return <>{children}</>;
 }

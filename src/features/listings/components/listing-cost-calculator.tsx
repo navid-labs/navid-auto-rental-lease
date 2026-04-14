@@ -31,7 +31,7 @@ export function ListingCostCalculator({
 
   return (
     <div
-      className="rounded-xl border p-4"
+      className="rounded-xl border shadow-sm p-4"
       style={{ borderColor: "var(--chayong-border)", backgroundColor: "var(--chayong-bg)" }}
     >
       <h3 className="mb-3 text-sm font-semibold" style={{ color: "var(--chayong-text)" }}>

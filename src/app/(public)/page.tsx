@@ -121,14 +121,14 @@ export default async function HomePage() {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/list"
-                className="rounded-xl px-6 py-3 font-semibold text-white transition-colors"
+                className="inline-flex h-12 items-center rounded-xl px-6 text-[15px] font-semibold text-white transition-colors hover:opacity-90"
                 style={{ backgroundColor: "var(--chayong-primary)" }}
               >
                 매물 보러가기
               </Link>
               <Link
                 href="/sell"
-                className="rounded-xl border px-6 py-3 font-semibold transition-colors"
+                className="inline-flex h-12 items-center rounded-xl border px-6 text-[15px] font-semibold transition-colors hover:bg-[var(--chayong-surface)]"
                 style={{
                   borderColor: "var(--chayong-border)",
                   color: "var(--chayong-text)",

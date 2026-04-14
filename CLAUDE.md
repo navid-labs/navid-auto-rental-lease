@@ -1,172 +1,169 @@
-# CLAUDE.md
+# CLAUDE.md — 차용(Chayong) 플랫폼
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+중고 승계 + 중고 리스/렌트 거래 플랫폼.
+"플랫폼은 유입 도구, 계약은 사람이 만든다"
 
 ## 읽지 말 것 (토큰 절약)
 
-다음 경로는 읽지 마세요:
-- `node_modules/` - 의존성 (bun.lock으로 버전 확인)
-- `.next/` - Next.js 빌드 캐시
-- `dist/`, `build/` - 빌드 출력
-- `.git/` - Git 내부 파일
-- `coverage/` - 테스트 커버리지
-- `*.log`, `*.lock` - 로그 및 락 파일
-- `prisma/migrations/` - 마이그레이션 히스토리 (schema.prisma만 참조)
-- `.gemini/` - Antigravity 로컬 데이터
+- `node_modules/`, `.next/`, `dist/`, `build/`, `.git/`, `coverage/`
+- `*.log`, `*.lock`
+- `prisma/migrations/` (schema.prisma만 참조)
+- `.gemini/`, `.omc/`, `.firecrawl/`, `.context/`, `.planning/`
 
 ## Package Manager
 
-**Always use `bun` instead of `npm` or `yarn`** for all package management operations:
+**Always use `bun`** (not npm/yarn):
 - Install: `bun add <package>` / `bun add -D <package>`
-- Run scripts: `bun run <script-name>` or `bun <script-name>`
-- Do NOT use `npm install`, `npm run`, `npx`, `yarn` (프로젝트 초기화 시 제외)
+- Scripts: `bun run <script>` or `bun <script>`
 
 ## Commands
 
 ```bash
 # Development
-bun dev               # Start Next.js dev server (http://localhost:3000)
+bun dev               # Next.js dev (http://localhost:3000)
 bun run build         # Production build
 bun run lint          # ESLint
-bun run lint:fix      # ESLint with auto-fix
 bun run type-check    # TypeScript check (tsc --noEmit)
 
 # Testing
-bun run test          # Run all unit tests (vitest) — 주의: `bun test`는 bun 내장 러너
-bun run test:watch    # Watch mode
-bun run test:coverage # Coverage report
+bun run test          # Unit tests (vitest) — 주의: `bun test`는 bun 내장 러너
+bun run test:e2e      # E2E tests (Playwright)
 
 # Database (PostgreSQL via Prisma + Supabase)
 bun run db:generate   # Generate Prisma client
-bun run db:migrate    # Deploy migrations (prisma migrate deploy)
-bun run db:push       # Push schema changes (prisma db push)
+bun run db:push       # Push schema (prisma db push)
 bun run db:seed       # Seed database
 bun run db:studio     # Open Prisma Studio
 ```
 
-## Architecture Overview
+## Tech Stack
 
-### Tech Stack
 - **Framework**: Next.js 15 (App Router), React 19, TypeScript 5
-- **Styling**: Tailwind CSS 4
-- **Forms**: React Hook Form + Zod validation
-- **Database**: PostgreSQL via Prisma (hosted on Supabase)
-- **State**: Zustand
+- **Styling**: Tailwind CSS 4 + shadcn/ui
+- **Database**: PostgreSQL via Prisma 6 (Supabase)
+- **Auth**: Supabase Auth (@supabase/ssr)
+- **Realtime**: Supabase Realtime (chat)
+- **Storage**: Supabase Storage (이미지 업로드)
+- **Payment**: 토스페이먼츠 SDK (에스크로)
 - **Package Manager**: bun
+- **Testing**: Vitest (unit) + Playwright (e2e)
 
-### Project Structure
+## Project Structure
 
 ```
 src/
-├── app/                    # Next.js App Router
-│   ├── api/               # API routes
-│   ├── admin/             # Admin dashboard pages
-│   └── (marketing)/       # Marketing & public pages
+├── app/
+│   ├── (public)/              # 공개 페이지 (HOME, LIST, DETAIL, SELL, GUIDE)
+│   ├── (auth)/                # 인증 (LOGIN, SIGNUP)
+│   ├── (protected)/           # 보호 (CHAT, PAYMENT, MY)
+│   ├── admin/                 # 관리자 (대시보드, 리드, 매물, 에스크로)
+│   └── api/                   # API routes
+│       ├── listings/          # 매물 CRUD + brands + images
+│       ├── chat/              # 채팅 rooms/messages/read
+│       ├── payment/           # 에스크로 prepare/confirm
+│       ├── favorites/         # 찜 toggle + my
+│       ├── notifications/     # 알림 list + mark-read
+│       ├── admin/             # 관리자 leads/listings/escrow
+│       └── upload/            # 이미지 업로드
 ├── components/
-│   ├── ui/                # Primitives (Button, Input, Card, etc.)
-│   └── layout/            # Header, Footer, Navigation
-├── features/              # Domain modules
-│   ├── vehicles/          # Vehicle catalog (rental/lease inventory)
-│   ├── rental/            # Rental management
-│   ├── lease/             # Lease management
-│   ├── customers/         # Customer CRM
-│   ├── contracts/         # Contract management
-│   └── marketing/         # Marketing & promotions
+│   ├── ui/                    # shadcn + 차용 공유 (VehicleCard, PriceDisplay, TrustBadge, FilterBar, StepIndicator, ImageUpload)
+│   └── layout/                # Header, HeaderAuth, Footer, MobileNav, NotificationBell
+├── features/
+│   ├── listings/              # 매물 (gallery, cost-calculator, cta-sidebar, share, mobile-cta, grid, advanced-filters, use-favorite hook)
+│   ├── chat/                  # 채팅 (room-list, message-area)
+│   ├── payment/               # 결제 (escrow-checkout)
+│   ├── sell/                  # 매물 등록 (sell-wizard)
+│   ├── my/                    # 마이페이지 (dashboard, listing-card)
+│   ├── auth/                  # 인증 (login-form, signup-form)
+│   └── admin/                 # 관리자 (sidebar, lead-table, listing-admin-table, escrow-admin-table)
 ├── lib/
-│   ├── db/                # Prisma client (prisma.ts, supabase.ts)
-│   ├── validation/        # Zod schemas
-│   ├── finance/           # Payment & lease calculations
-│   └── utils/             # Shared utilities
-└── types/                 # Shared TypeScript definitions
-
-prisma/
-├── schema.prisma          # Database schema
-├── migrations/            # Migration files
-└── seed.ts                # Seed script
+│   ├── db/prisma.ts           # Prisma client
+│   ├── supabase/              # client.ts, server.ts, auth.ts
+│   ├── api/auth-guard.ts      # API 인증/인가 미들웨어 (requireAuth, requireRole)
+│   ├── finance/calculations.ts # 비용 계산 (calcTotalAcquisitionCost, checkIsVerified)
+│   ├── chat/contact-filter.ts # 연락처 차단 (containsContactInfo, sanitizeMessage)
+│   └── utils/format.ts        # 통화 포맷 (formatKRW, formatKRWCompact)
+└── types/index.ts             # Prisma 타입 + ListingCardData, ListingWithImages
 ```
 
-### Database Schema (Key Domains)
+## Database Schema
 
-**Vehicle Catalog**:
-- `Brand` → `CarModel` → `Generation` → `Trim`
-- Vehicle inventory for rental and lease
+10개 Prisma 모델:
 
-**Rental & Lease**:
-- `RentalContract` - 렌탈 계약 관리
-- `LeaseContract` - 리스 계약 관리
-- `Payment` - 결제 기록
+| 모델 | 역할 |
+|------|------|
+| Profile | 유저 (BUYER/SELLER/DEALER/ADMIN) |
+| Listing | 매물 (TRANSFER/USED_LEASE/USED_RENTAL) |
+| ListingImage | 매물 이미지 |
+| ChatRoom | 채팅방 (buyer + seller per listing) |
+| ChatMessage | 채팅 메시지 (TEXT/IMAGE/SYSTEM) |
+| ConsultationLead | 상담 리드 (WAITING/CONSULTING/CONTRACTED) |
+| EscrowPayment | 에스크로 결제 (PENDING→PAID→RELEASED/REFUNDED) |
+| Favorite | 찜 |
+| Notification | 알림 |
 
-**Customer CRM**:
-- `Customer` - 고객 정보
-- `Inquiry` - 상담/문의
-- `ConsultationLead` - 상담 리드
+## API Security
 
-### API Pattern
+- **Public**: `GET /api/listings`, `GET /api/listings/[id]`, `GET /api/listings/brands`
+- **Auth required**: 나머지 모든 API (requireAuth)
+- **Admin only**: `/api/admin/*` (requireRole("ADMIN"))
+- senderId/buyerId/sellerId는 항상 세션에서 추출 (body 무시)
+- PUT은 allowlist 필드만 업데이트 가능
 
-API routes follow REST conventions:
-- `GET /api/vehicles` - List with filters
-- `GET /api/vehicles/[id]` - Detail
-- `POST /api/inquiry` - Create inquiry
-- `POST /api/contracts` - Create contract
-- Admin APIs require session auth (`/api/admin/*`)
+## Design System
+
+```
+Primary:    #3182F6 (토스 블루)
+Background: #FFFFFF
+Surface:    #F9FAFB
+Text:       #111111
+Sub Text:   #687684
+Caption:    #8B95A1
+Divider:    #E5E8EB
+Success:    #00C471
+Danger:     #F04452
+```
+
+CSS vars: `--chayong-primary`, `--chayong-text`, `--chayong-text-sub`, etc.
+Font: Pretendard Variable (via `<link>` in layout.tsx)
+
+### UI 원칙
+- 월 납입금을 가장 크게 표시 (전체 금액 강조 금지)
+- 카드형 UI + shadow-sm + hover:shadow-lg
+- 버튼: h-12, rounded-xl, font-semibold, text-[15px]
+- 금융 앱 느낌 (토스/카카오뱅크 스타일)
 
 ## Environment Variables
 
-Required in `.env.local`:
 ```env
 DATABASE_URL="postgresql://..."
 DIRECT_URL="postgresql://..."
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_TOSS_CLIENT_KEY=test_ck_... (optional, 없으면 테스트 모드)
 ```
-
-## Branch Strategy
-
-See AGENTS.md for full details.
-
-**Quick reference:**
-- `main`: Production (PR + approval required)
-- `dev`: Integration (PR required)
-- `feature/*`: Development branches
-
-**Workflow:** `feature/xxx` -> PR -> `dev` -> PR -> `main`
-
-**Important:** Never push directly to main or dev. Always use PRs.
 
 ## Code Conventions
 
-- Use named exports (avoid default exports)
-- Functional components with hooks
-- Zod schemas in `features/*/schemas/` or `lib/validation/`
-- Server Components by default; add `'use client'` only when needed
+- Named exports (default export 지양)
+- Server Components by default; `"use client"` 필요할 때만
+- `var(--chayong-*)` CSS vars 사용
+- API routes: `requireAuth()` / `requireRole()` + try/catch + 입력 검증
 
 ### Performance Rules
 
-**Async (CRITICAL):**
-- 독립적인 async 호출은 반드시 `Promise.all()` 사용 — 순차 await 금지
-- API 라우트에서 DB 쿼리 2개 이상이면 병렬 가능 여부 확인
+- 독립 async 호출은 `Promise.all()` 사용
+- 대형 라이브러리(100KB+)는 `next/dynamic` import
+- 서버 컴포넌트에서 중복 fetch 시 `React.cache()` 사용
 
-**Bundle (CRITICAL):**
-- 대형 라이브러리(100KB+)는 반드시 `next/dynamic`으로 import (`ssr: false`)
-- barrel file(index.ts)에서 import보다 직접 파일 import 선호
+## Testing
 
-**Server (HIGH):**
-- 서버 컴포넌트에서 동일 데이터 중복 fetch 시 `React.cache()` 사용
-- 클라이언트 컴포넌트에 전달하는 props 최소화 (필요한 필드만)
+- **Unit** (29 tests): `src/lib/finance/`, `src/lib/chat/`, `src/lib/utils/`
+- **E2E** (20 specs): `tests/e2e/` — navigation, auth, sell wizard, detail
 
-## Design Philosophy
+## Concept Designs
 
-- **High-Fidelity Aesthetics (Nano Banana Pro 2)**: 프리미엄, 고밀도 랜딩 페이지 디자인
-- **Visual Density**: 2-column 비주얼 에셋, shadow-card 레이아웃, 배경 워터마크
-- **Mobile-First**: 모바일 우선 반응형 디자인
-- **Glassmorphism**: backdrop-blur, 반투명 카드 UI
-
-## Testing Structure
-
-```
-tests/
-├── unit/                  # Unit tests (vitest)
-├── integration/           # Integration tests
-└── e2e/                   # End-to-end tests (Playwright)
-```
+- `docs/concept-designs/01-chayong-reference-ui.png`
+- `docs/concept-designs/02-chayong-page-wireframes.png`
+- `docs/concept-designs/03-chayong-mvp-spec.png`
+- `docs/superpowers/specs/2026-04-08-chayong-platform-design.md`

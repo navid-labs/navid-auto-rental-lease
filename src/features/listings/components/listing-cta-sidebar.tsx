@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Heart } from "lucide-react";
+import { toast } from "sonner";
 import { PriceDisplay } from "@/components/ui/price-display";
 
 interface ListingCtaSidebarProps {
@@ -19,7 +20,7 @@ export function ListingCtaSidebar({
 }: ListingCtaSidebarProps) {
   function handleFavorite() {
     // TODO: implement favorite toggle (requires auth)
-    alert("찜하기 기능은 로그인 후 이용 가능합니다.");
+    toast.info("찜하기 기능은 로그인 후 이용 가능합니다.");
   }
 
   return (

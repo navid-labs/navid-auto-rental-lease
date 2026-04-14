@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Toaster } from "sonner";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { MobileNav } from "@/components/layout/mobile-nav";
@@ -37,6 +38,7 @@ export default function RootLayout({
         <main className="pb-16 md:pb-0">{children}</main>
         <Footer />
         <MobileNav />
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );

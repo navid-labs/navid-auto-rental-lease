@@ -8,29 +8,28 @@ import type { ListingCardData } from "@/types";
 export const dynamic = "force-dynamic";
 
 async function getRecommendedListings(): Promise<ListingCardData[]> {
-  // Try verified+active first, fall back to newest active
-  const [verified, newest] = await Promise.all([
-    prisma.listing.findMany({
-      where: { status: "ACTIVE", isVerified: true },
-      orderBy: { createdAt: "desc" },
-      take: 8,
-      include: {
-        images: { where: { isPrimary: true }, take: 1, select: { url: true } },
-      },
-    }),
-    prisma.listing.findMany({
+  // Try verified+active first, fall back to newest active only if empty
+  let listings = await prisma.listing.findMany({
+    where: { status: "ACTIVE", isVerified: true },
+    orderBy: { createdAt: "desc" },
+    take: 8,
+    include: {
+      images: { where: { isPrimary: true }, take: 1, select: { url: true } },
+    },
+  });
+
+  if (listings.length === 0) {
+    listings = await prisma.listing.findMany({
       where: { status: "ACTIVE" },
       orderBy: { createdAt: "desc" },
       take: 8,
       include: {
         images: { where: { isPrimary: true }, take: 1, select: { url: true } },
       },
-    }),
-  ]);
+    });
+  }
 
-  const source = verified.length > 0 ? verified : newest;
-
-  return source.map((l) => ({
+  return listings.map((l) => ({
     id: l.id,
     type: l.type,
     brand: l.brand,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { StepIndicator } from "@/components/ui/step-indicator";
 import { CheckCircle, ShieldCheck, Lock } from "lucide-react";
 
@@ -33,11 +33,30 @@ function vehicleLabel(listing: ListingInfo): string {
 export function EscrowCheckout({ listing, buyerId }: EscrowCheckoutProps) {
   const [step, setStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [pgPending, setPgPending] = useState(false);
+  const [showTestConfirm, setShowTestConfirm] = useState(false);
+  const [pendingPaymentId, setPendingPaymentId] = useState<string | null>(null);
 
   const depositAmount = DEPOSIT_AMOUNT;
   const transferFee = listing.transferFee ?? 0;
   const totalAmount = depositAmount + transferFee;
+
+  // Load Toss Payments SDK when reaching payment step
+  useEffect(() => {
+    if (step !== 2) return;
+
+    const existing = document.getElementById("toss-sdk");
+    if (existing) return;
+
+    const script = document.createElement("script");
+    script.id = "toss-sdk";
+    script.src = "https://js.tosspayments.com/v2/standard";
+    document.head.appendChild(script);
+
+    return () => {
+      const el = document.getElementById("toss-sdk");
+      if (el) document.head.removeChild(el);
+    };
+  }, [step]);
 
   const handlePreparePayment = async () => {
     setIsLoading(true);
@@ -50,14 +69,49 @@ export function EscrowCheckout({ listing, buyerId }: EscrowCheckoutProps) {
 
       if (!res.ok) throw new Error("결제 준비에 실패했습니다.");
 
-      // TODO: Integrate Toss Payments SDK here
-      // const payment = await res.json();
-      // await loadTossPayments(process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY);
-      // await tossPayments.requestPayment('카드', { orderId: payment.id, ... });
+      const payment = await res.json();
+      setPendingPaymentId(payment.id);
 
-      setPgPending(true);
+      const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const TossPayments = (window as any).TossPayments;
+
+      if (clientKey && TossPayments) {
+        // Real Toss Payments flow
+        const tossPayments = TossPayments(clientKey);
+        await tossPayments.requestPayment("카드", {
+          amount: totalAmount,
+          orderId: payment.id,
+          orderName: `${vehicleLabel(listing)} 가계약금`,
+          customerName: buyerId,
+          successUrl: `${window.location.origin}/api/payment/confirm?paymentId=${payment.id}`,
+          failUrl: `${window.location.origin}/payment/fail`,
+        });
+      } else {
+        // Test mode: show styled confirmation dialog
+        setShowTestConfirm(true);
+      }
     } catch {
       alert("결제 준비 중 오류가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleTestConfirm = async () => {
+    if (!pendingPaymentId) return;
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/payment/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentId: pendingPaymentId }),
+      });
+      if (!res.ok) throw new Error("결제 확인에 실패했습니다.");
+      setShowTestConfirm(false);
+      setStep(3);
+    } catch {
+      alert("결제 처리 중 오류가 발생했습니다.");
     } finally {
       setIsLoading(false);
     }
@@ -231,7 +285,7 @@ export function EscrowCheckout({ listing, buyerId }: EscrowCheckoutProps) {
     </div>
   );
 
-  // Step 2: 결제 (PG placeholder)
+  // Step 2: 결제
   const renderStep2 = () => (
     <div className="space-y-6">
       <div
@@ -241,10 +295,7 @@ export function EscrowCheckout({ listing, buyerId }: EscrowCheckoutProps) {
           border: "1px solid var(--chayong-border)",
         }}
       >
-        <p
-          className="text-sm"
-          style={{ color: "var(--chayong-text-sub)" }}
-        >
+        <p className="text-sm" style={{ color: "var(--chayong-text-sub)" }}>
           총 결제금액
         </p>
         <p
@@ -255,39 +306,54 @@ export function EscrowCheckout({ listing, buyerId }: EscrowCheckoutProps) {
         </p>
       </div>
 
-      {pgPending ? (
+      {/* Test mode confirmation dialog */}
+      {showTestConfirm && (
         <div
-          className="rounded-2xl px-5 py-6 text-center space-y-2"
+          className="rounded-2xl px-5 py-6 space-y-3"
           style={{
             backgroundColor: "#EBF2FF",
             border: "1px solid #BFDBFE",
           }}
         >
           <p
-            className="text-sm font-semibold"
+            className="text-sm font-semibold text-center"
             style={{ color: "var(--chayong-primary)" }}
           >
-            토스페이먼츠 결제창 연동 예정
+            테스트 모드: 결제를 시뮬레이션합니다
           </p>
           <p
-            className="text-xs"
+            className="text-xs text-center"
             style={{ color: "var(--chayong-text-caption)" }}
           >
-            실제 서비스에서는 이 시점에 토스페이먼츠 결제창이 열립니다.
+            NEXT_PUBLIC_TOSS_CLIENT_KEY 설정 시 실제 토스페이먼츠 결제창이 열립니다.
           </p>
-          <button
-            type="button"
-            onClick={() => {
-              setPgPending(false);
-              setStep(3);
-            }}
-            className="mt-2 rounded-lg px-4 py-2 text-sm font-medium text-white"
-            style={{ backgroundColor: "var(--chayong-primary)" }}
-          >
-            결제 완료 시뮬레이션
-          </button>
+          <div className="flex gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => setShowTestConfirm(false)}
+              className="flex-1 rounded-lg py-2.5 text-sm font-medium transition-colors"
+              style={{
+                backgroundColor: "var(--chayong-surface)",
+                color: "var(--chayong-text-sub)",
+                border: "1px solid var(--chayong-border)",
+              }}
+            >
+              취소
+            </button>
+            <button
+              type="button"
+              onClick={handleTestConfirm}
+              disabled={isLoading}
+              className="flex-[2] rounded-lg py-2.5 text-sm font-bold text-white disabled:opacity-60"
+              style={{ backgroundColor: "var(--chayong-primary)" }}
+            >
+              {isLoading ? "처리 중..." : "확인"}
+            </button>
+          </div>
         </div>
-      ) : (
+      )}
+
+      {!showTestConfirm && (
         <button
           type="button"
           onClick={handlePreparePayment}
@@ -302,26 +368,14 @@ export function EscrowCheckout({ listing, buyerId }: EscrowCheckoutProps) {
       {/* Security badges */}
       <div className="flex items-center justify-center gap-4">
         <div className="flex items-center gap-1.5">
-          <Lock
-            size={13}
-            style={{ color: "var(--chayong-text-caption)" }}
-          />
-          <span
-            className="text-xs"
-            style={{ color: "var(--chayong-text-caption)" }}
-          >
+          <Lock size={13} style={{ color: "var(--chayong-text-caption)" }} />
+          <span className="text-xs" style={{ color: "var(--chayong-text-caption)" }}>
             SSL 보안
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <ShieldCheck
-            size={13}
-            style={{ color: "var(--chayong-text-caption)" }}
-          />
-          <span
-            className="text-xs"
-            style={{ color: "var(--chayong-text-caption)" }}
-          >
+          <ShieldCheck size={13} style={{ color: "var(--chayong-text-caption)" }} />
+          <span className="text-xs" style={{ color: "var(--chayong-text-caption)" }}>
             개인정보 암호화
           </span>
         </div>

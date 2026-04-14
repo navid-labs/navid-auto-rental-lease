@@ -13,11 +13,15 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get("sort") ?? "newest";
     const page = Math.max(1, Number(searchParams.get("page") ?? 1));
     const perPage = 12;
+    const q = searchParams.get("q");
+    const remainingMin = searchParams.get("remainingMin");
+    const initialCostMax = searchParams.get("initialCostMax");
+    const yearMin = searchParams.get("yearMin");
 
-    const where = {
+    const where: Record<string, unknown> = {
       status: "ACTIVE" as ListingStatus,
       ...(type && { type }),
-      ...(brand && { brand }),
+      ...(brand && { brand: { contains: brand, mode: "insensitive" } }),
       ...(monthlyMin || monthlyMax
         ? {
             monthlyPayment: {
@@ -26,7 +30,18 @@ export async function GET(request: NextRequest) {
             },
           }
         : {}),
+      ...(remainingMin && { remainingMonths: { gte: Number(remainingMin) } }),
+      ...(initialCostMax && { initialCost: { lte: Number(initialCostMax) } }),
+      ...(yearMin && { year: { gte: Number(yearMin) } }),
     };
+
+    if (q) {
+      where.OR = [
+        { brand: { contains: q, mode: "insensitive" } },
+        { model: { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } },
+      ];
+    }
 
     const orderBy =
       sort === "price_asc"

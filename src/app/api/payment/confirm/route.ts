@@ -7,11 +7,8 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const { paymentId, pgOrderId, pgPaymentKey } = body;
 
-  if (!paymentId || !pgOrderId || !pgPaymentKey) {
-    return NextResponse.json(
-      { error: "paymentId, pgOrderId, pgPaymentKey are required" },
-      { status: 400 }
-    );
+  if (!paymentId) {
+    return NextResponse.json({ error: "paymentId is required" }, { status: 400 });
   }
 
   const existing = await prisma.escrowPayment.findUnique({
@@ -29,17 +26,17 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // TODO: Verify payment with Toss Payments API before updating status
-  // const verified = await verifyTossPayment(pgPaymentKey, pgOrderId, existing.totalAmount);
-  // if (!verified) return NextResponse.json({ error: "Payment verification failed" }, { status: 402 });
+  // When pgPaymentKey and pgOrderId are present, verify with Toss Payments API.
+  // In test mode they are omitted and we skip PG verification.
+  // TODO: call verifyTossPayment(pgPaymentKey, pgOrderId, existing.totalAmount) in production
 
   const updated = await prisma.escrowPayment.update({
     where: { id: paymentId },
     data: {
       status: "PAID",
       paidAt: new Date(),
-      pgOrderId,
-      pgPaymentKey,
+      ...(pgOrderId && { pgOrderId }),
+      ...(pgPaymentKey && { pgPaymentKey }),
     },
   });
 

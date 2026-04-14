@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { sanitizeMessage } from "@/lib/chat/contact-filter";
+import { createClient } from "@/lib/supabase/client";
 import { ImageIcon, Send } from "lucide-react";
 
 interface Message {
@@ -51,22 +52,44 @@ export function ChatMessageArea({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // TODO: Subscribe to Supabase Realtime for new messages
-  // useEffect(() => {
-  //   const supabase = createClient();
-  //   const channel = supabase
-  //     .channel(`chat-room-${roomId}`)
-  //     .on('postgres_changes', {
-  //       event: 'INSERT',
-  //       schema: 'public',
-  //       table: 'chat_messages',
-  //       filter: `chat_room_id=eq.${roomId}`,
-  //     }, (payload) => {
-  //       setMessages((prev) => [...prev, payload.new as Message]);
-  //     })
-  //     .subscribe();
-  //   return () => { supabase.removeChannel(channel); };
-  // }, [roomId]);
+  // Subscribe to Supabase Realtime for new messages
+  useEffect(() => {
+    const supabase = createClient();
+
+    const channel = supabase
+      .channel(`chat:${roomId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "chat_messages",
+          filter: `chat_room_id=eq.${roomId}`,
+        },
+        (payload) => {
+          const newMessage = payload.new as Message;
+          // Deduplicate: skip if already added via optimistic update
+          setMessages((prev) => {
+            if (prev.some((m) => m.id === newMessage.id)) return prev;
+            return [...prev, newMessage];
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [roomId]);
+
+  // Mark messages as read when entering the room
+  useEffect(() => {
+    fetch("/api/chat/messages/read", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chatRoomId: roomId, userId: currentUserId }),
+    });
+  }, [roomId, currentUserId]);
 
   const handleSend = useCallback(async () => {
     const trimmed = inputText.trim();
@@ -82,6 +105,21 @@ export function ChatMessageArea({
     setWarning(null);
     setIsSending(true);
 
+    // Optimistic update: add a temporary message immediately
+    const optimisticId = `optimistic-${Date.now()}`;
+    const optimisticMessage: Message = {
+      id: optimisticId,
+      chatRoomId: roomId,
+      senderId: currentUserId,
+      type: "TEXT",
+      content: trimmed,
+      imageUrl: null,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, optimisticMessage]);
+    setInputText("");
+
     try {
       const res = await fetch("/api/chat/messages", {
         method: "POST",
@@ -95,16 +133,23 @@ export function ChatMessageArea({
       });
 
       if (!res.ok) {
+        // Roll back optimistic message on error
+        setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
         const data = await res.json();
         setWarning(data.error ?? "메시지 전송에 실패했습니다.");
+        setInputText(trimmed);
         return;
       }
 
-      const newMessage: Message = await res.json();
-      setMessages((prev) => [...prev, newMessage]);
-      setInputText("");
+      const savedMessage: Message = await res.json();
+      // Replace optimistic entry with the server-persisted message
+      setMessages((prev) =>
+        prev.map((m) => (m.id === optimisticId ? savedMessage : m))
+      );
     } catch {
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
       setWarning("메시지 전송에 실패했습니다. 다시 시도해주세요.");
+      setInputText(trimmed);
     } finally {
       setIsSending(false);
     }

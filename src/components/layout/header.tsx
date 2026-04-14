@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HeaderAuth } from "./header-auth";
 
 const NAV_LINKS = [
   { href: "/list", label: "매물보기" },
@@ -45,21 +46,8 @@ export function Header() {
         </nav>
 
         {/* Auth Buttons */}
-        <div className="hidden items-center gap-2 md:flex">
-          <Link
-            href="/login"
-            className="px-3 py-1.5 text-sm font-medium transition-colors hover:text-[var(--chayong-primary)]"
-            style={{ color: "var(--chayong-text-sub)" }}
-          >
-            로그인
-          </Link>
-          <Link
-            href="/signup"
-            className="rounded-lg px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--chayong-primary-hover)]"
-            style={{ backgroundColor: "var(--chayong-primary)" }}
-          >
-            회원가입
-          </Link>
+        <div className="hidden items-center md:flex">
+          <HeaderAuth />
         </div>
       </div>
     </header>

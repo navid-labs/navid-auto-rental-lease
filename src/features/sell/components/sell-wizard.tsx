@@ -599,7 +599,7 @@ export function SellWizard() {
           <button
             type="button"
             onClick={() => setCurrentStep((s) => s - 1)}
-            className="flex-1 rounded-xl border py-3 text-sm font-semibold transition-colors"
+            className="flex h-12 flex-1 items-center justify-center rounded-xl border text-[15px] font-semibold transition-colors hover:bg-[var(--chayong-surface)]"
             style={{
               borderColor: "var(--chayong-border)",
               color: "var(--chayong-text)",
@@ -615,7 +615,7 @@ export function SellWizard() {
             type="button"
             disabled={currentStep === 0 && !isStep1Valid}
             onClick={() => setCurrentStep((s) => s + 1)}
-            className="flex flex-1 items-center justify-center gap-1 rounded-xl py-3 text-sm font-semibold text-white transition-colors disabled:opacity-40"
+            className="flex h-12 flex-1 items-center justify-center gap-1 rounded-xl text-[15px] font-semibold text-white transition-colors disabled:opacity-40 hover:opacity-90"
             style={{ backgroundColor: "var(--chayong-primary)" }}
           >
             다음
@@ -626,7 +626,7 @@ export function SellWizard() {
             type="button"
             disabled={isSubmitting}
             onClick={handleSubmit}
-            className="flex flex-1 items-center justify-center gap-1 rounded-xl py-3 text-sm font-semibold text-white transition-colors disabled:opacity-60"
+            className="flex h-12 flex-1 items-center justify-center gap-1 rounded-xl text-[15px] font-semibold text-white transition-colors disabled:opacity-60 hover:opacity-90"
             style={{ backgroundColor: "var(--chayong-primary)" }}
           >
             {isSubmitting ? "등록 중…" : "등록하기"}

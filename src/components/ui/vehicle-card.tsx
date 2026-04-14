@@ -34,7 +34,7 @@ export function VehicleCard({ listing }: VehicleCardProps) {
   return (
     <Link
       href={`/detail/${id}`}
-      className="group flex flex-col overflow-hidden rounded-xl border bg-[var(--chayong-bg)] transition-shadow hover:shadow-md"
+      className="group flex flex-col overflow-hidden rounded-xl border bg-[var(--chayong-bg)] shadow-sm transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
       style={{ borderColor: "var(--chayong-border)" }}
     >
       {/* Image */}

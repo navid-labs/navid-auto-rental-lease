@@ -18,7 +18,7 @@ export function MobileCTABar({ monthlyPayment, listingId }: MobileCTABarProps) {
         <PriceDisplay monthlyPayment={monthlyPayment} size="sm" />
         <Link
           href={`/chat?listing=${listingId}`}
-          className="rounded-xl px-6 py-2.5 text-sm font-semibold text-white"
+          className="flex h-12 items-center rounded-xl px-6 text-[15px] font-semibold text-white transition-colors hover:opacity-90"
           style={{ backgroundColor: "var(--chayong-primary)" }}
         >
           상담 신청하기

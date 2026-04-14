@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Heart } from "lucide-react";
+import { toast } from "sonner";
 import { PriceDisplay } from "@/components/ui/price-display";
 
 interface ListingCtaSidebarProps {
@@ -19,12 +20,12 @@ export function ListingCtaSidebar({
 }: ListingCtaSidebarProps) {
   function handleFavorite() {
     // TODO: implement favorite toggle (requires auth)
-    alert("찜하기 기능은 로그인 후 이용 가능합니다.");
+    toast.info("찜하기 기능은 로그인 후 이용 가능합니다.");
   }
 
   return (
     <div
-      className="rounded-xl border p-5"
+      className="rounded-xl border shadow-sm p-5"
       style={{ borderColor: "var(--chayong-border)", backgroundColor: "var(--chayong-bg)" }}
     >
       {/* Price */}
@@ -43,7 +44,7 @@ export function ListingCtaSidebar({
       <div className="flex flex-col gap-2">
         <Link
           href={`/chat?listing=${listingId}`}
-          className="block w-full rounded-xl py-3 text-center text-sm font-semibold text-white transition-colors"
+          className="flex h-12 w-full items-center justify-center rounded-xl text-[15px] font-semibold text-white transition-colors hover:opacity-90"
           style={{ backgroundColor: "var(--chayong-primary)" }}
         >
           상담 신청하기
@@ -52,7 +53,7 @@ export function ListingCtaSidebar({
         <button
           type="button"
           onClick={handleFavorite}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border py-3 text-sm font-medium transition-colors"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border text-[15px] font-semibold transition-colors hover:bg-[var(--chayong-surface)]"
           style={{
             borderColor: "var(--chayong-border)",
             color: "var(--chayong-text-sub)",

@@ -8,29 +8,28 @@ import type { ListingCardData } from "@/types";
 export const dynamic = "force-dynamic";
 
 async function getRecommendedListings(): Promise<ListingCardData[]> {
-  // Try verified+active first, fall back to newest active
-  const [verified, newest] = await Promise.all([
-    prisma.listing.findMany({
-      where: { status: "ACTIVE", isVerified: true },
-      orderBy: { createdAt: "desc" },
-      take: 8,
-      include: {
-        images: { where: { isPrimary: true }, take: 1, select: { url: true } },
-      },
-    }),
-    prisma.listing.findMany({
+  // Try verified+active first, fall back to newest active only if empty
+  let listings = await prisma.listing.findMany({
+    where: { status: "ACTIVE", isVerified: true },
+    orderBy: { createdAt: "desc" },
+    take: 8,
+    include: {
+      images: { where: { isPrimary: true }, take: 1, select: { url: true } },
+    },
+  });
+
+  if (listings.length === 0) {
+    listings = await prisma.listing.findMany({
       where: { status: "ACTIVE" },
       orderBy: { createdAt: "desc" },
       take: 8,
       include: {
         images: { where: { isPrimary: true }, take: 1, select: { url: true } },
       },
-    }),
-  ]);
+    });
+  }
 
-  const source = verified.length > 0 ? verified : newest;
-
-  return source.map((l) => ({
+  return listings.map((l) => ({
     id: l.id,
     type: l.type,
     brand: l.brand,
@@ -122,14 +121,14 @@ export default async function HomePage() {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/list"
-                className="rounded-xl px-6 py-3 font-semibold text-white transition-colors"
+                className="inline-flex h-12 items-center rounded-xl px-6 text-[15px] font-semibold text-white transition-colors hover:opacity-90"
                 style={{ backgroundColor: "var(--chayong-primary)" }}
               >
                 매물 보러가기
               </Link>
               <Link
                 href="/sell"
-                className="rounded-xl border px-6 py-3 font-semibold transition-colors"
+                className="inline-flex h-12 items-center rounded-xl border px-6 text-[15px] font-semibold transition-colors hover:bg-[var(--chayong-surface)]"
                 style={{
                   borderColor: "var(--chayong-border)",
                   color: "var(--chayong-text)",

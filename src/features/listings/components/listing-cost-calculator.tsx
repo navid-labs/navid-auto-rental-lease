@@ -5,24 +5,13 @@ import {
   calcRemainingPayments,
   calcTotalEffectiveCost,
 } from "@/lib/finance/calculations";
+import { formatKRWCompact } from "@/lib/utils/format";
 
 interface ListingCostCalculatorProps {
   initialCost: number;
   transferFee: number;
   monthlyPayment: number;
   remainingMonths: number;
-}
-
-function formatKRW(amount: number): string {
-  if (amount >= 100_000_000) {
-    const eok = Math.floor(amount / 100_000_000);
-    const man = Math.round((amount % 100_000_000) / 10_000);
-    return man > 0 ? `${eok}억 ${man.toLocaleString("ko-KR")}만원` : `${eok}억원`;
-  }
-  if (amount >= 10_000) {
-    return `${Math.round(amount / 10_000).toLocaleString("ko-KR")}만원`;
-  }
-  return `${amount.toLocaleString("ko-KR")}원`;
 }
 
 export function ListingCostCalculator({
@@ -42,7 +31,7 @@ export function ListingCostCalculator({
 
   return (
     <div
-      className="rounded-xl border p-4"
+      className="rounded-xl border shadow-sm p-4"
       style={{ borderColor: "var(--chayong-border)", backgroundColor: "var(--chayong-bg)" }}
     >
       <h3 className="mb-3 text-sm font-semibold" style={{ color: "var(--chayong-text)" }}>
@@ -54,7 +43,7 @@ export function ListingCostCalculator({
         <div className="flex items-center justify-between">
           <span style={{ color: "var(--chayong-text-sub)" }}>총 인수 비용</span>
           <span className="font-medium" style={{ color: "var(--chayong-text)" }}>
-            {formatKRW(acquisitionCost)}
+            {formatKRWCompact(acquisitionCost)}
           </span>
         </div>
 
@@ -65,11 +54,11 @@ export function ListingCostCalculator({
         >
           <div className="flex items-center justify-between">
             <span style={{ color: "var(--chayong-text-caption)" }}>보증금</span>
-            <span style={{ color: "var(--chayong-text-sub)" }}>{formatKRW(initialCost)}</span>
+            <span style={{ color: "var(--chayong-text-sub)" }}>{formatKRWCompact(initialCost)}</span>
           </div>
           <div className="flex items-center justify-between">
             <span style={{ color: "var(--chayong-text-caption)" }}>승계 수수료</span>
-            <span style={{ color: "var(--chayong-text-sub)" }}>{formatKRW(transferFee)}</span>
+            <span style={{ color: "var(--chayong-text-sub)" }}>{formatKRWCompact(transferFee)}</span>
           </div>
         </div>
 
@@ -87,7 +76,7 @@ export function ListingCostCalculator({
             </span>
           </span>
           <span className="font-medium" style={{ color: "var(--chayong-text)" }}>
-            {formatKRW(remainingPayments)}
+            {formatKRWCompact(remainingPayments)}
           </span>
         </div>
 
@@ -102,7 +91,7 @@ export function ListingCostCalculator({
             실질 총 비용
           </span>
           <span className="text-base font-bold" style={{ color: "var(--chayong-primary)" }}>
-            {formatKRW(totalEffectiveCost)}
+            {formatKRWCompact(totalEffectiveCost)}
           </span>
         </div>
       </div>

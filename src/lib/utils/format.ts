@@ -1,4 +1,22 @@
 /**
+ * Format currency in compact Korean units (억/만원)
+ * formatKRWCompact(150000000) => "1억 5,000만원"
+ * formatKRWCompact(5000000)   => "500만원"
+ * formatKRWCompact(9000)      => "9,000원"
+ */
+export function formatKRWCompact(amount: number): string {
+  if (amount >= 100_000_000) {
+    const eok = Math.floor(amount / 100_000_000);
+    const man = Math.round((amount % 100_000_000) / 10_000);
+    return man > 0 ? `${eok}억 ${man.toLocaleString("ko-KR")}만원` : `${eok}억원`;
+  }
+  if (amount >= 10_000) {
+    return `${Math.round(amount / 10_000).toLocaleString("ko-KR")}만원`;
+  }
+  return `${amount.toLocaleString("ko-KR")}원`;
+}
+
+/**
  * Format currency in Korean Won
  * formatKRW(450000) => "450,000원"
  * formatKRW(450000, { monthly: true }) => "월 450,000원"

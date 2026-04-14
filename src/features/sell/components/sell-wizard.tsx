@@ -7,8 +7,9 @@ import { PriceDisplay } from "@/components/ui/price-display";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { checkIsVerified } from "@/lib/finance/calculations";
-import { BadgeCheck, ImagePlus, ChevronRight, Tag } from "lucide-react";
+import { BadgeCheck, ChevronRight, Tag } from "lucide-react";
 import type { ListingType } from "@/types";
 
 const STEPS = ["기본 정보", "상세 정보", "등록 확인"];
@@ -37,6 +38,7 @@ interface FormData {
   capitalCompany: string;
   description: string;
   options: string[];
+  imageUrls: string[];
 }
 
 const DEFAULT_FORM: FormData = {
@@ -53,6 +55,7 @@ const DEFAULT_FORM: FormData = {
   capitalCompany: "",
   description: "",
   options: [],
+  imageUrls: [],
 };
 
 function parseNum(val: string): number {
@@ -80,7 +83,7 @@ export function SellWizard() {
     trim: form.trim || null,
     mileage: form.mileage ? Number(form.mileage) : null,
     color: form.color || null,
-    imageCount: 0, // image upload is placeholder
+    imageCount: form.imageUrls.length,
   });
 
   function setField<K extends keyof FormData>(key: K, value: FormData[K]) {
@@ -125,6 +128,17 @@ export function SellWizard() {
 
       if (!res.ok) {
         throw new Error(`등록에 실패했습니다 (${res.status})`);
+      }
+
+      const listing = await res.json();
+
+      // Attach uploaded images to the listing
+      if (form.imageUrls.length > 0) {
+        await fetch(`/api/listings/${listing.id}/images`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ urls: form.imageUrls }),
+        });
       }
 
       router.push("/my");
@@ -357,21 +371,16 @@ export function SellWizard() {
             />
           </div>
 
-          {/* 사진 업로드 placeholder */}
+          {/* 사진 업로드 */}
           <div className="flex flex-col gap-2">
             <Label style={{ color: "var(--chayong-text)" }}>사진 업로드</Label>
-            <div
-              className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed py-8"
-              style={{
-                borderColor: "var(--chayong-border)",
-                backgroundColor: "var(--chayong-surface)",
-              }}
-            >
-              <ImagePlus size={28} style={{ color: "var(--chayong-text-caption)" }} />
-              <p className="text-sm" style={{ color: "var(--chayong-text-caption)" }}>
-                사진 업로드 기능은 추후 추가됩니다
-              </p>
-            </div>
+            <ImageUpload
+              images={form.imageUrls}
+              onImagesChange={(urls) => setField("imageUrls", urls)}
+              maxImages={15}
+              bucket="listing-images"
+              folder="listings"
+            />
           </div>
 
           {/* 추가 옵션 */}

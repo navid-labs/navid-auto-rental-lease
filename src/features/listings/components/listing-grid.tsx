@@ -1,9 +1,12 @@
 "use client";
 
+import { useState, useRef } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { Search } from "lucide-react";
 import { VehicleCard } from "@/components/ui/vehicle-card";
 import { FilterBar } from "@/components/ui/filter-bar";
+import { AdvancedFilters } from "./advanced-filters";
 import type { ListingCardData } from "@/types";
 
 interface Pagination {
@@ -15,6 +18,7 @@ interface Pagination {
 interface ListingGridProps {
   listings: ListingCardData[];
   pagination: Pagination;
+  initialQ?: string;
 }
 
 function buildPageUrl(searchParams: URLSearchParams, page: number): string {
@@ -109,11 +113,61 @@ function PaginationBar({ pagination }: { pagination: Pagination }) {
   );
 }
 
-export function ListingGrid({ listings, pagination }: ListingGridProps) {
+function SearchBar({ initialQ }: { initialQ: string }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  // Controlled by local state; initialised once from URL or prop
+  const [value, setValue] = useState(() => searchParams.get("q") ?? initialQ);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function handleChange(v: string) {
+    setValue(v);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("page");
+      if (v) {
+        params.set("q", v);
+      } else {
+        params.delete("q");
+      }
+      router.push(`${pathname}?${params.toString()}`);
+    }, 300);
+  }
+
+  return (
+    <div className="relative mb-3">
+      <Search
+        size={16}
+        className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+        style={{ color: "var(--chayong-text-caption)" }}
+      />
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => handleChange(e.target.value)}
+        placeholder="브랜드, 모델 검색…"
+        className="w-full rounded-xl border py-2.5 pl-9 pr-4 text-sm outline-none focus:ring-1 focus:ring-[var(--chayong-primary)]"
+        style={{
+          borderColor: "var(--chayong-border)",
+          backgroundColor: "var(--chayong-bg)",
+          color: "var(--chayong-text)",
+        }}
+      />
+    </div>
+  );
+}
+
+export function ListingGrid({ listings, pagination, initialQ = "" }: ListingGridProps) {
   return (
     <div>
-      <div className="mb-4">
+      <SearchBar initialQ={initialQ} />
+      <div className="mb-3">
         <FilterBar />
+      </div>
+      <div className="mb-4">
+        <AdvancedFilters />
       </div>
 
       {listings.length === 0 ? (

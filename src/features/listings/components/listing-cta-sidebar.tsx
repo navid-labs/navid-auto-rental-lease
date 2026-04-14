@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { Heart } from "lucide-react";
-import { toast } from "sonner";
 import { PriceDisplay } from "@/components/ui/price-display";
+import { useFavorite } from "@/features/listings/hooks/use-favorite";
 
 interface ListingCtaSidebarProps {
   monthlyPayment: number;
   initialCost: number;
   remainingMonths: number;
   listingId: string;
+  initialFavoriteCount?: number;
 }
 
 export function ListingCtaSidebar({
@@ -17,11 +18,9 @@ export function ListingCtaSidebar({
   initialCost,
   remainingMonths,
   listingId,
+  initialFavoriteCount = 0,
 }: ListingCtaSidebarProps) {
-  function handleFavorite() {
-    // TODO: implement favorite toggle (requires auth)
-    toast.info("찜하기 기능은 로그인 후 이용 가능합니다.");
-  }
+  const { isFavorited, count, loading, toggle } = useFavorite(listingId, initialFavoriteCount);
 
   return (
     <div
@@ -52,16 +51,26 @@ export function ListingCtaSidebar({
 
         <button
           type="button"
-          onClick={handleFavorite}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border text-[15px] font-semibold transition-colors hover:bg-[var(--chayong-surface)]"
+          onClick={toggle}
+          disabled={loading}
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border text-[15px] font-semibold transition-colors hover:bg-[var(--chayong-surface)] disabled:opacity-60"
           style={{
-            borderColor: "var(--chayong-border)",
-            color: "var(--chayong-text-sub)",
+            borderColor: isFavorited ? "#ef4444" : "var(--chayong-border)",
+            color: isFavorited ? "#ef4444" : "var(--chayong-text-sub)",
             backgroundColor: "var(--chayong-bg)",
           }}
         >
-          <Heart size={16} />
+          <Heart
+            size={16}
+            fill={isFavorited ? "#ef4444" : "none"}
+            stroke={isFavorited ? "#ef4444" : "currentColor"}
+          />
           찜하기
+          {count > 0 && (
+            <span className="text-sm font-normal" style={{ color: isFavorited ? "#ef4444" : "var(--chayong-text-caption)" }}>
+              {count.toLocaleString("ko-KR")}
+            </span>
+          )}
         </button>
       </div>
     </div>

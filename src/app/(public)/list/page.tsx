@@ -23,6 +23,10 @@ interface SearchParams {
   brand?: string;
   sort?: string;
   page?: string;
+  q?: string;
+  remainingMin?: string;
+  initialCostMax?: string;
+  yearMin?: string;
 }
 
 function buildWhere(params: SearchParams): Prisma.ListingWhereInput {
@@ -43,6 +47,26 @@ function buildWhere(params: SearchParams): Prisma.ListingWhereInput {
 
   if (params.brand) {
     where.brand = { contains: params.brand, mode: "insensitive" };
+  }
+
+  if (params.remainingMin) {
+    where.remainingMonths = { gte: Number(params.remainingMin) };
+  }
+
+  if (params.initialCostMax) {
+    where.initialCost = { lte: Number(params.initialCostMax) };
+  }
+
+  if (params.yearMin) {
+    where.year = { gte: Number(params.yearMin) };
+  }
+
+  if (params.q) {
+    where.OR = [
+      { brand: { contains: params.q, mode: "insensitive" } },
+      { model: { contains: params.q, mode: "insensitive" } },
+      { description: { contains: params.q, mode: "insensitive" } },
+    ];
   }
 
   return where;
@@ -120,7 +144,7 @@ export default async function ListPage({
         </span>
       </div>
 
-      {/* Grid with filters — needs Suspense because FilterBar uses useSearchParams */}
+      {/* Grid with filters — needs Suspense because FilterBar/AdvancedFilters use useSearchParams */}
       <Suspense
         fallback={
           <div
@@ -136,6 +160,7 @@ export default async function ListPage({
         <ListingGrid
           listings={listings}
           pagination={{ page, totalPages, total }}
+          initialQ={params.q ?? ""}
         />
       </Suspense>
     </div>

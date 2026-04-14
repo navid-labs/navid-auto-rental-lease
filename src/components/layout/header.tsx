@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { HeaderAuth } from "./header-auth";
+import { NotificationBell } from "./notification-bell";
 
 const NAV_LINKS = [
   { href: "/list", label: "매물보기" },
@@ -46,7 +47,8 @@ export function Header() {
         </nav>
 
         {/* Auth Buttons */}
-        <div className="hidden items-center md:flex">
+        <div className="hidden items-center gap-1 md:flex">
+          <NotificationBell />
           <HeaderAuth />
         </div>
       </div>

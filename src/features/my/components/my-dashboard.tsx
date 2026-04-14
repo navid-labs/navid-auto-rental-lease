@@ -32,7 +32,7 @@ interface MyDashboardProps {
     Listing,
     "id" | "brand" | "model" | "year" | "monthlyPayment" | "status" | "createdAt"
   >[];
-  favorites: ListingCardData[];
+  favorites?: ListingCardData[];
 }
 
 const TABS = ["내 매물", "찜한 매물", "거래 내역"] as const;
@@ -55,8 +55,24 @@ const MENU_ITEMS = [
   { icon: LogOut, label: "로그아웃", href: "#" },
 ] as const;
 
-export function MyDashboard({ profile, myListings, favorites }: MyDashboardProps) {
+export function MyDashboard({ profile, myListings, favorites: initialFavorites = [] }: MyDashboardProps) {
   const [activeTab, setActiveTab] = useState<Tab>("내 매물");
+  const [favorites, setFavorites] = useState<ListingCardData[]>(initialFavorites);
+  const [favLoading, setFavLoading] = useState(false);
+
+  async function loadFavorites() {
+    if (favLoading) return;
+    setFavLoading(true);
+    try {
+      const res = await fetch("/api/favorites/my");
+      if (res.ok) {
+        const data = await res.json();
+        setFavorites(data);
+      }
+    } finally {
+      setFavLoading(false);
+    }
+  }
 
   const initials = profile.name
     ? profile.name.slice(0, 2)
@@ -148,7 +164,10 @@ export function MyDashboard({ profile, myListings, favorites }: MyDashboardProps
           <button
             key={tab}
             type="button"
-            onClick={() => setActiveTab(tab)}
+            onClick={() => {
+              setActiveTab(tab);
+              if (tab === "찜한 매물") loadFavorites();
+            }}
             className="flex-1 rounded-lg py-2 text-sm font-medium transition-all"
             style={{
               backgroundColor:
@@ -160,7 +179,9 @@ export function MyDashboard({ profile, myListings, favorites }: MyDashboardProps
               fontWeight: activeTab === tab ? 600 : 400,
             }}
           >
-            {tab}
+            {tab === "찜한 매물" && favorites.length > 0
+              ? `찜한 매물 (${favorites.length})`
+              : tab}
           </button>
         ))}
       </div>
@@ -195,7 +216,16 @@ export function MyDashboard({ profile, myListings, favorites }: MyDashboardProps
 
       {activeTab === "찜한 매물" && (
         <div>
-          {favorites.length === 0 ? (
+          {favLoading ? (
+            <div
+              className="flex items-center justify-center rounded-xl py-16"
+              style={{ backgroundColor: "var(--chayong-surface)" }}
+            >
+              <p className="text-sm" style={{ color: "var(--chayong-text-caption)" }}>
+                불러오는 중…
+              </p>
+            </div>
+          ) : favorites.length === 0 ? (
             <div
               className="flex flex-col items-center justify-center gap-3 rounded-xl py-16"
               style={{ backgroundColor: "var(--chayong-surface)" }}

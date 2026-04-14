@@ -11,11 +11,12 @@ const securityHeaders = [
     key: 'Content-Security-Policy-Report-Only',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' js.tosspayments.com",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://cdn.jsdelivr.net",
       "font-src 'self' https://cdn.jsdelivr.net",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+      "frame-src 'none' https://*.tosspayments.com",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.tosspayments.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
@@ -35,6 +36,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: '*.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
       },
     ],
   },

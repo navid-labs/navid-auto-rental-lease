@@ -1,81 +1,104 @@
-'use client'
+"use client";
 
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useTransition } from 'react'
-import Link from 'next/link'
-import { loginSchema, type LoginInput } from '../schemas/auth'
-import { login } from '../actions/login'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 export function LoginForm() {
-  const [isPending, startTransition] = useTransition()
-  const form = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
-  })
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const onSubmit = form.handleSubmit((data) => {
-    startTransition(async () => {
-      const formData = new FormData()
-      formData.set('email', data.email)
-      formData.set('password', data.password)
-      const result = await login(formData)
-      if (result?.error) {
-        form.setError('root', { message: result.error })
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      const supabase = createClient();
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) {
+        setError("이메일 또는 비밀번호가 올바르지 않습니다.");
+        return;
       }
-    })
-  })
+
+      router.push("/");
+      router.refresh();
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div className="space-y-2">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <div className="mb-2">
+        <h1 className="text-xl font-bold text-[var(--chayong-text)]">로그인</h1>
+        <p className="mt-1 text-sm text-[var(--chayong-text-sub)]">
+          차용 계정으로 로그인하세요.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
         <Label htmlFor="email">이메일</Label>
         <Input
           id="email"
           type="email"
-          placeholder="name@example.com"
-          {...form.register('email')}
-          disabled={isPending}
+          placeholder="example@chayong.kr"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          autoComplete="email"
+          className="h-11 text-base"
         />
-        {form.formState.errors.email && (
-          <p className="text-sm text-red-500">{form.formState.errors.email.message}</p>
-        )}
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-1.5">
         <Label htmlFor="password">비밀번호</Label>
         <Input
           id="password"
           type="password"
-          {...form.register('password')}
-          disabled={isPending}
+          placeholder="비밀번호를 입력하세요"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          autoComplete="current-password"
+          className="h-11 text-base"
         />
-        {form.formState.errors.password && (
-          <p className="text-sm text-red-500">{form.formState.errors.password.message}</p>
-        )}
       </div>
 
-      {form.formState.errors.root && (
-        <p className="text-sm text-red-500 text-center">{form.formState.errors.root.message}</p>
+      {error && (
+        <p className="text-sm text-[var(--chayong-danger)] bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+          {error}
+        </p>
       )}
 
       <Button
         type="submit"
-        className="w-full bg-gradient-to-r from-[#0f1e3c] to-blue-600 text-white hover:from-[#152849] hover:to-blue-500 shadow-md shadow-blue-900/20 transition-all"
-        disabled={isPending}
+        disabled={loading}
+        className="h-11 w-full rounded-xl bg-[var(--chayong-primary)] text-white font-semibold text-base hover:bg-[var(--chayong-primary-hover)] transition-colors"
       >
-        {isPending ? '로그인 중...' : '로그인'}
+        {loading ? "로그인 중..." : "로그인"}
       </Button>
 
-      <p className="text-center text-sm text-muted-foreground">
-        계정이 없으신가요?{' '}
-        <Link href="/signup" className="text-primary underline-offset-4 hover:underline">
+      <p className="text-center text-sm text-[var(--chayong-text-sub)]">
+        아직 회원이 아니신가요?{" "}
+        <Link
+          href="/signup"
+          className="text-[var(--chayong-primary)] font-medium hover:underline"
+        >
           회원가입
         </Link>
       </p>
     </form>
-  )
+  );
 }

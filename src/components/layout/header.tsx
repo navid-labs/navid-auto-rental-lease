@@ -1,127 +1,67 @@
-import Link from 'next/link'
-import { getCurrentUser } from '@/lib/auth/helpers'
-import { LogoutButton } from '@/features/auth/components/logout-button'
-import { HeaderSearch } from '@/components/layout/header-search'
-import { MegaMenu } from '@/components/layout/mega-menu'
-import { MobileNav } from '@/components/layout/mobile-nav'
+import Link from "next/link";
 
-export async function Header() {
-  const user = await getCurrentUser()
+const NAV_LINKS = [
+  { href: "/list", label: "매물보기" },
+  { href: "/list?type=USED_LEASE", label: "중고 리스·렌트" },
+  { href: "/sell", label: "매물등록" },
+  { href: "/guide", label: "이용가이드" },
+];
 
+export function Header() {
   return (
-    <>
-      {/* Top Bar -- desktop only */}
-      <div className="hidden w-full border-b border-border-subtle bg-secondary md:block">
-        <div className="mx-auto flex max-w-7xl items-center justify-end px-[120px] py-[10px]">
-          {user ? (
-            <div className="flex items-center gap-4">
-              {user.role === 'ADMIN' && (
-                <Link
-                  href="/admin"
-                  className="text-[12px] text-text-caption transition-colors hover:text-foreground"
-                >
-                  관리자
-                </Link>
-              )}
-              {user.role === 'DEALER' && (
-                <Link
-                  href="/dealer"
-                  className="text-[12px] text-text-caption transition-colors hover:text-foreground"
-                >
-                  딜러포털
-                </Link>
-              )}
-              <Link
-                href="/mypage"
-                className="text-[12px] text-text-caption transition-colors hover:text-foreground"
-              >
-                마이페이지
-              </Link>
-              <span className="text-border-subtle">|</span>
-              <span className="text-[12px] text-text-caption">
-                {user.name || user.email}
-              </span>
-              <span className="text-border-subtle">|</span>
-              <LogoutButton />
-            </div>
-          ) : (
-            <div className="flex items-center gap-4">
-              <Link
-                href="/login"
-                className="text-[12px] text-text-caption transition-colors hover:text-foreground"
-              >
-                로그인
-              </Link>
-              <span className="text-border-subtle">|</span>
-              <Link
-                href="/signup"
-                className="text-[12px] text-text-caption transition-colors hover:text-foreground"
-              >
-                회원가입
-              </Link>
-              <span className="text-border-subtle">|</span>
-              <Link
-                href="/inquiry?type=support"
-                className="text-[12px] text-text-caption transition-colors hover:text-foreground"
-              >
-                고객센터
-              </Link>
-            </div>
-          )}
+    <header
+      className="sticky top-0 z-50 w-full border-b bg-[var(--chayong-bg)]"
+      style={{ borderColor: "var(--chayong-divider)" }}
+    >
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2">
+          <span
+            className="flex h-7 w-7 items-center justify-center rounded-md text-sm font-bold text-white"
+            style={{ backgroundColor: "var(--chayong-primary)" }}
+          >
+            C
+          </span>
+          <span
+            className="text-lg font-bold"
+            style={{ color: "var(--chayong-text)" }}
+          >
+            차용
+          </span>
+        </Link>
+
+        {/* Desktop Nav */}
+        <nav className="hidden items-center gap-6 md:flex">
+          {NAV_LINKS.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              className="text-sm font-medium transition-colors hover:text-[var(--chayong-primary)]"
+              style={{ color: "var(--chayong-text-sub)" }}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Auth Buttons */}
+        <div className="hidden items-center gap-2 md:flex">
+          <Link
+            href="/login"
+            className="px-3 py-1.5 text-sm font-medium transition-colors hover:text-[var(--chayong-primary)]"
+            style={{ color: "var(--chayong-text-sub)" }}
+          >
+            로그인
+          </Link>
+          <Link
+            href="/signup"
+            className="rounded-lg px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--chayong-primary-hover)]"
+            style={{ backgroundColor: "var(--chayong-primary)" }}
+          >
+            회원가입
+          </Link>
         </div>
       </div>
-
-      {/* Main Header Bar */}
-      <header className="sticky top-0 z-40 w-full border-b border-border-subtle bg-white">
-        <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-4 md:px-[120px]">
-          {/* Logo */}
-          <Link href="/" className="flex shrink-0 items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-blue">
-              <span className="text-[16px] font-extrabold leading-none text-white">
-                N
-              </span>
-            </div>
-            <span className="text-[22px] font-bold leading-none text-foreground">
-              Navid Auto
-            </span>
-          </Link>
-
-          {/* Center: Search bar (desktop only) */}
-          <HeaderSearch />
-
-          {/* Right: User actions (desktop) + Mobile nav */}
-          <div className="flex items-center gap-4">
-            {/* Desktop user actions -- hidden on mobile */}
-            <div className="hidden items-center gap-3 md:flex">
-              {!user && (
-                <>
-                  <Link
-                    href="/login"
-                    className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    로그인
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="rounded-lg bg-brand-blue px-4 py-2 text-[13px] font-medium text-white transition-opacity hover:opacity-90"
-                  >
-                    회원가입
-                  </Link>
-                </>
-              )}
-            </div>
-            {/* Mobile hamburger */}
-            <div className="md:hidden">
-              <MobileNav
-                user={user ? { name: user.name, email: user.email } : null}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Mega Menu Nav Bar (desktop only) */}
-        <MegaMenu />
-      </header>
-    </>
-  )
+    </header>
+  );
 }

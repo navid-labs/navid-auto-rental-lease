@@ -1,62 +1,28 @@
-'use client'
+import { AdminSidebar } from "@/features/admin/components/admin-sidebar";
 
-import { useState } from 'react'
-import { Menu } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
-import { AdminSidebar } from '@/components/layout/admin-sidebar'
+export const metadata = {
+  title: { default: "차용 어드민", template: "%s | 차용 어드민" },
+};
 
 export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-
+  // TODO: Add admin role auth check once session integration is complete
   return (
-    <div className="flex min-h-screen">
-      {/* Desktop Sidebar */}
-      <div className="hidden md:fixed md:inset-y-0 md:flex md:w-64">
-        <AdminSidebar />
-      </div>
-
-      {/* Main Content */}
-      <div className="flex flex-1 flex-col md:ml-64">
-        {/* Mobile Top Bar */}
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background px-4 md:hidden">
-          <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-            <SheetTrigger
-              render={
-                <Button variant="ghost" size="icon" aria-label="사이드바 열기" />
-              }
-            >
-              <Menu className="size-5" />
-            </SheetTrigger>
-            <SheetContent
-              side="left"
-              className="w-64 p-0"
-              showCloseButton={false}
-            >
-              <SheetHeader className="sr-only">
-                <SheetTitle>관리자 네비게이션</SheetTitle>
-              </SheetHeader>
-              <AdminSidebar />
-            </SheetContent>
-          </Sheet>
-          <span className="text-sm font-bold text-primary">
-            Navid <span className="text-accent">Admin</span>
-          </span>
-        </header>
-
-        {/* Page Content */}
-        <main className="flex-1 p-6">{children}</main>
-      </div>
-    </div>
-  )
+    <html lang="ko">
+      <body
+        style={{ margin: 0 }}
+        className="min-h-screen bg-[var(--chayong-bg)] antialiased"
+      >
+        <div className="flex min-h-screen">
+          <AdminSidebar />
+          <main className="flex-1 ml-60 p-6 bg-[var(--chayong-surface)] min-h-screen">
+            {children}
+          </main>
+        </div>
+      </body>
+    </html>
+  );
 }

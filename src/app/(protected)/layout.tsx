@@ -1,16 +1,12 @@
-import { Header } from '@/components/layout/header'
-import { Footer } from '@/components/layout/footer'
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/supabase/auth";
 
-export default function ProtectedLayout({
+export default async function ProtectedLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  return (
-    <>
-      <Header />
-      <main className="min-h-[calc(100vh-4rem)] pt-6">{children}</main>
-      <Footer />
-    </>
-  )
+  const session = await getSession();
+  if (!session) redirect("/login");
+  return <>{children}</>;
 }

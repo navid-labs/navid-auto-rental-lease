@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { prisma } from "@/lib/db/prisma";
 import { ListingGrid } from "@/features/listings/components/listing-grid";
 import { SidebarFilters } from "@/features/listings/components/sidebar-filters";
+import { ResultMeta } from "@/features/listings/components/result-meta";
 import { parseListingFilters } from "@/lib/listings/filters";
 import type { ListingFilters } from "@/lib/listings/filters";
 import type { ListingCardData, ListingType } from "@/types";
@@ -165,6 +166,11 @@ export default async function ListPage({
 
         {/* Grid with filters — needs Suspense because FilterBar/AdvancedFilters use useSearchParams */}
         <div className="flex-1 min-w-0">
+          {/* ResultMeta: active filter chips + count — uses useRouter so needs Suspense */}
+          <Suspense fallback={null}>
+            <ResultMeta count={total} filters={filters} />
+          </Suspense>
+
           <Suspense
             fallback={
               <div

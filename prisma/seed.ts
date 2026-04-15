@@ -13,6 +13,7 @@ import {
   Grade,
   ImagePosition,
 } from '@prisma/client'
+import { createAdminClient } from '../src/lib/supabase/admin'
 
 const prisma = new PrismaClient()
 
@@ -37,10 +38,45 @@ const POSITION_SEQUENCE: ImagePosition[] = [
   ImagePosition.ODOMETER,
 ]
 
+// ─── Seed Supabase auth users ─────────────────────────────────────────────────
+
+async function seedAuthUsers() {
+  const admin = createAdminClient()
+  const TEST_PASSWORD = 'chayong-test-2026!'
+
+  const users = [
+    { id: ADMIN_ID,  email: 'admin@chayong.kr' },
+    { id: SELLER_ID, email: 'seller@chayong.kr' },
+    { id: BUYER_ID,  email: 'buyer@chayong.kr' },
+  ]
+
+  for (const u of users) {
+    const { data: existing } = await admin.auth.admin.getUserById(u.id)
+    if (existing?.user) {
+      await admin.auth.admin.updateUserById(u.id, {
+        password: TEST_PASSWORD,
+        email_confirm: true,
+      })
+      console.log(`  auth user updated: ${u.email}`)
+    } else {
+      const { error } = await admin.auth.admin.createUser({
+        id: u.id,
+        email: u.email,
+        password: TEST_PASSWORD,
+        email_confirm: true,
+      })
+      if (error) throw new Error(`Failed to create auth user ${u.email}: ${error.message}`)
+      console.log(`  auth user created: ${u.email}`)
+    }
+  }
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
   console.log('Seeding database...')
+
+  await seedAuthUsers()
 
   await prisma.$transaction(async (tx) => {
     // Clean slate — order matters due to FK constraints

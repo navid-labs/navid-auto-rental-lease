@@ -26,6 +26,11 @@ export type ListingWithImages = import("@prisma/client").Listing & {
   seller: Pick<import("@prisma/client").Profile, "id" | "name" | "role">;
 };
 
+/**
+ * CROSS-WORKTREE SHARED CONTRACT.
+ * Consumers: Home (WT1), List/vehicle-card (WT2), Detail (WT3).
+ * Changes must be coordinated via docs/superpowers/specs/2026-04-16-ui-parallel-track-design.md owner.
+ */
 /** Listing card data (for list/grid views) */
 export type ListingCardData = Pick<
   import("@prisma/client").Listing,

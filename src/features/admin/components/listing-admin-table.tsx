@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Check, X } from "lucide-react";
 
 type ListingRow = {
@@ -107,13 +108,16 @@ export function ListingAdminTable({ listings }: { listings: ListingRow[] }) {
                   }}
                 >
                   {/* 매물 */}
-                  <td
-                    className="px-4 py-3"
-                    style={{ color: "var(--chayong-text)" }}
-                  >
-                    {row.brand && row.model
-                      ? `${row.brand} ${row.model}`
-                      : "정보 미입력"}
+                  <td className="px-4 py-3">
+                    <Link
+                      href={`/admin/listings/${row.id}`}
+                      className="font-medium underline-offset-2 hover:underline"
+                      style={{ color: "var(--chayong-primary)" }}
+                    >
+                      {row.brand && row.model
+                        ? `${row.brand} ${row.model}`
+                        : "정보 미입력"}
+                    </Link>
                   </td>
                   {/* 등록자 */}
                   <td className="px-4 py-3">

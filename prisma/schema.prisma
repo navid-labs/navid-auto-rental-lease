@@ -142,8 +142,10 @@ model Profile {
   assignedLeads  ConsultationLead[] @relation("AssignedLeads")
   buyerPayments  EscrowPayment[]    @relation("BuyerPayments")
   sellerPayments EscrowPayment[]    @relation("SellerPayments")
-  favorites      Favorite[]         @relation("UserFavorites")
-  notifications  Notification[]     @relation("UserNotifications")
+  favorites       Favorite[]         @relation("UserFavorites")
+  notifications   Notification[]     @relation("UserNotifications")
+  reviewsWritten  DealerReview[]     @relation("ReviewsWritten")
+  reviewsReceived DealerReview[]     @relation("ReviewsReceived")
 
   @@map("profiles")
 }
@@ -216,6 +218,7 @@ model Listing {
   leads          ConsultationLead[]
   escrowPayments EscrowPayment[]
   favorites      Favorite[]
+  reviews        DealerReview[]
 
   @@index([type, status])
   @@index([sellerId, status])
@@ -354,4 +357,22 @@ model Notification {
 
   @@index([userId, isRead])
   @@map("notifications")
+}
+
+model DealerReview {
+  id         String   @id @default(uuid()) @db.Uuid
+  reviewerId String   @map("reviewer_id") @db.Uuid
+  dealerId   String   @map("dealer_id") @db.Uuid
+  listingId  String   @map("listing_id") @db.Uuid
+  rating     Int      // 1~5
+  comment    String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  reviewer Profile @relation("ReviewsWritten", fields: [reviewerId], references: [id])
+  dealer   Profile @relation("ReviewsReceived", fields: [dealerId], references: [id])
+  listing  Listing @relation(fields: [listingId], references: [id])
+
+  @@unique([reviewerId, listingId])
+  @@index([dealerId, createdAt(sort: Desc)])
+  @@map("dealer_reviews")
 }

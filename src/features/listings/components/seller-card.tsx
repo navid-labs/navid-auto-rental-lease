@@ -1,5 +1,6 @@
 import { UserRole } from "@prisma/client";
 import { BadgeCheck, User } from "lucide-react";
+import { ReviewList } from "@/features/reviews/components/review-list";
 
 interface SellerCardProps {
   sellerId: string;
@@ -23,6 +24,7 @@ const ROLE_BADGE_STYLE: Partial<Record<UserRole, { bg: string; text: string }>> 
 };
 
 export function SellerCard({
+  sellerId,
   sellerName,
   sellerRole,
   isVerified,
@@ -97,6 +99,14 @@ export function SellerCard({
       >
         판매자에게 문의
       </a>
+
+      {/* Seller reviews */}
+      <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--chayong-divider)" }}>
+        <h3 className="mb-2 text-sm font-semibold" style={{ color: "var(--chayong-text)" }}>
+          판매자 후기
+        </h3>
+        <ReviewList dealerId={sellerId} />
+      </div>
     </section>
   );
 }

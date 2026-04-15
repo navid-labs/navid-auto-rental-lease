@@ -62,7 +62,7 @@ function PaginationBar({ pagination }: { pagination: Pagination }) {
       <Link
         href={buildPageUrl(searchParams, page - 1)}
         aria-disabled={page <= 1}
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-sm transition-colors"
+        className="flex h-11 w-11 items-center justify-center rounded-lg text-sm transition-colors"
         style={{
           color: page <= 1 ? "var(--chayong-text-caption)" : "var(--chayong-text)",
           pointerEvents: page <= 1 ? "none" : undefined,
@@ -76,7 +76,7 @@ function PaginationBar({ pagination }: { pagination: Pagination }) {
         p === "ellipsis" ? (
           <span
             key={`ellipsis-${i}`}
-            className="flex h-9 w-9 items-center justify-center text-sm"
+            className="flex h-11 w-11 items-center justify-center text-sm"
             style={{ color: "var(--chayong-text-caption)" }}
           >
             …
@@ -85,7 +85,7 @@ function PaginationBar({ pagination }: { pagination: Pagination }) {
           <Link
             key={p}
             href={buildPageUrl(searchParams, p)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium transition-colors"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-sm font-medium transition-colors"
             style={{
               backgroundColor: p === page ? "var(--chayong-primary)" : "var(--chayong-surface)",
               color: p === page ? "#ffffff" : "var(--chayong-text)",
@@ -100,7 +100,7 @@ function PaginationBar({ pagination }: { pagination: Pagination }) {
       <Link
         href={buildPageUrl(searchParams, page + 1)}
         aria-disabled={page >= totalPages}
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-sm transition-colors"
+        className="flex h-11 w-11 items-center justify-center rounded-lg text-sm transition-colors"
         style={{
           color: page >= totalPages ? "var(--chayong-text-caption)" : "var(--chayong-text)",
           pointerEvents: page >= totalPages ? "none" : undefined,

@@ -203,6 +203,13 @@ model Listing {
 
   // 상태
   isVerified  Boolean  @default(false) @map("is_verified")
+
+  // Inspection
+  inspectionChecklist Json?      @map("inspection_checklist")
+  rejectionReason     String?    @map("rejection_reason")
+  inspectedAt         DateTime?  @map("inspected_at")
+  inspectedBy         String?    @map("inspected_by") @db.Uuid
+
   description String?
   options     String[] @default([])
 

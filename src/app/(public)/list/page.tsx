@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import { prisma } from "@/lib/db/prisma";
 import { ListingGrid } from "@/features/listings/components/listing-grid";
+import { parseListingFilters } from "@/lib/listings/filters";
+import type { ListingFilters } from "@/lib/listings/filters";
 import type { ListingCardData, ListingType } from "@/types";
 import type { Prisma } from "@prisma/client";
 
@@ -14,72 +16,57 @@ const TYPE_LABEL: Record<string, string> = {
   USED_RENTAL: "중고 렌트",
 };
 
-interface SearchParams {
-  type?: string;
-  monthlyMin?: string;
-  monthlyMax?: string;
-  minPayment?: string;
-  maxPayment?: string;
-  brand?: string;
-  sort?: string;
-  page?: string;
-  q?: string;
-  remainingMin?: string;
-  initialCostMax?: string;
-  yearMin?: string;
-}
-
-function buildWhere(params: SearchParams): Prisma.ListingWhereInput {
+function buildWhereFromFilters(filters: ListingFilters): Prisma.ListingWhereInput {
   const where: Prisma.ListingWhereInput = { status: "ACTIVE" };
 
-  if (params.type && ["TRANSFER", "USED_LEASE", "USED_RENTAL"].includes(params.type)) {
-    where.type = params.type as ListingType;
+  if (filters.type) {
+    where.type = filters.type as ListingType;
   }
 
-  const minPayment = Number(params.minPayment ?? params.monthlyMin ?? 0);
-  const maxPayment = Number(params.maxPayment ?? params.monthlyMax ?? 0);
-
-  if (minPayment > 0 || maxPayment > 0) {
+  const { minPayment, maxPayment } = filters;
+  if (minPayment || maxPayment) {
     where.monthlyPayment = {};
-    if (minPayment > 0) where.monthlyPayment.gte = minPayment;
-    if (maxPayment > 0) where.monthlyPayment.lte = maxPayment;
+    if (minPayment) where.monthlyPayment.gte = minPayment;
+    if (maxPayment) where.monthlyPayment.lte = maxPayment;
   }
 
-  if (params.brand) {
-    where.brand = { contains: params.brand, mode: "insensitive" };
+  if (filters.brand) {
+    where.brand = { contains: filters.brand, mode: "insensitive" };
   }
 
-  if (params.remainingMin) {
-    where.remainingMonths = { gte: Number(params.remainingMin) };
+  if (filters.remainingMin) {
+    where.remainingMonths = { gte: filters.remainingMin };
   }
 
-  if (params.initialCostMax) {
-    where.initialCost = { lte: Number(params.initialCostMax) };
+  if (filters.initialCostMax) {
+    where.initialCost = { lte: filters.initialCostMax };
   }
 
-  if (params.yearMin) {
-    where.year = { gte: Number(params.yearMin) };
+  if (filters.yearMin) {
+    where.year = { gte: filters.yearMin };
   }
 
-  if (params.q) {
+  if (filters.q) {
     where.OR = [
-      { brand: { contains: params.q, mode: "insensitive" } },
-      { model: { contains: params.q, mode: "insensitive" } },
-      { description: { contains: params.q, mode: "insensitive" } },
+      { brand: { contains: filters.q, mode: "insensitive" } },
+      { model: { contains: filters.q, mode: "insensitive" } },
+      { description: { contains: filters.q, mode: "insensitive" } },
     ];
   }
 
   return where;
 }
 
-function buildOrderBy(sort?: string): Prisma.ListingOrderByWithRelationInput {
+function buildOrderBy(sort: ListingFilters["sort"]): Prisma.ListingOrderByWithRelationInput {
   switch (sort) {
     case "price_asc":
       return { monthlyPayment: "asc" };
     case "price_desc":
       return { monthlyPayment: "desc" };
-    case "popular":
-      return { viewCount: "desc" };
+    case "year_desc":
+      return { year: "desc" };
+    case "mileage_asc":
+      return { mileage: "asc" };
     default:
       return { createdAt: "desc" };
   }
@@ -88,12 +75,13 @@ function buildOrderBy(sort?: string): Prisma.ListingOrderByWithRelationInput {
 export default async function ListPage({
   searchParams,
 }: {
-  searchParams: Promise<SearchParams>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const params = await searchParams;
-  const page = Math.max(1, Number(params.page ?? 1));
-  const where = buildWhere(params);
-  const orderBy = buildOrderBy(params.sort);
+  const rawParams = await searchParams;
+  const filters = parseListingFilters(rawParams);
+  const { page } = filters;
+  const where = buildWhereFromFilters(filters);
+  const orderBy = buildOrderBy(filters.sort);
 
   const [rawListings, total] = await Promise.all([
     prisma.listing.findMany({
@@ -128,7 +116,7 @@ export default async function ListPage({
   }));
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const typeLabel = params.type ? TYPE_LABEL[params.type] : null;
+  const typeLabel = filters.type ? TYPE_LABEL[filters.type] : null;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
@@ -161,7 +149,7 @@ export default async function ListPage({
         <ListingGrid
           listings={listings}
           pagination={{ page, totalPages, total }}
-          initialQ={params.q ?? ""}
+          initialQ={filters.q ?? ""}
         />
       </Suspense>
     </div>

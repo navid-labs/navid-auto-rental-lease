@@ -1,11 +1,11 @@
 import Link from "next/link";
-import Image from "next/image";
 import { prisma } from "@/lib/db/prisma";
 import { VehicleCard } from "@/components/ui/vehicle-card";
 import { SearchHub } from "@/features/home/search-hub";
 import { TrustStripe } from "@/features/home/trust-stripe";
 import { StoryCards } from "@/features/home/story-cards";
 import { HowItWorksTimeline } from "@/features/home/how-it-works-timeline";
+import { SellCtaBanner } from "@/features/home/sell-cta-banner";
 import type { ListingCardData } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -182,74 +182,20 @@ export default async function HomePage() {
         <SearchHub brands={topBrands} />
       </section>
 
-      {/* ── 지금, 이 매물 어때요? ── */}
-      {listings.length > 0 && (
-        <section className="py-6">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold" style={{ color: "var(--chayong-text)" }}>
-                지금, 이 매물 어때요?
-              </h2>
-              <p className="mt-0.5 text-sm" style={{ color: "var(--chayong-text-sub)" }}>
-                실시간으로 매칭되는 승계 매물을 확인해보세요.
-              </p>
-            </div>
-            <Link href="/list" className="shrink-0 text-sm font-medium" style={{ color: "var(--chayong-primary)" }}>
-              전체보기 &gt;
-            </Link>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
-            {listings.slice(0, 5).map((listing) => (
-              <Link
-                key={listing.id}
-                href={`/detail/${listing.id}`}
-                className="flex shrink-0 w-36 flex-col gap-2 rounded-xl border p-3 transition-colors hover:border-[var(--chayong-primary)]"
-                style={{
-                  borderColor: "var(--chayong-border)",
-                  backgroundColor: "var(--chayong-bg)",
-                }}
-              >
-                {/* Thumbnail */}
-                <div
-                  className="h-24 w-full overflow-hidden rounded-lg"
-                  style={{ backgroundColor: "var(--chayong-surface)" }}
-                >
-                  {listing.primaryImage ? (
-                    <Image
-                      src={listing.primaryImage}
-                      alt={[listing.brand, listing.model].filter(Boolean).join(" ") || "차량"}
-                      width={144}
-                      height={96}
-                      className="object-cover"
-                      style={{ width: "100%", height: "100%" }}
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-xs" style={{ color: "var(--chayong-text-caption)" }}>
-                      사진 없음
-                    </div>
-                  )}
-                </div>
-                {/* Info */}
-                <div>
-                  <p className="truncate text-xs font-semibold leading-tight" style={{ color: "var(--chayong-text)" }}>
-                    {[listing.brand, listing.model].filter(Boolean).join(" ") || "차량"}
-                  </p>
-                  <p className="mt-1 text-xs font-bold" style={{ color: "var(--chayong-primary)" }}>
-                    월 {listing.monthlyPayment.toLocaleString("ko-KR")}원
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* ── Trust Stripe ── */}
+      <section className="my-6">
+        <TrustStripe />
+      </section>
 
-      {/* ── Recommended Listings ── */}
+      {/* ── 지금, 이 매물 어때요? ── */}
       <section className="py-8">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold" style={{ color: "var(--chayong-text)" }}>
-            추천 매물
-          </h2>
+          <div>
+            <h2 className="text-xl font-bold" style={{ color: "var(--chayong-text)" }}>
+              지금, 이 매물 어때요?
+            </h2>
+            <p className="mt-0.5 text-sm" style={{ color: "var(--chayong-text-sub)" }}>실시간으로 매칭되는 승계 매물을 확인해보세요.</p>
+          </div>
           <Link
             href="/list"
             className="text-sm font-medium"
@@ -277,11 +223,6 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* ── Trust Stripe ── */}
-      <section className="my-8">
-        <TrustStripe />
-      </section>
-
       {/* ── Story Cards ── */}
       <section className="py-8">
         <h2 className="mb-6 text-xl font-bold" style={{ color: "var(--chayong-text)" }}>
@@ -298,6 +239,11 @@ export default async function HomePage() {
         <div className="max-w-lg">
           <HowItWorksTimeline />
         </div>
+      </section>
+
+      {/* ── Sell CTA Banner ── */}
+      <section className="mb-8">
+        <SellCtaBanner />
       </section>
     </div>
   );

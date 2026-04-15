@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { buildListingUrl, type ListingFilters } from "@/lib/listings/filters";
+import { SortSelect } from "./sort-select";
 
 interface Props {
   count: number;
@@ -29,31 +30,34 @@ export function ResultMeta({ count, filters }: Props) {
     });
 
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-3">
-      <p className="text-sm font-semibold" style={{ color: "var(--chayong-text)" }}>
-        총{" "}
-        <span className="tabular-nums" style={{ color: "var(--chayong-primary)" }}>
-          {count.toLocaleString("ko-KR")}
-        </span>
-        개 매물
-      </p>
-      {chips.map((c) => (
-        <button
-          key={c.key}
-          type="button"
-          onClick={() =>
-            router.push(buildListingUrl({ ...filters, ...c.next, page: 1 }))
-          }
-          className="flex items-center gap-1 rounded-full border px-3 py-1 text-xs transition-colors hover:border-[var(--chayong-primary)] hover:text-[var(--chayong-primary)]"
-          style={{
-            borderColor: "var(--chayong-border)",
-            color: "var(--chayong-text-sub)",
-          }}
-        >
-          {c.label}
-          <span aria-hidden="true">✕</span>
-        </button>
-      ))}
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <p className="text-sm font-semibold" style={{ color: "var(--chayong-text)" }}>
+          총{" "}
+          <span className="tabular-nums" style={{ color: "var(--chayong-primary)" }}>
+            {count.toLocaleString("ko-KR")}
+          </span>
+          개 매물
+        </p>
+        {chips.map((c) => (
+          <button
+            key={c.key}
+            type="button"
+            onClick={() =>
+              router.push(buildListingUrl({ ...filters, ...c.next, page: 1 }))
+            }
+            className="flex items-center gap-1 rounded-full border px-3 py-1 text-xs transition-colors hover:border-[var(--chayong-primary)] hover:text-[var(--chayong-primary)]"
+            style={{
+              borderColor: "var(--chayong-border)",
+              color: "var(--chayong-text-sub)",
+            }}
+          >
+            {c.label}
+            <span aria-hidden="true">&times;</span>
+          </button>
+        ))}
+      </div>
+      <SortSelect />
     </div>
   );
 }

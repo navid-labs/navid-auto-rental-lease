@@ -3,8 +3,8 @@ import Link from "next/link";
 
 const SERVICE_LINKS = [
   { href: "/list", label: "매물보기" },
-  { href: "/used", label: "중고 리스·렌트" },
-  { href: "/sell", label: "매물등록" },
+  { href: "/used", label: "리스·렌트 안내" },
+  { href: "/sell", label: "내 차 등록" },
   { href: "/guide", label: "이용가이드" },
 ];
 
@@ -21,7 +21,7 @@ export function Footer() {
       className="border-t bg-[var(--chayong-surface)]"
       style={{ borderColor: "var(--chayong-divider)" }}
     >
-      <div className="mx-auto max-w-6xl px-4 py-10">
+      <div className="mx-auto max-w-7xl px-4 py-10">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="flex flex-col gap-3">

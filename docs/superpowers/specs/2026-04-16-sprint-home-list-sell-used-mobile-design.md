@@ -1,7 +1,7 @@
 # Sprint Design Spec: HOME + LIST + SELL + USED + Mobile + Header
 
 > Date: 2026-04-16
-> Status: Draft
+> Status: Reviewed (critic pass complete)
 > Platform identity: 니치 금융 앱 톤 (토스/카카오뱅크 스타일), "계약 승계" 플랫폼
 
 ---
@@ -16,7 +16,7 @@
 
 - **3개 메뉴**: 매물보기(`/list`), 내 차 등록(`/sell`), 이용가이드(`/guide`)
 - "중고 리스·렌트" 1차 메뉴에서 제거 — 모든 매물이 이미 리스/렌트/승계이므로 별도 탭 불필요
-- `max-w-7xl`로 통일 (현재 `max-w-6xl` → 본문과 불일치 수정)
+- `max-w-7xl`로 통일 (header.tsx:19, footer.tsx:24 모두 현재 `max-w-6xl` → `max-w-7xl`로 변경)
 - 메뉴 라벨 변경: "매물등록" → "내 차 등록" (인간적 톤)
 
 ### 1.2 Mobile Nav (하단 5탭)
@@ -46,6 +46,7 @@
 - 활성 탭: primary 배경 + 흰색 텍스트
 - 비활성: surface 배경 + sub 텍스트
 - 탭 선택 시 `?type=TRANSFER|USED_LEASE|USED_RENTAL` 또는 파라미터 제거(전체)
+- 모바일: 가로 스크롤 (`overflow-x-auto`, `scrollbar-none`), 각 탭 `min-w-fit shrink-0`
 
 ---
 
@@ -66,8 +67,8 @@
 ### 2.2 "지금, 이 매물 어때요?" 가로스크롤 제거
 
 - 추천 매물 그리드와 데이터 중복 (동일 listings 사용)
-- 가로스크롤 미니카드 → 제거하고 추천 매물 그리드로 통합
-- 추천 매물 섹션 헤더를 "지금, 이 매물 어때요?"로 변경 (문구 활용)
+- "지금, 이 매물 어때요?" section JSX 블록(page.tsx 186~245행) 전체 삭제
+- 추천 매물 섹션 헤더를 "지금, 이 매물 어때요?"로 변경 (문구 재활용)
 
 ### 2.3 판매 유도 CTA 배너 (신규)
 
@@ -97,16 +98,16 @@ ResultMeta 우측에 정렬 select 배치:
 총 42개 매물  [승계 ✕]                    [최신순 ▾]
 ```
 
-정렬 옵션:
-- 최신순 (기본값, `createdAt desc`)
-- 월납입금 낮은순 (`price_asc`)
-- 월납입금 높은순 (`price_desc`)
-- 연식 최신순 (`year_desc`)
-- 주행거리 짧은순 (`mileage_asc`)
+정렬 옵션 (URL param `sort` 값):
+- 최신순 (기본값, sort 파라미터 없음 → `buildOrderBy` default)
+- 월납입금 낮은순 (`sort=price_asc`)
+- 월납입금 높은순 (`sort=price_desc`)
+- 연식 최신순 (`sort=year_desc`)
+- 주행거리 짧은순 (`sort=mileage_asc`)
 
 구현:
 - `<select>` 또는 커스텀 드롭다운
-- URL searchParam `sort` 연동 (서버사이드 정렬 이미 구현되어 있음)
+- URL searchParam `sort` 연동 (서버사이드 정렬 이미 구현되어 있음, `list/page.tsx:buildOrderBy`)
 - ResultMeta 컴포넌트에 sort prop 추가
 
 ### 3.2 로딩 개선
@@ -114,9 +115,9 @@ ResultMeta 우측에 정렬 select 배치:
 현재: `<Suspense fallback={<p>불러오는 중…</p>}>`
 
 변경:
-- 스켈레톤 카드 그리드로 교체 (2x4 그리드, pulse 애니메이션)
-- ListingGrid 내부 페이지 이동 시에도 로딩 상태 표시
-- `useTransition` 활용하여 페이지/필터 변경 시 pending 상태 표시
+- Suspense fallback을 스켈레톤 카드 그리드로 교체 (pulse 애니메이션)
+- 스켈레톤에 `aria-busy="true"` + `aria-label="매물 불러오는 중"` 접근성 속성 추가
+- ListingGrid 내부 필터/페이지 변경 시: 그리드 영역에 `opacity-50 pointer-events-none` 오버레이 (서버 응답 대기 표시)
 
 스켈레톤 구조 (lg: 3열 6개, md: 2열 4개, sm: 2열 4개):
 ```
@@ -144,10 +145,10 @@ ResultMeta 우측에 정렬 select 배치:
 | 6 | 차량 사진을 올려주세요 | "12장 모두 올리면 안심마크가 자동 부여돼요" (유지) |
 | 7 | 차량 설명을 입력해주세요 | "특이사항, 옵션, 승계 사유 등을 적으면 신뢰도가 올라가요" |
 
-Step 3 매물유형 desc 보강:
-- 승계: "현재 진행 중인 리스·렌트 계약을 넘기고 싶을 때"
-- 중고 리스: "만기 후 차량을 리스 조건으로 다시 내놓을 때"
-- 중고 렌트: "만기 후 차량을 렌트 조건으로 다시 내놓을 때"
+Step 3 매물유형 — `LISTING_TYPE_OPTIONS`의 `desc` 필드를 교체:
+- 승계: ~~"리스·렌트 계약 승계"~~ → "현재 진행 중인 리스·렌트 계약을 넘기고 싶을 때"
+- 중고 리스: ~~"만기 후 중고 리스"~~ → "만기 후 차량을 리스 조건으로 다시 내놓을 때"
+- 중고 렌트: ~~"만기 후 중고 렌트"~~ → "만기 후 차량을 렌트 조건으로 다시 내놓을 때"
 
 ---
 
@@ -188,10 +189,17 @@ Step 3 매물유형 desc 보강:
 └─────────────────────────────────────────────┘
 ```
 
-### 5.3 데이터
+### 5.3 데이터 및 구현
 
 - 최신 매물: `type IN (USED_LEASE, USED_RENTAL)`, `status=ACTIVE`, `take 6`
 - 서버 컴포넌트로 구현 (SSR)
+- FAQ: 하드코딩 (const 배열, 별도 CMS 불필요)
+- SEO metadata: `title: "중고 리스·렌트 | 차용"`, `description: "중고 리스와 렌트 매물을 월 납입금으로 비교하세요."`
+
+### 5.4 컴포넌트 구조
+
+`/used` 페이지는 단일 서버 컴포넌트 (`page.tsx`)로 구현. 정적 콘텐츠 위주이므로 별도 분할 불필요.
+매물 그리드 부분만 기존 `VehicleCard` 재사용.
 
 ---
 
@@ -203,7 +211,7 @@ Step 3 매물유형 desc 보강:
 - FilterBar 칩 버튼: 현재 `py-1.5` → `min-h-[44px]` 보장
 - SearchHub 칩: 현재 `py-1.5` → 패딩 증가
 - VehicleCard 내 작은 요소: 카드 전체가 Link이므로 OK
-- PaginationBar: `h-9 w-9` (36px) → `h-10 w-10` (40px) + `min-h-[44px]` 보장
+- PaginationBar: `h-9 w-9` (36px) → `h-11 w-11` (44px) 가로·세로 모두 44px 보장
 - MobileNav 탭: flex-1 분할로 폭 OK, 높이 `h-16` OK
 
 ### 6.2 폰트

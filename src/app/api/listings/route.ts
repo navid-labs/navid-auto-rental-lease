@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { requireAuth, isAuthError } from "@/lib/api/auth-guard";
+import { listingInputSchema } from "@/lib/validation/listing";
 import type { ListingStatus, ListingType } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
@@ -75,7 +76,8 @@ export async function GET(request: NextRequest) {
       initialCost: listing.initialCost,
       remainingMonths: listing.remainingMonths,
       isVerified: listing.isVerified,
-      accidentFree: listing.accidentFree,
+      accidentCount: listing.accidentCount,
+      mileageVerified: listing.mileageVerified,
       viewCount: listing.viewCount,
       favoriteCount: listing.favoriteCount,
       primaryImage: listing.images[0]?.url ?? null,
@@ -102,31 +104,57 @@ export async function POST(request: NextRequest) {
     if (isAuthError(auth)) return auth;
 
     const body = await request.json();
-
-    if (!body.type || !body.monthlyPayment || !body.remainingMonths) {
-      return NextResponse.json({ error: "필수 필드가 누락되었습니다. (type, monthlyPayment, remainingMonths)" }, { status: 400 });
+    const parsed = listingInputSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "입력 검증 실패", issues: parsed.error.flatten() },
+        { status: 400 },
+      );
     }
-    if (typeof body.monthlyPayment !== "number" || body.monthlyPayment <= 0) {
-      return NextResponse.json({ error: "월 납입금이 올바르지 않습니다." }, { status: 400 });
-    }
-    if (typeof body.remainingMonths !== "number" || body.remainingMonths <= 0) {
-      return NextResponse.json({ error: "잔여 개월수가 올바르지 않습니다." }, { status: 400 });
-    }
+    const input = parsed.data;
 
     const listing = await prisma.listing.create({
       data: {
         sellerId: auth.userId,
-        type: body.type,
-        monthlyPayment: body.monthlyPayment,
-        initialCost: body.initialCost ?? 0,
-        remainingMonths: body.remainingMonths,
-        transferFee: body.transferFee ?? 0,
-        brand: body.brand ?? null,
-        model: body.model ?? null,
-        year: body.year ?? null,
-        trim: body.trim ?? null,
-        description: body.description ?? null,
         status: "DRAFT",
+        type: input.type,
+        brand: input.brand,
+        model: input.model,
+        year: input.year,
+        mileage: input.mileage ?? null,
+        vin: input.vin ?? null,
+        plateNumber: input.plateNumber ?? null,
+        fuelType: input.fuelType ?? null,
+        transmission: input.transmission ?? null,
+        displacement: input.displacement ?? null,
+        bodyType: input.bodyType ?? null,
+        drivetrain: input.drivetrain ?? null,
+        plateType: input.plateType ?? null,
+        color: input.color ?? null,
+        seatingCapacity: input.seatingCapacity ?? null,
+        trim: input.trim ?? null,
+        options: input.options,
+        accidentCount: input.accidentCount,
+        ownerCount: input.ownerCount ?? null,
+        exteriorGrade: input.exteriorGrade ?? null,
+        interiorGrade: input.interiorGrade ?? null,
+        mileageVerified: input.mileageVerified,
+        registrationRegion: input.registrationRegion ?? null,
+        inspectionReportUrl: input.inspectionReportUrl ?? null,
+        inspectionDate: input.inspectionDate ?? null,
+        monthlyPayment: input.monthlyPayment,
+        remainingMonths: input.remainingMonths,
+        totalPrice: input.totalPrice ?? null,
+        remainingBalance: input.remainingBalance ?? null,
+        initialCost: input.initialCost,
+        capitalCompany: input.capitalCompany ?? null,
+        description: input.description ?? null,
+        // type-specific fields
+        transferFee: input.type === "TRANSFER" ? input.transferFee : 0,
+        carryoverPremium: input.type === "TRANSFER" ? input.carryoverPremium : null,
+        deposit: input.type === "TRANSFER" ? null : input.deposit,
+        terminationFee: input.type === "TRANSFER" ? null : input.terminationFee,
+        mileageLimit: input.type === "TRANSFER" ? null : (input.mileageLimit ?? null),
       },
     });
 

@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ShieldCheck, CheckCircle, ArrowRight, BadgeCheck } from "lucide-react";
 import { prisma } from "@/lib/db/prisma";
+import { createClient } from "@/lib/supabase/server";
+import { sanitizeListingForPublic } from "@/lib/listings/sanitize";
 import { TrustBadge } from "@/components/ui/trust-badge";
 import { ListingGallery } from "@/features/listings/components/listing-gallery";
 import { ListingCostCalculator } from "@/features/listings/components/listing-cost-calculator";
@@ -63,9 +65,22 @@ const ESCROW_STEPS = [
 
 export default async function DetailPage({ params }: PageProps) {
   const { id } = await params;
-  const listing = await getListing(id);
+  const rawListing = await getListing(id);
 
-  if (!listing) notFound();
+  if (!rawListing) notFound();
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const viewerId = user?.id;
+  let isAdmin = false;
+  if (viewerId) {
+    const profile = await prisma.profile.findUnique({
+      where: { id: viewerId },
+      select: { role: true },
+    });
+    isAdmin = profile?.role === "ADMIN";
+  }
+  const listing = sanitizeListingForPublic(rawListing, { viewerId, isAdmin });
 
   // Increment view count (fire-and-forget — do not await to avoid slowing page)
   void prisma.listing.update({
@@ -91,11 +106,11 @@ export default async function DetailPage({ params }: PageProps) {
     {
       label: "사고유무",
       value:
-        listing.accidentFree === null
-          ? null
-          : listing.accidentFree
-          ? "무사고"
-          : "사고 있음",
+        listing.accidentCount === null || listing.accidentCount === undefined
+          ? "확인 필요"
+          : listing.accidentCount === 0
+            ? "무사고"
+            : `사고이력 ${listing.accidentCount}건`,
     },
     { label: "캐피탈사", value: listing.capitalCompany },
   ];

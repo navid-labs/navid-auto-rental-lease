@@ -13,7 +13,7 @@ const securityHeaders = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' js.tosspayments.com",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://cdn.jsdelivr.net https://placehold.co",
+      "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://cdn.jsdelivr.net https://placehold.co https://picsum.photos https://fastly.picsum.photos",
       "font-src 'self' https://cdn.jsdelivr.net",
       "frame-src 'none' https://*.tosspayments.com",
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.tosspayments.com",
@@ -40,6 +40,14 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'placehold.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
+      {
+        protocol: 'https',
+        hostname: 'fastly.picsum.photos',
       },
     ],
   },

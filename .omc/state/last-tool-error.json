@@ -1,7 +1,0 @@
-{
-  "tool_name": "Read",
-  "tool_input_preview": "{\"file_path\":\"/Users/kiyeol/development/navid/navid-auto-rental-lease/docs/superpowers/specs/2026-04-08-chayong-platform-design.md\"}",
-  "error": "File content (10057 tokens) exceeds maximum allowed tokens (10000). Use offset and limit parameters to read specific portions of the file, or search for specific content instead of reading the whole file.",
-  "timestamp": "2026-04-08T14:46:44.577Z",
-  "retry_count": 1
-}

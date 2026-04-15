@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const SERVICE_LINKS = [
@@ -24,17 +25,13 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <span
-                className="flex h-7 w-7 items-center justify-center rounded-md text-sm font-bold text-white"
-                style={{ backgroundColor: "var(--chayong-primary)" }}
-              >
-                C
-              </span>
-              <span className="text-base font-bold" style={{ color: "var(--chayong-text)" }}>
-                차용
-              </span>
-            </div>
+            <Image
+              src="/logo.png"
+              alt="차용"
+              width={150}
+              height={49}
+              className="h-10 w-auto self-start"
+            />
             <p className="text-sm leading-relaxed" style={{ color: "var(--chayong-text-caption)" }}>
               안전하게 승계하는 가장 쉬운 방법.
               <br />

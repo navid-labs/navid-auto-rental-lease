@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { HeaderAuth } from "./header-auth";
 import { NotificationBell } from "./notification-bell";
@@ -17,19 +18,15 @@ export function Header() {
     >
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <span
-            className="flex h-7 w-7 items-center justify-center rounded-md text-sm font-bold text-white"
-            style={{ backgroundColor: "var(--chayong-primary)" }}
-          >
-            C
-          </span>
-          <span
-            className="text-lg font-bold"
-            style={{ color: "var(--chayong-text)" }}
-          >
-            차용
-          </span>
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/logo.png"
+            alt="차용"
+            width={120}
+            height={40}
+            priority
+            className="h-9 w-auto"
+          />
         </Link>
 
         {/* Desktop Nav */}

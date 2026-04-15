@@ -1,8 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import type { Grade } from "@/types";
-import { InspectionReportViewer } from "./inspection-report-viewer";
+
+const InspectionReportViewer = dynamic(
+  () => import("./inspection-report-viewer").then((m) => m.InspectionReportViewer),
+  { ssr: false },
+);
 
 interface VehicleDiagnosisProps {
   accidentCount: number;

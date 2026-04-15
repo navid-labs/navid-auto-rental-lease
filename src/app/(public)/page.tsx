@@ -101,8 +101,8 @@ export default async function HomePage() {
   return (
     <div className="mx-auto max-w-7xl px-4">
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden rounded-2xl py-16 md:py-20" style={{ background: "linear-gradient(135deg, #EBF3FE 0%, #F0F4FF 50%, #FFFFFF 100%)" }}>
-        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+      <section className="relative overflow-hidden rounded-2xl px-6 py-12 md:px-10 md:py-20" style={{ background: "linear-gradient(135deg, #EBF3FE 0%, #F0F4FF 50%, #FFFFFF 100%)" }}>
+        <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-10">
           {/* Left: headline + CTAs */}
           <div>
             <h1 className="text-3xl font-bold leading-tight md:text-5xl" style={{ color: "var(--chayong-text)" }}>

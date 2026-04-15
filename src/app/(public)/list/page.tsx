@@ -1,10 +1,12 @@
 import { Suspense } from "react";
 import { prisma } from "@/lib/db/prisma";
 import { ListingGrid } from "@/features/listings/components/listing-grid";
+import { SidebarFilters } from "@/features/listings/components/sidebar-filters";
 import { parseListingFilters } from "@/lib/listings/filters";
 import type { ListingFilters } from "@/lib/listings/filters";
 import type { ListingCardData, ListingType } from "@/types";
 import type { Prisma } from "@prisma/client";
+import type { FuelType, Transmission } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +56,18 @@ function buildWhereFromFilters(filters: ListingFilters): Prisma.ListingWhereInpu
     ];
   }
 
+  if (filters.fuel) {
+    where.fuelType = filters.fuel as FuelType;
+  }
+
+  if (filters.trans) {
+    where.transmission = filters.trans as Transmission;
+  }
+
+  if (filters.accidentMax !== undefined) {
+    where.accidentCount = { lte: filters.accidentMax };
+  }
+
   return where;
 }
 
@@ -83,7 +97,7 @@ export default async function ListPage({
   const where = buildWhereFromFilters(filters);
   const orderBy = buildOrderBy(filters.sort);
 
-  const [rawListings, total] = await Promise.all([
+  const [rawListings, total, brandRows] = await Promise.all([
     prisma.listing.findMany({
       where,
       orderBy,
@@ -94,7 +108,16 @@ export default async function ListPage({
       },
     }),
     prisma.listing.count({ where }),
+    prisma.listing.findMany({
+      where: { status: "ACTIVE", brand: { not: null } },
+      distinct: ["brand"],
+      select: { brand: true },
+      take: 20,
+      orderBy: { brand: "asc" },
+    }),
   ]);
+
+  const topBrands = brandRows.map((r) => r.brand).filter((b): b is string => b !== null);
 
   const listings: ListingCardData[] = rawListings.map((l) => ({
     id: l.id,
@@ -133,25 +156,35 @@ export default async function ListPage({
         </span>
       </div>
 
-      {/* Grid with filters — needs Suspense because FilterBar/AdvancedFilters use useSearchParams */}
-      <Suspense
-        fallback={
-          <div
-            className="flex h-64 items-center justify-center rounded-xl"
-            style={{ backgroundColor: "var(--chayong-surface)" }}
+      {/* Sidebar + Grid layout */}
+      <div className="flex gap-6">
+        {/* Desktop sidebar — hidden on mobile, visible lg+ */}
+        <Suspense fallback={null}>
+          <SidebarFilters brands={topBrands} />
+        </Suspense>
+
+        {/* Grid with filters — needs Suspense because FilterBar/AdvancedFilters use useSearchParams */}
+        <div className="flex-1 min-w-0">
+          <Suspense
+            fallback={
+              <div
+                className="flex h-64 items-center justify-center rounded-xl"
+                style={{ backgroundColor: "var(--chayong-surface)" }}
+              >
+                <p className="text-sm" style={{ color: "var(--chayong-text-caption)" }}>
+                  불러오는 중…
+                </p>
+              </div>
+            }
           >
-            <p className="text-sm" style={{ color: "var(--chayong-text-caption)" }}>
-              불러오는 중…
-            </p>
-          </div>
-        }
-      >
-        <ListingGrid
-          listings={listings}
-          pagination={{ page, totalPages, total }}
-          initialQ={filters.q ?? ""}
-        />
-      </Suspense>
+            <ListingGrid
+              listings={listings}
+              pagination={{ page, totalPages, total }}
+              initialQ={filters.q ?? ""}
+            />
+          </Suspense>
+        </div>
+      </div>
     </div>
   );
 }

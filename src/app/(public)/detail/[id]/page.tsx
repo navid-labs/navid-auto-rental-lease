@@ -13,6 +13,8 @@ import { ShareButton } from "@/features/listings/components/share-button";
 import { MobileCTABar } from "@/features/listings/components/mobile-cta-bar";
 import { SpecPanel } from "@/features/listings/components/spec-panel";
 import { OptionsChips } from "@/features/listings/components/options-chips";
+import { VehicleDiagnosis } from "@/features/listings/components/vehicle-diagnosis";
+import { VehicleHistory } from "@/features/listings/components/vehicle-history";
 import { SellerCard } from "@/features/listings/components/seller-card";
 import { SimilarListings } from "@/features/listings/components/similar-listings";
 
@@ -165,6 +167,23 @@ export default async function DetailPage({ params }: PageProps) {
           {listing.options && listing.options.length > 0 && (
             <OptionsChips options={listing.options} />
           )}
+
+          {/* Vehicle Diagnosis */}
+          <VehicleDiagnosis
+            accidentCount={listing.accidentCount ?? 0}
+            ownerCount={listing.ownerCount ?? 1}
+            exteriorGrade={listing.exteriorGrade ?? null}
+            interiorGrade={listing.interiorGrade ?? null}
+            mileageVerified={listing.mileageVerified}
+            inspectionDate={listing.inspectionDate ?? null}
+            inspectionReportUrl={listing.inspectionReportUrl ?? null}
+          />
+
+          {/* Vehicle History */}
+          <VehicleHistory
+            ownerCount={listing.ownerCount ?? 1}
+            accidentCount={listing.accidentCount ?? 0}
+          />
 
           {/* Seller Card */}
           <SellerCard

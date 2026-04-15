@@ -71,7 +71,9 @@ export function paginationMeta(
 **계약**:
 - `parsePagination`은 **never throw** (사용자 입력 폴백)
 - `toURLSearchParams`는 `undefined` / 빈 문자열 자동 제거
+  - **제약**: "빈 문자열도 의미있는 값"인 필드(향후 검색어 `?q=` 빈 값 등)가 추가되면 이 유틸을 우회해야 함. 현재 PR-A 스코프(page/size/status)에서는 모두 안전.
 - `URLSearchParams.get`은 **첫 값** 반환 (중복 key `?page=1&page=2` → `"1"`) — `params.getAll`이 아닌 `get` 고정
+- 유저가 직접 `?status=` (빈 문자열) URL 입력 시: `toURLSearchParams`가 선제 제거 → `validateQuery`에 status 키 없음 → optional 통과 → 전체 조회. E2E 매트릭스로 이 경로 검증.
 - `totalPages`: `total=0`이어도 `1` (Math.max 보정), UI는 0건 케이스 별도 처리
 
 ### 2-2. `src/lib/api/validation.ts`
@@ -159,6 +161,11 @@ export default async function AdminLeadsPage({
   if (!validation.ok) {
     return <AdminErrorView message="잘못된 필터입니다." />;
   }
+  // AdminErrorView contract (신규):
+  //   - 파일: src/features/admin/components/admin-error-view.tsx (서버 컴포넌트)
+  //   - props: { message: string }
+  //   - 레이아웃: 테이블 영역에 붉은 테두리 + 메시지 + "필터 초기화" Link (basePath로 이동)
+  //   - 스타일: var(--chayong-danger) 계열, 기존 admin 페이지 여백 규칙 유지
 
   const { page, size } = parsePagination(urlParams);
   const where = validation.data.status
@@ -206,7 +213,9 @@ export default async function AdminLeadsPage({
 **현재**: `lead-table.tsx`가 `useState`로 `activeTab` 유지 + 필터링.
 **변경**: `activeTab` state 제거. 탭 클릭 시 `<Link href={`/admin/leads?status=${s}`}>`로 서버 URL 이동. 탭 활성 상태는 서버 props `activeStatus`에서 결정.
 
-→ 클라이언트/서버 이중 필터 충돌 제거. `"use client"` 일부 유지하되 상태는 `useState` 아닌 props 기반.
+→ 클라이언트/서버 이중 필터 충돌 제거.
+
+**`"use client"` 유지 근거**: 상태변경 드롭다운(`handleStatusChange`), 행별 메뉴 토글(`openMenu`) 등 인터랙션 상태는 남아 있음 — 서버 컴포넌트 전환 불가. 탭 필터 state만 제거.
 
 ### 3-5. 공용 UI 컴포넌트 2개 (서버 컴포넌트)
 
@@ -215,6 +224,9 @@ export default async function AdminLeadsPage({
 - 레이아웃: `« 첫 · 이전 · 1 2 [3] 4 5 · 다음 · 끝 »` + `전체 M건 · P/T 페이지`
 - 현재 페이지 ±2 윈도우
 - `preserveParams`는 `toURLSearchParams`로 안전 처리
+- `page > totalPages` 직접 URL 진입 시: 서버에서 clamp 없이 Prisma에 그대로 전달 (빈 배열 반환) → 빈 테이블 렌더 + pagination-bar는 "이전"만 활성, "다음" 비활성
+- status-filter-bar의 `preserveParams`는 `page`를 **명시적으로 제외** (필터 변경 시 1페이지 리셋)
+- pagination-bar의 `preserveParams`는 `status` 등 모든 필터 파라미터 **포함** (페이지 이동 시 필터 보존)
 - `Link href` 방식, 클라이언트 JS 불필요
 - `aria-current="page"` 현재 페이지에 설정
 - 키보드 Tab 이동 자연 순서, 버튼/링크는 `focus-visible` 링
@@ -256,12 +268,13 @@ model EscrowPayment {
 
 **트리거**: 해당 테이블 1,000+ 건 또는 해당 페이지 p95 > 300ms 도달 시 별도 PR로 `@@index([status, createdAt])` 추가.
 
-### 5-3. 마이그레이션 원본 단일화
+### 5-3. 마이그레이션 원본 단일화 (드리프트 방지)
 
-- 로컬: `bunx prisma migrate dev --name add_escrow_status_index` → SQL 파일 생성
-- 생성된 SQL을 `CREATE INDEX CONCURRENTLY`로 수정
-- 프로덕션: `prisma migrate deploy` 대신 Supabase 대시보드에서 직접 실행 (CONCURRENTLY 보장)
-- Prisma migrations 테이블에 기록하여 드리프트 방지
+1. 로컬: `bunx prisma migrate dev --name add_escrow_status_index` → SQL 파일 생성
+2. 생성된 SQL을 `CREATE INDEX CONCURRENTLY`로 수정 (Prisma가 기본 생성하는 `CREATE INDEX`는 테이블 락 발생)
+3. 프로덕션: Supabase 대시보드 SQL Editor에서 수정된 `CONCURRENTLY` DDL 직접 실행
+4. **즉시** `bunx prisma migrate resolve --applied add_escrow_status_index` 실행 — `_prisma_migrations` 테이블에 수동 기록. 다음 `migrate deploy`가 재시도하지 않도록 방지
+5. 이후 `prisma migrate status` 출력이 "database schema is up to date"인지 확인
 
 ## 6. 테스트
 
@@ -346,6 +359,28 @@ export async function cleanupPaginationFixtures(prefix = "테스트") {
 ```
 TEST_ADMIN_EMAIL=e2e-admin@chayong.local
 TEST_ADMIN_PASSWORD=...
+SUPABASE_SERVICE_ROLE_KEY=...  # admin.createUser 호출에 필수
+NEXT_PUBLIC_SUPABASE_URL=...
+```
+
+CI (GitHub Actions/Vercel)에도 같은 3개 secret 등록 필수.
+
+**globalSetup idempotency 패턴**:
+```ts
+const { data: { users } } = await supabaseAdmin.auth.admin.listUsers();
+const existing = users.find(u => u.email === TEST_ADMIN_EMAIL);
+if (existing) {
+  await supabaseAdmin.auth.admin.updateUserById(existing.id, {
+    password: TEST_ADMIN_PASSWORD,
+  });
+} else {
+  await supabaseAdmin.auth.admin.createUser({
+    email: TEST_ADMIN_EMAIL,
+    password: TEST_ADMIN_PASSWORD,
+    email_confirm: true,
+  });
+}
+// Profile 테이블에 ADMIN 역할 보장 (upsert)
 ```
 
 ### 6-4. E2E 테스트 시나리오 (`tests/e2e/admin-pagination.spec.ts`)

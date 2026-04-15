@@ -8,20 +8,32 @@ import { User } from "@supabase/supabase-js";
 
 export function HeaderAuth() {
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    async function init() {
+      const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+      if (user) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+        setIsAdmin(data?.role === "ADMIN");
+      }
       setLoading(false);
-    });
+    }
+    init();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (!session?.user) setIsAdmin(false);
     });
 
     return () => subscription.unsubscribe();
@@ -47,6 +59,15 @@ export function HeaderAuth() {
       user.user_metadata?.name || user.email?.split("@")[0] || "사용자";
     return (
       <div className="flex items-center gap-3">
+        {isAdmin && (
+          <Link
+            href="/admin"
+            className="rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90"
+            style={{ backgroundColor: "var(--chayong-primary)" }}
+          >
+            관리자
+          </Link>
+        )}
         <Link
           href="/my"
           className="text-sm font-medium transition-colors hover:text-[var(--chayong-primary)]"

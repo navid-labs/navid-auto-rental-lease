@@ -16,18 +16,23 @@ export default async function AdminLayout({
   if (profile.role !== "ADMIN") redirect("/");
 
   return (
-    <html lang="ko">
-      <body
-        style={{ margin: 0 }}
-        className="min-h-screen bg-[var(--chayong-bg)] antialiased"
-      >
-        <div className="flex min-h-screen">
-          <AdminSidebar />
-          <main className="flex-1 ml-60 p-6 bg-[var(--chayong-surface)] min-h-screen">
-            {children}
-          </main>
-        </div>
-      </body>
-    </html>
+    <>
+      {/* Hide root layout's Header, Footer, MobileNav */}
+      <style>{`
+        body > header, body > footer, body > nav,
+        body > main > header, body > main > footer {
+          display: none !important;
+        }
+        body > main {
+          padding-bottom: 0 !important;
+        }
+      `}</style>
+      <div className="flex min-h-screen">
+        <AdminSidebar />
+        <main className="flex-1 ml-60 p-6 bg-[var(--chayong-surface)] min-h-screen">
+          {children}
+        </main>
+      </div>
+    </>
   );
 }

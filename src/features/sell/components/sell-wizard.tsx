@@ -11,9 +11,9 @@ import { PhotoGuide } from "./photo-guide";
 const TOTAL_STEPS = 8;
 
 const LISTING_TYPE_OPTIONS = [
-  { value: "TRANSFER" as const, label: "승계", desc: "리스·렌트 계약 승계" },
-  { value: "USED_LEASE" as const, label: "중고 리스", desc: "만기 후 중고 리스" },
-  { value: "USED_RENTAL" as const, label: "중고 렌트", desc: "만기 후 중고 렌트" },
+  { value: "TRANSFER" as const, label: "승계", desc: "현재 진행 중인 리스·렌트 계약을 넘기고 싶을 때" },
+  { value: "USED_LEASE" as const, label: "중고 리스", desc: "만기 후 차량을 리스 조건으로 다시 내놓을 때" },
+  { value: "USED_RENTAL" as const, label: "중고 렌트", desc: "만기 후 차량을 렌트 조건으로 다시 내놓을 때" },
 ];
 
 export function SellWizard() {
@@ -91,7 +91,7 @@ export function SellWizard() {
                 차량번호로 빠르게 조회
               </h1>
               <p className="mt-1.5 text-sm" style={{ color: "var(--chayong-text-sub)" }}>
-                번호판 입력 시 차량 정보가 자동으로 채워져요
+                번호판만 입력하면 30초 만에 차량 정보가 채워져요
               </p>
             </div>
             <PlateLookup
@@ -112,7 +112,7 @@ export function SellWizard() {
                 차종을 확인해주세요
               </h1>
               <p className="mt-1.5 text-sm" style={{ color: "var(--chayong-text-sub)" }}>
-                자동 조회 결과를 수정할 수 있어요
+                자동 조회 결과가 맞는지 확인하고, 틀린 부분만 수정하세요
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -159,6 +159,9 @@ export function SellWizard() {
               <h1 className="text-2xl font-bold" style={{ color: "var(--chayong-text)" }}>
                 연식과 주행거리를 입력해주세요
               </h1>
+              <p className="mt-1.5 text-sm" style={{ color: "var(--chayong-text-sub)" }}>
+                정확한 정보일수록 매칭 속도가 빨라져요
+              </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
@@ -268,6 +271,9 @@ export function SellWizard() {
               <h1 className="text-2xl font-bold" style={{ color: "var(--chayong-text)" }}>
                 잔여 개월과 보증금을 입력해주세요
               </h1>
+              <p className="mt-1.5 text-sm" style={{ color: "var(--chayong-text-sub)" }}>
+                남은 계약 기간이 짧을수록 매칭이 빨라요
+              </p>
             </div>
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
@@ -338,7 +344,7 @@ export function SellWizard() {
                 차량 설명을 입력해주세요
               </h1>
               <p className="mt-1.5 text-sm" style={{ color: "var(--chayong-text-sub)" }}>
-                이후 상세 정보는 관심 고객이 생기면 추가로 입력할 수 있어요
+                특이사항, 옵션, 승계 사유 등을 적으면 신뢰도가 올라가요
               </p>
             </div>
             <Textarea

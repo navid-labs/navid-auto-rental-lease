@@ -182,7 +182,7 @@ export function ListingGrid({ listings, pagination, initialQ = "" }: ListingGrid
       ) : (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-2 lg:grid-cols-3">
           {listings.map((listing) => (
-            <VehicleCard key={listing.id} listing={listing} />
+            <VehicleCard key={listing.id} listing={listing} showCompare />
           ))}
         </div>
       )}

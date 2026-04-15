@@ -5,6 +5,7 @@ import { SidebarFilters } from "@/features/listings/components/sidebar-filters";
 import { ResultMeta } from "@/features/listings/components/result-meta";
 import { TypeTabs } from "@/features/listings/components/type-tabs";
 import { ListingSkeleton } from "@/features/listings/components/listing-skeleton";
+import { CompareFloatingBar } from "@/features/compare/compare-floating-bar";
 import { parseListingFilters } from "@/lib/listings/filters";
 import type { ListingFilters } from "@/lib/listings/filters";
 import type { ListingCardData, ListingType } from "@/types";
@@ -204,6 +205,8 @@ export default async function ListPage({
           </Suspense>
         </div>
       </div>
+
+      <CompareFloatingBar />
     </div>
   );
 }

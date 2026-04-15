@@ -1,16 +1,21 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { Eye, Heart } from "lucide-react";
+import { Eye, Heart, GitCompareArrows } from "lucide-react";
 import type { ListingCardData } from "@/types";
 import { PriceDisplay } from "./price-display";
 import { TrustBadge } from "./trust-badge";
+import { useVehicleInteractionStore } from "@/lib/stores/vehicle-interaction-store";
+import type { VehicleSummary } from "@/lib/stores/vehicle-interaction-store";
 
 interface VehicleCardProps {
   listing: ListingCardData;
   priority?: boolean;
+  showCompare?: boolean;
 }
 
-export function VehicleCard({ listing, priority = false }: VehicleCardProps) {
+export function VehicleCard({ listing, priority = false, showCompare = false }: VehicleCardProps) {
   const {
     id,
     brand,
@@ -29,6 +34,10 @@ export function VehicleCard({ listing, priority = false }: VehicleCardProps) {
     options,
   } = listing;
 
+  const toggleComparison = useVehicleInteractionStore((s) => s.toggleComparison);
+  const isInComparison = useVehicleInteractionStore((s) => s.isInComparison);
+  const inComparison = isInComparison(id);
+
   const MAX_CHIPS = 5;
   const visibleOptions = options.slice(0, MAX_CHIPS);
   const remainingCount = options.length - MAX_CHIPS;
@@ -37,6 +46,21 @@ export function VehicleCard({ listing, priority = false }: VehicleCardProps) {
   const subtitle = [year && `${year}년`, trim, mileage && `${mileage.toLocaleString("ko-KR")}km`]
     .filter(Boolean)
     .join(" · ");
+
+  function handleCompareClick(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    const summary: VehicleSummary = {
+      id,
+      brandName: brand ?? "",
+      modelName: model ?? "",
+      year: year ?? 0,
+      mileage: mileage ?? 0,
+      price: monthlyPayment,
+      thumbnailUrl: primaryImage,
+    };
+    toggleComparison(summary);
+  }
 
   return (
     <Link
@@ -68,6 +92,22 @@ export function VehicleCard({ listing, priority = false }: VehicleCardProps) {
           <div className="absolute left-2 top-2">
             <TrustBadge variant="compact" />
           </div>
+        )}
+
+        {/* Compare button */}
+        {showCompare && (
+          <button
+            type="button"
+            onClick={handleCompareClick}
+            className={`absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${
+              inComparison
+                ? "border-[var(--chayong-primary)] bg-[var(--chayong-primary)] text-white"
+                : "border-white/70 bg-white/80 text-gray-600 hover:bg-white"
+            }`}
+            aria-label={inComparison ? "비교 제거" : "비교 추가"}
+          >
+            <GitCompareArrows size={14} />
+          </button>
         )}
       </div>
 

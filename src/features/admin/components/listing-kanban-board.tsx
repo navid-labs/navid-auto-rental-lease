@@ -24,12 +24,12 @@ interface ColumnConfig {
 }
 
 const COLUMNS: ColumnConfig[] = [
-  { id: "DRAFT",    title: "초안",    color: "#9CA3AF" },
-  { id: "PENDING",  title: "검토중",  color: "#F59E0B" },
-  { id: "ACTIVE",   title: "활성",    color: "#00C471" },
-  { id: "RESERVED", title: "예약됨",  color: "#3182F6" },
-  { id: "SOLD",     title: "거래완료", color: "#6366F1" },
-  { id: "HIDDEN",   title: "숨김",    color: "#D1D5DB" },
+  { id: "DRAFT",    title: "임시저장",  color: "#9CA3AF" },
+  { id: "PENDING",  title: "승인대기",  color: "#F59E0B" },
+  { id: "ACTIVE",   title: "활성",      color: "#00C471" },
+  { id: "RESERVED", title: "예약중",    color: "#3182F6" },
+  { id: "SOLD",     title: "판매완료",  color: "#6366F1" },
+  { id: "HIDDEN",   title: "숨김",      color: "#D1D5DB" },
 ];
 
 const COLUMN_IDS = new Set<string>(COLUMNS.map((c) => c.id));
@@ -114,6 +114,7 @@ export function ListingKanbanBoard({
 
   return (
     <DndContext
+      id="admin-kanban"
       sensors={sensors}
       collisionDetection={closestCorners}
       onDragStart={handleDragStart}

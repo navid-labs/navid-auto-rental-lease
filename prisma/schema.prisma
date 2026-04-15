@@ -18,18 +18,18 @@ enum UserRole {
 }
 
 enum ListingType {
-  TRANSFER     // 승계
-  USED_LEASE   // 중고 리스
-  USED_RENTAL  // 중고 렌트
+  TRANSFER // 승계
+  USED_LEASE // 중고 리스
+  USED_RENTAL // 중고 렌트
 }
 
 enum ListingStatus {
-  DRAFT       // 작성중
-  PENDING     // 승인 대기
-  ACTIVE      // 게시중
-  RESERVED    // 예약중
-  SOLD        // 거래완료
-  HIDDEN      // 숨김
+  DRAFT // 작성중
+  PENDING // 승인 대기
+  ACTIVE // 게시중
+  RESERVED // 예약중
+  SOLD // 거래완료
+  HIDDEN // 숨김
 }
 
 enum MessageType {
@@ -39,18 +39,18 @@ enum MessageType {
 }
 
 enum LeadStatus {
-  WAITING     // 대기
-  CONSULTING  // 상담중
-  CONTRACTED  // 계약완료
-  CANCELED    // 취소
+  WAITING // 대기
+  CONSULTING // 상담중
+  CONTRACTED // 계약완료
+  CANCELED // 취소
 }
 
 enum EscrowStatus {
-  PENDING     // 결제 대기
-  PAID        // 입금 완료
-  RELEASED    // 판매자 지급 완료
-  REFUNDED    // 환불 완료
-  DISPUTED    // 분쟁중
+  PENDING // 결제 대기
+  PAID // 입금 완료
+  RELEASED // 판매자 지급 완료
+  REFUNDED // 환불 완료
+  DISPUTED // 분쟁중
 }
 
 enum NotificationType {
@@ -59,6 +59,66 @@ enum NotificationType {
   LEAD_ASSIGNED
   LISTING_APPROVED
   LISTING_LIKED
+}
+
+enum FuelType {
+  GASOLINE
+  DIESEL
+  HYBRID
+  PHEV
+  EV
+  HYDROGEN
+  LPG
+}
+
+enum Transmission {
+  AUTO
+  MANUAL
+  CVT
+  DCT
+}
+
+enum Grade {
+  A
+  B
+  C
+}
+
+enum BodyType {
+  SEDAN
+  SUV
+  HATCH
+  COUPE
+  WAGON
+  VAN
+  TRUCK
+  CONVERTIBLE
+}
+
+enum Drivetrain {
+  FF
+  FR
+  AWD
+  FOURWD
+}
+
+enum PlateType {
+  PRIVATE
+  COMMERCIAL
+}
+
+enum ImagePosition {
+  EXTERIOR_FRONT
+  EXTERIOR_SIDE_LEFT
+  EXTERIOR_SIDE_RIGHT
+  EXTERIOR_REAR
+  INTERIOR_DASH
+  INTERIOR_SEATS
+  ENGINE
+  ODOMETER
+  PLATE
+  TRUNK
+  OTHER
 }
 
 // ─── Models ──────────────────────────────────────────────
@@ -74,84 +134,110 @@ model Profile {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  sellerListings  Listing[]           @relation("SellerListings")
-  buyerChats      ChatRoom[]          @relation("BuyerChats")
-  sellerChats     ChatRoom[]          @relation("SellerChats")
-  sentMessages    ChatMessage[]       @relation("SentMessages")
-  userLeads       ConsultationLead[]  @relation("UserLeads")
-  assignedLeads   ConsultationLead[]  @relation("AssignedLeads")
-  buyerPayments   EscrowPayment[]     @relation("BuyerPayments")
-  sellerPayments  EscrowPayment[]     @relation("SellerPayments")
-  favorites       Favorite[]          @relation("UserFavorites")
-  notifications   Notification[]      @relation("UserNotifications")
+  sellerListings Listing[]          @relation("SellerListings")
+  buyerChats     ChatRoom[]         @relation("BuyerChats")
+  sellerChats    ChatRoom[]         @relation("SellerChats")
+  sentMessages   ChatMessage[]      @relation("SentMessages")
+  userLeads      ConsultationLead[] @relation("UserLeads")
+  assignedLeads  ConsultationLead[] @relation("AssignedLeads")
+  buyerPayments  EscrowPayment[]    @relation("BuyerPayments")
+  sellerPayments EscrowPayment[]    @relation("SellerPayments")
+  favorites      Favorite[]         @relation("UserFavorites")
+  notifications  Notification[]     @relation("UserNotifications")
 
   @@map("profiles")
 }
 
 model Listing {
-  id              String        @id @default(uuid()) @db.Uuid
-  sellerId        String        @map("seller_id") @db.Uuid
-  type            ListingType
-  status          ListingStatus @default(DRAFT)
+  id       String        @id @default(uuid()) @db.Uuid
+  sellerId String        @map("seller_id") @db.Uuid
+  type     ListingType
+  status   ListingStatus @default(DRAFT)
 
   // 차량 기본 정보 (Step 2에서 입력, Step 1에선 미입력 가능)
   brand           String?
   model           String?
   year            Int?
   trim            String?
-  fuelType        String?       @map("fuel_type")
-  transmission    String?
+  fuelType        FuelType?     @map("fuel_type")
+  transmission    Transmission?
   seatingCapacity Int?          @map("seating_capacity")
   mileage         Int?
   color           String?
   plateNumber     String?       @map("plate_number")
 
+  vin          String?     @map("vin") @db.VarChar(17)
+  displacement Int?
+  bodyType     BodyType?   @map("body_type")
+  drivetrain   Drivetrain?
+  plateType    PlateType?  @map("plate_type")
+
   // 금융 정보 (핵심 — Step 1 필수)
-  monthlyPayment  Int           @map("monthly_payment")
-  initialCost     Int           @default(0) @map("initial_cost")
-  remainingMonths Int           @map("remaining_months")
-  totalPrice      Int?          @map("total_price")
-  remainingBalance Int?         @map("remaining_balance")
-  capitalCompany  String?       @map("capital_company")
-  transferFee     Int           @default(0) @map("transfer_fee")
+  monthlyPayment   Int     @map("monthly_payment")
+  initialCost      Int     @default(0) @map("initial_cost")
+  remainingMonths  Int     @map("remaining_months")
+  totalPrice       Int?    @map("total_price")
+  remainingBalance Int?    @map("remaining_balance")
+  capitalCompany   String? @map("capital_company")
+  transferFee      Int     @default(0) @map("transfer_fee")
 
   // 통계
-  viewCount       Int           @default(0) @map("view_count")
-  favoriteCount   Int           @default(0) @map("favorite_count")
+  viewCount     Int @default(0) @map("view_count")
+  favoriteCount Int @default(0) @map("favorite_count")
+
+  // 신뢰 정보
+  accidentCount       Int?      @default(0) @map("accident_count")
+  ownerCount          Int?      @map("owner_count")
+  exteriorGrade       Grade?    @map("exterior_grade")
+  interiorGrade       Grade?    @map("interior_grade")
+  mileageVerified     Boolean   @default(false) @map("mileage_verified")
+  registrationRegion  String?   @map("registration_region")
+  inspectionReportUrl String?   @map("inspection_report_url")
+  inspectionDate      DateTime? @map("inspection_date")
+
+  // 타입별 금융 세부
+  carryoverPremium Int? @map("carryover_premium")
+  terminationFee   Int? @map("termination_fee")
+  deposit          Int?
+  mileageLimit     Int? @map("mileage_limit")
 
   // 상태
-  isVerified      Boolean       @default(false) @map("is_verified")
-  accidentFree    Boolean?      @map("accident_free")
-  description     String?
-  options         String[]      @default([])
+  isVerified  Boolean  @default(false) @map("is_verified")
+  description String?
+  options     String[] @default([])
 
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  seller          Profile       @relation("SellerListings", fields: [sellerId], references: [id])
-  images          ListingImage[]
-  chatRooms       ChatRoom[]
-  leads           ConsultationLead[]
-  escrowPayments  EscrowPayment[]
-  favorites       Favorite[]
+  seller         Profile            @relation("SellerListings", fields: [sellerId], references: [id])
+  images         ListingImage[]
+  chatRooms      ChatRoom[]
+  leads          ConsultationLead[]
+  escrowPayments EscrowPayment[]
+  favorites      Favorite[]
 
   @@index([type, status])
   @@index([sellerId, status])
   @@index([monthlyPayment])
   @@index([status, isVerified])
+  @@index([options], type: Gin)
+  @@index([status, type, monthlyPayment])
+  @@index([status, brand, model])
+  @@index([status, year(sort: Desc)])
   @@map("listings")
 }
 
 model ListingImage {
-  id        String   @id @default(uuid()) @db.Uuid
-  listingId String   @map("listing_id") @db.Uuid
+  id        String         @id @default(uuid()) @db.Uuid
+  listingId String         @map("listing_id") @db.Uuid
   url       String
-  order     Int      @default(0)
-  isPrimary Boolean  @default(false) @map("is_primary")
-  createdAt DateTime @default(now()) @map("created_at")
+  order     Int            @default(0)
+  isPrimary Boolean        @default(false) @map("is_primary")
+  position  ImagePosition?
+  createdAt DateTime       @default(now()) @map("created_at")
 
-  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
   @@map("listing_images")
 }
@@ -165,10 +251,10 @@ model ChatRoom {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  listing   Listing      @relation(fields: [listingId], references: [id])
-  buyer     Profile      @relation("BuyerChats", fields: [buyerId], references: [id])
-  seller    Profile      @relation("SellerChats", fields: [sellerId], references: [id])
-  messages  ChatMessage[]
+  listing  Listing       @relation(fields: [listingId], references: [id])
+  buyer    Profile       @relation("BuyerChats", fields: [buyerId], references: [id])
+  seller   Profile       @relation("SellerChats", fields: [sellerId], references: [id])
+  messages ChatMessage[]
 
   @@unique([listingId, buyerId])
   @@index([buyerId])
@@ -186,8 +272,8 @@ model ChatMessage {
   isRead     Boolean     @default(false) @map("is_read")
   createdAt  DateTime    @default(now()) @map("created_at")
 
-  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
-  sender     Profile  @relation("SentMessages", fields: [senderId], references: [id])
+  chatRoom ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  sender   Profile  @relation("SentMessages", fields: [senderId], references: [id])
 
   @@index([chatRoomId, createdAt])
   @@map("chat_messages")
@@ -204,9 +290,9 @@ model ConsultationLead {
   createdAt  DateTime    @default(now()) @map("created_at")
   updatedAt  DateTime    @updatedAt @map("updated_at")
 
-  user       Profile     @relation("UserLeads", fields: [userId], references: [id])
-  listing    Listing     @relation(fields: [listingId], references: [id])
-  assignee   Profile?    @relation("AssignedLeads", fields: [assignedTo], references: [id])
+  user     Profile  @relation("UserLeads", fields: [userId], references: [id])
+  listing  Listing  @relation(fields: [listingId], references: [id])
+  assignee Profile? @relation("AssignedLeads", fields: [assignedTo], references: [id])
 
   @@index([status])
   @@index([assignedTo, status])
@@ -230,9 +316,9 @@ model EscrowPayment {
   createdAt     DateTime     @default(now()) @map("created_at")
   updatedAt     DateTime     @updatedAt @map("updated_at")
 
-  listing       Listing      @relation(fields: [listingId], references: [id])
-  buyer         Profile      @relation("BuyerPayments", fields: [buyerId], references: [id])
-  seller        Profile      @relation("SellerPayments", fields: [sellerId], references: [id])
+  listing Listing @relation(fields: [listingId], references: [id])
+  buyer   Profile @relation("BuyerPayments", fields: [buyerId], references: [id])
+  seller  Profile @relation("SellerPayments", fields: [sellerId], references: [id])
 
   @@index([listingId])
   @@index([buyerId])
@@ -246,8 +332,8 @@ model Favorite {
   listingId String   @map("listing_id") @db.Uuid
   createdAt DateTime @default(now()) @map("created_at")
 
-  user      Profile  @relation("UserFavorites", fields: [userId], references: [id])
-  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  user    Profile @relation("UserFavorites", fields: [userId], references: [id])
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
   @@unique([userId, listingId])
   @@map("favorites")
@@ -263,7 +349,7 @@ model Notification {
   isRead    Boolean          @default(false) @map("is_read")
   createdAt DateTime         @default(now()) @map("created_at")
 
-  user      Profile          @relation("UserNotifications", fields: [userId], references: [id])
+  user Profile @relation("UserNotifications", fields: [userId], references: [id])
 
   @@index([userId, isRead])
   @@map("notifications")

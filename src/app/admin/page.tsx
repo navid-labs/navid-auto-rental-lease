@@ -1,112 +1,103 @@
 import { prisma } from "@/lib/db/prisma";
 import {
-  Users,
-  Clock,
-  Car,
-  CreditCard,
-} from "lucide-react";
+  RoleDashboardAdmin,
+  type DashboardStats,
+  type RecentActivity,
+} from "@/features/admin/components/role-dashboard-admin";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = { title: "대시보드" };
 
-async function getStats() {
-  const [totalLeads, waitingLeads, activeListings, pendingEscrow] =
+async function getStats(): Promise<DashboardStats> {
+  const [pendingListings, waitingLeads, activeListings, pendingEscrow] =
     await Promise.all([
-      prisma.consultationLead.count(),
+      prisma.listing.count({ where: { status: "PENDING" } }),
       prisma.consultationLead.count({ where: { status: "WAITING" } }),
       prisma.listing.count({ where: { status: "ACTIVE" } }),
       prisma.escrowPayment.count({ where: { status: "PAID" } }),
     ]);
-  return { totalLeads, waitingLeads, activeListings, pendingEscrow };
+  return { pendingListings, waitingLeads, activeListings, pendingEscrow };
+}
+
+async function getRecentActivities(): Promise<RecentActivity[]> {
+  const [listings, leads, escrows] = await Promise.all([
+    prisma.listing.findMany({
+      take: 5,
+      orderBy: { updatedAt: "desc" },
+      select: {
+        id: true,
+        brand: true,
+        model: true,
+        status: true,
+        updatedAt: true,
+      },
+    }),
+    prisma.consultationLead.findMany({
+      take: 5,
+      orderBy: { updatedAt: "desc" },
+      select: {
+        id: true,
+        status: true,
+        updatedAt: true,
+        listing: { select: { brand: true, model: true } },
+      },
+    }),
+    prisma.escrowPayment.findMany({
+      take: 5,
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        status: true,
+        createdAt: true,
+        listing: { select: { brand: true, model: true } },
+      },
+    }),
+  ]);
+
+  const activities: RecentActivity[] = [
+    ...listings.map((l) => ({
+      id: `listing-${l.id}`,
+      type: "listing" as const,
+      label: `${l.brand} ${l.model}`,
+      status: l.status,
+      updatedAt: l.updatedAt.toISOString(),
+    })),
+    ...leads.map((l) => ({
+      id: `lead-${l.id}`,
+      type: "lead" as const,
+      label: l.listing
+        ? `${l.listing.brand} ${l.listing.model}`
+        : "상담 리드",
+      status: l.status,
+      updatedAt: l.updatedAt.toISOString(),
+    })),
+    ...escrows.map((e) => ({
+      id: `escrow-${e.id}`,
+      type: "escrow" as const,
+      label: e.listing
+        ? `${e.listing.brand} ${e.listing.model}`
+        : "에스크로",
+      status: e.status,
+      updatedAt: e.createdAt.toISOString(),
+    })),
+  ];
+
+  return activities
+    .sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    )
+    .slice(0, 10);
 }
 
 export default async function AdminDashboardPage() {
-  const stats = await getStats();
-
-  const statCards = [
-    {
-      label: "전체 리드",
-      value: stats.totalLeads,
-      icon: Users,
-      color: "var(--chayong-primary)",
-      bg: "var(--chayong-primary-light)",
-    },
-    {
-      label: "대기중 리드",
-      value: stats.waitingLeads,
-      icon: Clock,
-      color: "var(--chayong-warning)",
-      bg: "#FFF7ED",
-    },
-    {
-      label: "활성 매물",
-      value: stats.activeListings,
-      icon: Car,
-      color: "var(--chayong-success)",
-      bg: "#ECFDF5",
-    },
-    {
-      label: "에스크로 대기",
-      value: stats.pendingEscrow,
-      icon: CreditCard,
-      color: "var(--chayong-danger)",
-      bg: "#FEF2F2",
-    },
-  ];
+  const [stats, recentActivities] = await Promise.all([
+    getStats(),
+    getRecentActivities(),
+  ]);
 
   return (
-    <div>
-      <h1
-        className="text-xl font-bold mb-6"
-        style={{ color: "var(--chayong-text)" }}
-      >
-        대시보드
-      </h1>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map(({ label, value, icon: Icon, color, bg }) => (
-          <div
-            key={label}
-            className="rounded-xl p-5 border"
-            style={{
-              backgroundColor: "var(--chayong-bg)",
-              borderColor: "var(--chayong-divider)",
-            }}
-          >
-            <div className="flex items-start justify-between mb-3">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: bg }}
-              >
-                <Icon size={20} style={{ color }} />
-              </div>
-              {/* Trend placeholder */}
-              <span
-                className="text-xs px-1.5 py-0.5 rounded"
-                style={{
-                  backgroundColor: bg,
-                  color,
-                }}
-              >
-                —
-              </span>
-            </div>
-            <p
-              className="text-3xl font-bold mb-1"
-              style={{ color: "var(--chayong-text)" }}
-            >
-              {value.toLocaleString()}
-            </p>
-            <p
-              className="text-sm"
-              style={{ color: "var(--chayong-text-caption)" }}
-            >
-              {label}
-            </p>
-          </div>
-        ))}
-      </div>
-    </div>
+    <RoleDashboardAdmin stats={stats} recentActivities={recentActivities} />
   );
 }

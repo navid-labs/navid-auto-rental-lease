@@ -1,4 +1,8 @@
-import type { Grade } from "@prisma/client";
+"use client";
+
+import { useState } from "react";
+import type { Grade } from "@/types";
+import { InspectionReportViewer } from "./inspection-report-viewer";
 
 interface VehicleDiagnosisProps {
   accidentCount: number;
@@ -99,6 +103,7 @@ function buildDetailItems(props: VehicleDiagnosisProps): DetailItem[] {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function VehicleDiagnosis(props: VehicleDiagnosisProps) {
+  const [viewerOpen, setViewerOpen] = useState(false);
   const { accidentCount, exteriorGrade, interiorGrade, inspectionDate, inspectionReportUrl } =
     props;
   const detailItems = buildDetailItems(props);
@@ -194,18 +199,24 @@ export function VehicleDiagnosis(props: VehicleDiagnosisProps) {
           진단일: {formatInspectionDate(inspectionDate)}
         </span>
         {inspectionReportUrl ? (
-          <a
-            href={inspectionReportUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-gray-50"
-            style={{
-              borderColor: "var(--chayong-primary)",
-              color: "var(--chayong-primary)",
-            }}
-          >
-            점검기록부 보기
-          </a>
+          <>
+            <button
+              type="button"
+              onClick={() => setViewerOpen(true)}
+              className="rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-gray-50"
+              style={{
+                borderColor: "var(--chayong-primary)",
+                color: "var(--chayong-primary)",
+              }}
+            >
+              점검기록부 보기
+            </button>
+            <InspectionReportViewer
+              url={inspectionReportUrl}
+              open={viewerOpen}
+              onOpenChange={setViewerOpen}
+            />
+          </>
         ) : (
           <button
             disabled

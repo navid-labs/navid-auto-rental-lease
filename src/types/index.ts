@@ -8,6 +8,7 @@ export type {
   EscrowPayment,
   Favorite,
   Notification,
+  Grade,
 } from "@prisma/client";
 
 export {

@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db/prisma";
 import { ListingGrid } from "@/features/listings/components/listing-grid";
 import { SidebarFilters } from "@/features/listings/components/sidebar-filters";
 import { ResultMeta } from "@/features/listings/components/result-meta";
+import { TypeTabs } from "@/features/listings/components/type-tabs";
+import { ListingSkeleton } from "@/features/listings/components/listing-skeleton";
 import { parseListingFilters } from "@/lib/listings/filters";
 import type { ListingFilters } from "@/lib/listings/filters";
 import type { ListingCardData, ListingType } from "@/types";
@@ -166,23 +168,17 @@ export default async function ListPage({
 
         {/* Grid with filters — needs Suspense because FilterBar/AdvancedFilters use useSearchParams */}
         <div className="flex-1 min-w-0">
+          {/* Type tabs */}
+          <Suspense fallback={null}>
+            <TypeTabs />
+          </Suspense>
+
           {/* ResultMeta: active filter chips + count — uses useRouter so needs Suspense */}
           <Suspense fallback={null}>
             <ResultMeta count={total} filters={filters} />
           </Suspense>
 
-          <Suspense
-            fallback={
-              <div
-                className="flex h-64 items-center justify-center rounded-xl"
-                style={{ backgroundColor: "var(--chayong-surface)" }}
-              >
-                <p className="text-sm" style={{ color: "var(--chayong-text-caption)" }}>
-                  불러오는 중…
-                </p>
-              </div>
-            }
-          >
+          <Suspense fallback={<ListingSkeleton count={6} />}>
             <ListingGrid
               listings={listings}
               pagination={{ page, totalPages, total }}

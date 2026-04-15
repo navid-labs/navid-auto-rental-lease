@@ -32,7 +32,7 @@ export function SearchHub({ brands }: Props) {
   return (
     <section
       aria-label="매물 빠른 검색"
-      className="rounded-2xl border bg-[var(--chayong-bg)] p-4 md:p-6"
+      className="rounded-2xl border bg-[var(--chayong-bg)] p-5 md:p-8 shadow-md"
       style={{ borderColor: "var(--chayong-border)" }}
     >
       <div className="grid gap-4 md:grid-cols-3">
@@ -60,7 +60,7 @@ export function SearchHub({ brands }: Props) {
       </div>
       <Link
         href={href}
-        className="mt-4 flex h-12 items-center justify-center rounded-xl bg-[var(--chayong-primary)] font-semibold text-white"
+        className="mt-6 flex h-14 items-center justify-center rounded-xl bg-[var(--chayong-primary)] text-[15px] font-semibold text-white shadow-sm transition-all hover:shadow-md"
       >
         매물 검색 →
       </Link>

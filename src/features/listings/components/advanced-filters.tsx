@@ -37,8 +37,10 @@ const TYPE_OPTIONS = [
 
 const SORT_OPTIONS = [
   { label: "최신순", value: "newest" },
-  { label: "가격 낮은순", value: "price_asc" },
-  { label: "가격 높은순", value: "price_desc" },
+  { label: "월납입금 낮은순", value: "price_asc" },
+  { label: "월납입금 높은순", value: "price_desc" },
+  { label: "연식 최신순", value: "year_desc" },
+  { label: "주행거리 적은순", value: "mileage_asc" },
 ];
 
 export function AdvancedFilters() {

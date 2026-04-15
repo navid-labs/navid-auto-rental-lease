@@ -1,3 +1,4 @@
+import type React from "react";
 import type { Listing, Profile } from "@prisma/client";
 
 export type AdminRole = "admin" | "inspector" | "finance";
@@ -61,7 +62,7 @@ export const VALID_STATUS_TRANSITIONS: Record<string, string[]> = {
 export interface ActionCardData {
   label: string;
   value: number;
-  icon: React.ComponentType<{ size?: number }>;
+  icon: React.ComponentType<{ size?: number; className?: string; style?: React.CSSProperties }>;
   color: string;
   bg: string;
   href: string;

@@ -16,6 +16,8 @@
 # testing
 /coverage
 /test-results
+.env.test
+tests/e2e/.auth/
 
 # next.js
 /.next/

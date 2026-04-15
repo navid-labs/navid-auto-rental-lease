@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
+import { toURLSearchParams } from "@/lib/api/pagination";
+
 type Lead = {
   id: string;
   type: string;
@@ -33,10 +36,10 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const TABS = [
-  { key: "ALL", label: "전체" },
-  { key: "WAITING", label: "대기" },
-  { key: "CONSULTING", label: "상담중" },
-  { key: "CONTRACTED", label: "계약완료" },
+  { status: undefined as string | undefined, label: "전체" },
+  { status: "WAITING" as string | undefined, label: "대기" },
+  { status: "CONSULTING" as string | undefined, label: "상담중" },
+  { status: "CONTRACTED" as string | undefined, label: "계약완료" },
 ];
 
 async function updateLeadStatus(id: string, status: string) {
@@ -47,23 +50,21 @@ async function updateLeadStatus(id: string, status: string) {
   });
 }
 
-export function LeadTable({ leads }: { leads: Lead[] }) {
-  const [activeTab, setActiveTab] = useState("ALL");
+function buildTabHref(status: string | undefined): string {
+  const params = toURLSearchParams({ status });
+  const qs = params.toString();
+  return qs ? `/admin/leads?${qs}` : "/admin/leads";
+}
+
+export function LeadTable({
+  leads,
+  activeStatus,
+}: {
+  leads: Lead[];
+  activeStatus?: string;
+}) {
   const [localLeads, setLocalLeads] = useState(leads);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-
-  const filtered =
-    activeTab === "ALL"
-      ? localLeads
-      : localLeads.filter((l) => l.status === activeTab);
-
-  const tabCounts = TABS.map((t) => ({
-    ...t,
-    count:
-      t.key === "ALL"
-        ? localLeads.length
-        : localLeads.filter((l) => l.status === t.key).length,
-  }));
 
   const handleStatusChange = async (id: string, status: string) => {
     await updateLeadStatus(id, status);
@@ -75,42 +76,26 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
 
   return (
     <div>
-      {/* Tabs */}
+      {/* Tabs — server navigation via Link */}
       <div
         className="flex gap-0 border-b mb-4"
         style={{ borderColor: "var(--chayong-divider)" }}
       >
-        {tabCounts.map(({ key, label, count }) => {
-          const active = activeTab === key;
+        {TABS.map(({ status, label }) => {
+          const active = status === activeStatus;
           return (
-            <button
-              key={key}
-              onClick={() => setActiveTab(key)}
+            <Link
+              key={status ?? "__all__"}
+              href={buildTabHref(status)}
+              aria-current={active ? "page" : undefined}
               className="px-4 py-2.5 text-sm font-medium border-b-2 transition-colors"
               style={{
-                borderBottomColor: active
-                  ? "var(--chayong-primary)"
-                  : "transparent",
-                color: active
-                  ? "var(--chayong-primary)"
-                  : "var(--chayong-text-sub)",
+                borderBottomColor: active ? "var(--chayong-primary)" : "transparent",
+                color: active ? "var(--chayong-primary)" : "var(--chayong-text-sub)",
               }}
             >
               {label}
-              <span
-                className="ml-1.5 text-xs px-1.5 py-0.5 rounded-full"
-                style={{
-                  backgroundColor: active
-                    ? "var(--chayong-primary-light)"
-                    : "var(--chayong-surface)",
-                  color: active
-                    ? "var(--chayong-primary)"
-                    : "var(--chayong-text-caption)",
-                }}
-              >
-                {count}
-              </span>
-            </button>
+            </Link>
           );
         })}
       </div>
@@ -137,37 +122,32 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 ? (
+            {localLeads.length === 0 ? (
               <tr>
                 <td
                   colSpan={7}
                   className="text-center py-10"
                   style={{ color: "var(--chayong-text-caption)" }}
                 >
-                  리드가 없습니다.
+                  {activeStatus ? "선택한 필터에 맞는 리드가 없습니다." : "리드가 없습니다."}
                 </td>
               </tr>
             ) : (
-              filtered.map((lead, i) => {
+              localLeads.map((lead, i) => {
                 const colors = STATUS_COLORS[lead.status] ?? STATUS_COLORS.CANCELED;
                 return (
                   <tr
                     key={lead.id}
                     style={{
-                      borderTop:
-                        i > 0
-                          ? `1px solid var(--chayong-divider)`
-                          : undefined,
+                      borderTop: i > 0 ? `1px solid var(--chayong-divider)` : undefined,
                       backgroundColor: "var(--chayong-bg)",
                     }}
                   >
-                    {/* 매물 */}
                     <td className="px-4 py-3" style={{ color: "var(--chayong-text)" }}>
                       {lead.listing.brand && lead.listing.model
                         ? `${lead.listing.brand} ${lead.listing.model}`
                         : "정보 미입력"}
                     </td>
-                    {/* 고객 */}
                     <td className="px-4 py-3">
                       <p style={{ color: "var(--chayong-text)" }}>
                         {lead.user.name ?? lead.user.email}
@@ -181,7 +161,6 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
                         </p>
                       )}
                     </td>
-                    {/* 타입 */}
                     <td className="px-4 py-3">
                       <span
                         className="text-xs px-2 py-0.5 rounded-full font-medium"
@@ -193,33 +172,26 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
                         {TYPE_LABELS[lead.type] ?? lead.type}
                       </span>
                     </td>
-                    {/* 상태 */}
                     <td className="px-4 py-3">
                       <span
                         className="text-xs px-2 py-0.5 rounded-full font-medium"
-                        style={{
-                          backgroundColor: colors.bg,
-                          color: colors.color,
-                        }}
+                        style={{ backgroundColor: colors.bg, color: colors.color }}
                       >
                         {STATUS_LABELS[lead.status] ?? lead.status}
                       </span>
                     </td>
-                    {/* 담당자 */}
                     <td
                       className="px-4 py-3 text-sm"
                       style={{ color: "var(--chayong-text-sub)" }}
                     >
                       {lead.assignee?.name ?? "미배정"}
                     </td>
-                    {/* 생성일 */}
                     <td
                       className="px-4 py-3 text-xs"
                       style={{ color: "var(--chayong-text-caption)" }}
                     >
                       {new Date(lead.createdAt).toLocaleDateString("ko-KR")}
                     </td>
-                    {/* 액션 */}
                     <td className="px-4 py-3 relative">
                       <button
                         onClick={() =>
@@ -227,7 +199,7 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
                         }
                         className="text-xs px-3 py-1.5 rounded-lg border transition-colors"
                         style={{
-                          borderColor: "var(--chayong-border)",
+                          borderColor: "var(--chayong-divider)",
                           color: "var(--chayong-text-sub)",
                           backgroundColor: "var(--chayong-bg)",
                         }}

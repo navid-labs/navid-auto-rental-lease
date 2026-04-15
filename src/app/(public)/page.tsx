@@ -1,8 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Shield, BadgeCheck, MessageCircle, RefreshCw } from "lucide-react";
 import { prisma } from "@/lib/db/prisma";
 import { VehicleCard } from "@/components/ui/vehicle-card";
+import { SearchHub } from "@/features/home/search-hub";
+import { TrustStripe } from "@/features/home/trust-stripe";
+import { StoryCards } from "@/features/home/story-cards";
+import { HowItWorksTimeline } from "@/features/home/how-it-works-timeline";
 import type { ListingCardData } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -60,40 +63,22 @@ async function getNewListingCount(): Promise<number> {
   });
 }
 
-const TRUST_ITEMS = [
-  {
-    icon: Shield,
-    title: "100% 안심거래",
-    description: "에스크로 시스템으로 가계약금을 안전하게 보호합니다.",
-  },
-  {
-    icon: BadgeCheck,
-    title: "금융사 승인 지원",
-    description: "전문 딜러가 캐피탈 승계 심사를 처음부터 끝까지 도와드립니다.",
-  },
-  {
-    icon: MessageCircle,
-    title: "전문가 1:1 상담",
-    description: "승계 경험이 풍부한 전문 상담사가 빠르게 응답합니다.",
-  },
-  {
-    icon: RefreshCw,
-    title: "승계 실패 시 환불",
-    description: "금융사 심사 탈락 시 가계약금 전액을 환불해 드립니다.",
-  },
-] as const;
-
-const HOW_IT_WORKS = [
-  { step: 1, label: "매물 탐색", description: "월 납입금 기준으로 원하는 차량을 찾아보세요." },
-  { step: 2, label: "상담 신청", description: "마음에 드는 매물에 상담을 신청하세요." },
-  { step: 3, label: "승계 심사", description: "전문 딜러가 금융사 승계 심사를 진행합니다." },
-  { step: 4, label: "안전거래", description: "에스크로로 보호된 안전한 거래를 완료합니다." },
-] as const;
+async function getTopBrands(): Promise<string[]> {
+  const rows = await prisma.listing.findMany({
+    where: { status: "ACTIVE" },
+    distinct: ["brand"],
+    take: 10,
+    select: { brand: true },
+    orderBy: { createdAt: "desc" },
+  });
+  return rows.map((r) => r.brand).filter((b): b is string => Boolean(b));
+}
 
 export default async function HomePage() {
-  const [listings, newListingCount] = await Promise.all([
+  const [listings, newListingCount, topBrands] = await Promise.all([
     getRecommendedListings(),
     getNewListingCount(),
+    getTopBrands(),
   ]);
 
   return (
@@ -192,27 +177,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Category Tabs ── */}
+      {/* ── Search Hub ── */}
       <section className="py-4">
-        <div
-          className="flex items-center gap-2 rounded-xl p-1"
-          style={{ backgroundColor: "var(--chayong-surface)" }}
-        >
-          <Link
-            href="/list?type=TRANSFER"
-            className="flex-1 rounded-lg py-2.5 text-center text-sm font-semibold transition-colors"
-            style={{ backgroundColor: "var(--chayong-bg)", color: "var(--chayong-text)" }}
-          >
-            승계 차량
-          </Link>
-          <Link
-            href="/list?type=USED_LEASE"
-            className="flex-1 rounded-lg py-2.5 text-center text-sm font-medium transition-colors"
-            style={{ color: "var(--chayong-text-sub)" }}
-          >
-            중고 리스·렌트
-          </Link>
-        </div>
+        <SearchHub brands={topBrands} />
       </section>
 
       {/* ── 지금, 이 매물 어때요? ── */}
@@ -309,56 +276,26 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* ── Trust Section ── */}
-      <section
-        className="rounded-2xl py-10 px-6 my-8"
-        style={{ backgroundColor: "var(--chayong-surface)" }}
-      >
-        <h2 className="mb-8 text-center text-xl font-bold" style={{ color: "var(--chayong-text)" }}>
-          왜 차용인가요?
-        </h2>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {TRUST_ITEMS.map(({ icon: Icon, title, description }) => (
-            <div key={title} className="flex flex-col items-center text-center">
-              <div
-                className="mb-3 flex h-12 w-12 items-center justify-center rounded-full"
-                style={{ backgroundColor: "var(--chayong-primary-light)" }}
-              >
-                <Icon size={22} style={{ color: "var(--chayong-primary)" }} />
-              </div>
-              <h3 className="mb-1 font-semibold" style={{ color: "var(--chayong-text)" }}>
-                {title}
-              </h3>
-              <p className="text-sm leading-relaxed" style={{ color: "var(--chayong-text-sub)" }}>
-                {description}
-              </p>
-            </div>
-          ))}
-        </div>
+      {/* ── Trust Stripe ── */}
+      <section className="my-8">
+        <TrustStripe />
       </section>
 
-      {/* ── How It Works ── */}
+      {/* ── Story Cards ── */}
+      <section className="py-8">
+        <h2 className="mb-6 text-xl font-bold" style={{ color: "var(--chayong-text)" }}>
+          차용으로 이런 거래가 가능해요
+        </h2>
+        <StoryCards />
+      </section>
+
+      {/* ── How It Works Timeline ── */}
       <section className="py-10 mb-8">
-        <h2 className="mb-8 text-center text-xl font-bold" style={{ color: "var(--chayong-text)" }}>
+        <h2 className="mb-8 text-xl font-bold" style={{ color: "var(--chayong-text)" }}>
           이용 방법
         </h2>
-        <div className="relative grid grid-cols-2 gap-6 lg:grid-cols-4">
-          {HOW_IT_WORKS.map(({ step, label, description }) => (
-            <div key={step} className="flex flex-col items-center text-center">
-              <div
-                className="mb-3 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white"
-                style={{ backgroundColor: "var(--chayong-primary)" }}
-              >
-                {step}
-              </div>
-              <h3 className="mb-1 font-semibold" style={{ color: "var(--chayong-text)" }}>
-                {label}
-              </h3>
-              <p className="text-sm leading-relaxed" style={{ color: "var(--chayong-text-sub)" }}>
-                {description}
-              </p>
-            </div>
-          ))}
+        <div className="max-w-lg">
+          <HowItWorksTimeline />
         </div>
       </section>
     </div>

@@ -399,7 +399,7 @@ function StickyFooter({
   isLast: boolean;
 }) {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-white p-3 md:static md:inset-auto md:border-t-0 md:px-0 md:pt-6">
+    <div className="fixed inset-x-0 bottom-16 z-40 border-t bg-white p-3 md:static md:inset-auto md:bottom-auto md:border-t-0 md:px-0 md:pt-6">
       <div className="mx-auto flex max-w-2xl gap-2">
         <button
           type="button"

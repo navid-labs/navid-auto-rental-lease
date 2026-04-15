@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import type { Metadata } from "next";
-import { ShieldCheck, CheckCircle, ArrowRight, BadgeCheck } from "lucide-react";
+import { ShieldCheck, CheckCircle, ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/db/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeListingForPublic } from "@/lib/listings/sanitize";
@@ -10,6 +11,10 @@ import { ListingCostCalculator } from "@/features/listings/components/listing-co
 import { ListingCtaSidebar } from "@/features/listings/components/listing-cta-sidebar";
 import { ShareButton } from "@/features/listings/components/share-button";
 import { MobileCTABar } from "@/features/listings/components/mobile-cta-bar";
+import { SpecPanel } from "@/features/listings/components/spec-panel";
+import { OptionsChips } from "@/features/listings/components/options-chips";
+import { SellerCard } from "@/features/listings/components/seller-card";
+import { SimilarListings } from "@/features/listings/components/similar-listings";
 
 export const dynamic = "force-dynamic";
 
@@ -82,7 +87,7 @@ export default async function DetailPage({ params }: PageProps) {
   }
   const listing = sanitizeListingForPublic(rawListing, { viewerId, isAdmin });
 
-  // Increment view count (fire-and-forget — do not await to avoid slowing page)
+  // Increment view count (fire-and-forget)
   void prisma.listing.update({
     where: { id },
     data: { viewCount: { increment: 1 } },
@@ -91,34 +96,21 @@ export default async function DetailPage({ params }: PageProps) {
   const vehicleName =
     [listing.brand, listing.model].filter(Boolean).join(" ") || "차량 정보 없음";
 
-  const infoRows: { label: string; value: string | null | undefined }[] = [
-    { label: "차량번호", value: listing.plateNumber },
-    { label: "연식", value: listing.year ? `${listing.year}년` : null },
-    {
-      label: "주행거리",
-      value: listing.mileage
-        ? `${listing.mileage.toLocaleString("ko-KR")}km`
-        : null,
-    },
-    { label: "연료", value: listing.fuelType },
-    { label: "미션", value: listing.transmission },
-    { label: "색상", value: listing.color },
-    {
-      label: "사고유무",
-      value:
-        listing.accidentCount === null || listing.accidentCount === undefined
-          ? "확인 필요"
-          : listing.accidentCount === 0
-            ? "무사고"
-            : `사고이력 ${listing.accidentCount}건`,
-    },
-    { label: "캐피탈사", value: listing.capitalCompany },
-  ];
+  // Map images for gallery (add alt text)
+  const galleryImages = listing.images.map((img) => ({
+    id: img.id,
+    url: img.url,
+    alt: `${vehicleName} ${img.order + 1}번째 이미지`,
+    order: img.order,
+  }));
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 pb-20 md:pb-8">
       {/* Breadcrumb */}
-      <div className="mb-4 flex items-center gap-1.5 text-xs" style={{ color: "var(--chayong-text-caption)" }}>
+      <div
+        className="mb-4 flex items-center gap-1.5 text-xs"
+        style={{ color: "var(--chayong-text-caption)" }}
+      >
         <span>{TYPE_LABEL[listing.type] ?? listing.type}</span>
         <span>/</span>
         <span className="font-medium" style={{ color: "var(--chayong-text-sub)" }}>
@@ -129,22 +121,13 @@ export default async function DetailPage({ params }: PageProps) {
       {/* Title row */}
       <div className="mb-6 flex items-start justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl font-bold leading-tight" style={{ color: "var(--chayong-text)" }}>
+          <h1
+            className="text-2xl font-bold leading-tight"
+            style={{ color: "var(--chayong-text)" }}
+          >
             {vehicleName}
           </h1>
           {listing.isVerified && <TrustBadge />}
-          {listing.capitalCompany && (
-            <span
-              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium"
-              style={{
-                backgroundColor: "var(--chayong-primary-light)",
-                color: "var(--chayong-primary)",
-              }}
-            >
-              <BadgeCheck size={14} />
-              금융사 승인 가능
-            </span>
-          )}
         </div>
         <ShareButton
           title={`${vehicleName} - 월 ${listing.monthlyPayment.toLocaleString("ko-KR")}원`}
@@ -157,75 +140,40 @@ export default async function DetailPage({ params }: PageProps) {
         {/* ── Left column ── */}
         <div className="flex flex-col gap-6">
           {/* Gallery */}
-          <ListingGallery
-            images={listing.images}
-            vehicleName={vehicleName}
+          <ListingGallery images={galleryImages} vehicleName={vehicleName} />
+
+          {/* Spec Panel — replaces old flat info table */}
+          <SpecPanel
+            year={listing.year}
+            mileage={listing.mileage}
+            fuelType={listing.fuelType}
+            transmission={listing.transmission}
+            bodyType={listing.bodyType}
+            drivetrain={listing.drivetrain}
+            displacement={listing.displacement}
+            color={listing.color}
+            accidentCount={listing.accidentCount}
+            mileageVerified={listing.mileageVerified}
+            exteriorGrade={listing.exteriorGrade}
+            interiorGrade={listing.interiorGrade}
+            capitalCompany={listing.capitalCompany}
+            remainingMonths={listing.remainingMonths}
+            mileageLimit={listing.mileageLimit}
           />
 
-          {/* Vehicle info table */}
-          <div
-            className="rounded-xl border overflow-hidden"
-            style={{ borderColor: "var(--chayong-border)" }}
-          >
-            <div
-              className="px-4 py-3 text-sm font-semibold"
-              style={{
-                backgroundColor: "var(--chayong-surface)",
-                color: "var(--chayong-text)",
-                borderBottom: `1px solid var(--chayong-divider)`,
-              }}
-            >
-              차량 정보
-            </div>
-            <table className="w-full text-sm">
-              <tbody>
-                {infoRows.map(({ label, value }) => (
-                  <tr
-                    key={label}
-                    className="border-b last:border-b-0"
-                    style={{ borderColor: "var(--chayong-divider)" }}
-                  >
-                    <td
-                      className="w-28 px-4 py-3 text-xs font-medium"
-                      style={{ color: "var(--chayong-text-caption)", backgroundColor: "var(--chayong-surface)" }}
-                    >
-                      {label}
-                    </td>
-                    <td className="px-4 py-3" style={{ color: value ? "var(--chayong-text)" : "var(--chayong-text-caption)" }}>
-                      {value ?? "정보 없음"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* 추가 옵션 */}
+          {/* Options Chips */}
           {listing.options && listing.options.length > 0 && (
-            <div
-              className="rounded-xl border p-4"
-              style={{ borderColor: "var(--chayong-border)" }}
-            >
-              <h3 className="mb-3 text-sm font-semibold" style={{ color: "var(--chayong-text)" }}>
-                추가 옵션
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {listing.options.map((opt) => (
-                  <span
-                    key={opt}
-                    className="rounded-full px-3 py-1 text-xs font-medium"
-                    style={{
-                      backgroundColor: "var(--chayong-surface)",
-                      color: "var(--chayong-text-sub)",
-                      border: "1px solid var(--chayong-border)",
-                    }}
-                  >
-                    {opt}
-                  </span>
-                ))}
-              </div>
-            </div>
+            <OptionsChips options={listing.options} />
           )}
+
+          {/* Seller Card */}
+          <SellerCard
+            sellerId={listing.sellerId}
+            sellerName={listing.seller.name}
+            sellerRole={listing.seller.role}
+            isVerified={listing.isVerified}
+            listingId={listing.id}
+          />
         </div>
 
         {/* ── Right column (sticky sidebar) ── */}
@@ -253,7 +201,10 @@ export default async function DetailPage({ params }: PageProps) {
         className="mt-10 rounded-2xl px-6 py-8"
         style={{ backgroundColor: "var(--chayong-surface)" }}
       >
-        <h2 className="mb-6 text-center text-lg font-bold" style={{ color: "var(--chayong-text)" }}>
+        <h2
+          className="mb-6 text-center text-lg font-bold"
+          style={{ color: "var(--chayong-text)" }}
+        >
           안심거래 시스템
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -271,10 +222,16 @@ export default async function DetailPage({ params }: PageProps) {
               >
                 STEP {i + 1}
               </div>
-              <h3 className="mb-1 text-sm font-semibold" style={{ color: "var(--chayong-text)" }}>
+              <h3
+                className="mb-1 text-sm font-semibold"
+                style={{ color: "var(--chayong-text)" }}
+              >
                 {title}
               </h3>
-              <p className="text-xs leading-relaxed" style={{ color: "var(--chayong-text-sub)" }}>
+              <p
+                className="text-xs leading-relaxed"
+                style={{ color: "var(--chayong-text-sub)" }}
+              >
                 {description}
               </p>
             </div>
@@ -299,6 +256,18 @@ export default async function DetailPage({ params }: PageProps) {
           </div>
         </section>
       )}
+
+      {/* Similar Listings */}
+      <div className="mt-10">
+        <Suspense fallback={null}>
+          <SimilarListings
+            currentId={listing.id}
+            type={listing.type}
+            brand={listing.brand}
+            monthlyPayment={listing.monthlyPayment}
+          />
+        </Suspense>
+      </div>
 
       {/* Mobile fixed bottom CTA */}
       <MobileCTABar monthlyPayment={listing.monthlyPayment} listingId={listing.id} />

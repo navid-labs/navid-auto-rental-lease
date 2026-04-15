@@ -1,15 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { requireAuth, isAuthError } from "@/lib/api/auth-guard";
+import { sanitizeListingForPublic } from "@/lib/listings/sanitize";
+import { createClient } from "@/lib/supabase/server";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 // Fields that sellers are allowed to update on their own listings
 const UPDATABLE_FIELDS = [
   "brand", "model", "year", "trim", "fuelType", "transmission",
-  "seatingCapacity", "mileage", "color", "plateNumber",
-  "monthlyPayment", "initialCost", "remainingMonths", "transferFee",
-  "capitalCompany", "accidentFree", "description", "options", "status",
+  "seatingCapacity", "mileage", "color", "plateNumber", "vin",
+  "displacement", "bodyType", "drivetrain", "plateType",
+  "options", "accidentCount", "ownerCount", "exteriorGrade", "interiorGrade",
+  "mileageVerified", "registrationRegion", "inspectionReportUrl", "inspectionDate",
+  "monthlyPayment", "initialCost", "remainingMonths", "totalPrice",
+  "remainingBalance", "capitalCompany", "transferFee",
+  "carryoverPremium", "terminationFee", "deposit", "mileageLimit",
+  "description", "status",
 ] as const;
 
 export async function GET(_request: NextRequest, context: RouteContext) {
@@ -32,7 +39,22 @@ export async function GET(_request: NextRequest, context: RouteContext) {
       .update({ where: { id }, data: { viewCount: { increment: 1 } } })
       .catch(() => {});
 
-    return NextResponse.json(listing);
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    const viewerId = user?.id;
+
+    let isAdmin = false;
+    if (viewerId) {
+      const profile = await prisma.profile.findUnique({
+        where: { id: viewerId },
+        select: { role: true },
+      });
+      isAdmin = profile?.role === "ADMIN";
+    }
+
+    const publicListing = sanitizeListingForPublic(listing, { viewerId, isAdmin });
+
+    return NextResponse.json(publicListing);
   } catch (error) {
     console.error("GET /api/listings/[id] error:", error);
     return NextResponse.json({ error: "서버 오류가 발생했습니다." }, { status: 500 });

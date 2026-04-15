@@ -21,10 +21,14 @@ export function VehicleCard({ listing }: VehicleCardProps) {
     initialCost,
     remainingMonths,
     isVerified,
+    accidentCount,
     viewCount,
     favoriteCount,
     primaryImage,
   } = listing;
+
+  // `features` will be available after schema plan merges (Task 8)
+  const features: string[] = (listing as unknown as { features?: string[] }).features ?? [];
 
   const vehicleName = `${brand} ${model}`;
   const subtitle = [year && `${year}년`, trim, mileage && `${mileage.toLocaleString("ko-KR")}km`]
@@ -80,6 +84,28 @@ export function VehicleCard({ listing }: VehicleCardProps) {
             {remainingMonths ? ` · 잔여 ${remainingMonths}개월` : ""}
           </span>
         </div>
+
+        {/* Features chips (visible after schema plan merge) */}
+        {features.slice(0, 3).length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {features.slice(0, 3).map((f) => (
+              <span
+                key={f}
+                className="rounded-full border px-2 py-0.5 text-[10px]"
+                style={{ color: "var(--chayong-text-sub)", borderColor: "var(--chayong-divider)" }}
+              >
+                {f}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Accident count badge */}
+        {accidentCount !== undefined && accidentCount !== null && accidentCount > 0 && (
+          <span className="text-[10px] font-medium" style={{ color: "var(--chayong-danger)" }}>
+            사고 {accidentCount}회
+          </span>
+        )}
 
         {/* Stats */}
         <div className="flex items-center gap-3 border-t pt-2" style={{ borderColor: "var(--chayong-divider)" }}>

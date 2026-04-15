@@ -7,9 +7,10 @@ import { TrustBadge } from "./trust-badge";
 
 interface VehicleCardProps {
   listing: ListingCardData;
+  priority?: boolean;
 }
 
-export function VehicleCard({ listing }: VehicleCardProps) {
+export function VehicleCard({ listing, priority = false }: VehicleCardProps) {
   const {
     id,
     brand,
@@ -50,6 +51,7 @@ export function VehicleCard({ listing }: VehicleCardProps) {
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            priority={priority}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">

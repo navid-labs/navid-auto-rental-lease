@@ -215,7 +215,7 @@ async function main() {
         return tx.listingImage.create({
           data: {
             listingId: listing.id,
-            url: `https://placehold.co/800x600/e2e8f0/64748b?text=${label}`,
+            url: `https://placehold.co/800x600/e2e8f0/64748b.png?text=${label}`,
             order: 0,
             isPrimary: true,
           },

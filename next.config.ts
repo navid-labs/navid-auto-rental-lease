@@ -13,7 +13,7 @@ const securityHeaders = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' js.tosspayments.com",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://cdn.jsdelivr.net",
+      "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://cdn.jsdelivr.net https://placehold.co",
       "font-src 'self' https://cdn.jsdelivr.net",
       "frame-src 'none' https://*.tosspayments.com",
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.tosspayments.com",

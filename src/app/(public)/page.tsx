@@ -220,7 +220,8 @@ export default async function HomePage() {
                       alt={[listing.brand, listing.model].filter(Boolean).join(" ") || "차량"}
                       width={144}
                       height={96}
-                      className="h-full w-full object-cover"
+                      className="object-cover"
+                      style={{ width: "100%", height: "100%" }}
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center text-xs" style={{ color: "var(--chayong-text-caption)" }}>

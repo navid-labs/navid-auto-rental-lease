@@ -15,7 +15,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://cdn.jsdelivr.net https://placehold.co https://picsum.photos https://fastly.picsum.photos",
       "font-src 'self' https://cdn.jsdelivr.net",
-      "frame-src 'none' https://*.tosspayments.com",
+      "frame-src https://*.tosspayments.com",
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.tosspayments.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",

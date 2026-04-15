@@ -6,6 +6,7 @@ const SERVICE_LINKS = [
   { href: "/used", label: "리스·렌트 안내" },
   { href: "/sell", label: "내 차 등록" },
   { href: "/guide", label: "이용가이드" },
+  { href: "/blog", label: "블로그" },
 ];
 
 const LEGAL_LINKS = [

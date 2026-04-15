@@ -34,7 +34,7 @@ export function Header() {
             <Link
               key={href}
               href={href}
-              className="text-sm font-medium transition-colors hover:text-[var(--chayong-primary)]"
+              className="flex min-h-[44px] items-center text-sm font-medium transition-colors hover:text-[var(--chayong-primary)]"
               style={{ color: "var(--chayong-text-sub)" }}
             >
               {label}

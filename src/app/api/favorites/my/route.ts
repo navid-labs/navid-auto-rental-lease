@@ -13,7 +13,23 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
       include: {
         listing: {
-          include: {
+          select: {
+            id: true,
+            type: true,
+            brand: true,
+            model: true,
+            year: true,
+            trim: true,
+            mileage: true,
+            monthlyPayment: true,
+            initialCost: true,
+            remainingMonths: true,
+            isVerified: true,
+            accidentCount: true,
+            mileageVerified: true,
+            viewCount: true,
+            favoriteCount: true,
+            options: true,
             images: { where: { isPrimary: true }, take: 1, select: { url: true } },
           },
         },
@@ -36,6 +52,7 @@ export async function GET() {
       mileageVerified: l.mileageVerified,
       viewCount: l.viewCount,
       favoriteCount: l.favoriteCount,
+      options: l.options,
       primaryImage: l.images[0]?.url ?? null,
     }));
 

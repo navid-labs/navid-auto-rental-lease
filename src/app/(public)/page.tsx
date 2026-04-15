@@ -11,14 +11,32 @@ import type { ListingCardData } from "@/types";
 export const dynamic = "force-dynamic";
 
 async function getRecommendedListings(): Promise<ListingCardData[]> {
+  const selectFields = {
+    id: true,
+    type: true,
+    brand: true,
+    model: true,
+    year: true,
+    trim: true,
+    mileage: true,
+    monthlyPayment: true,
+    initialCost: true,
+    remainingMonths: true,
+    isVerified: true,
+    accidentCount: true,
+    mileageVerified: true,
+    viewCount: true,
+    favoriteCount: true,
+    options: true,
+    images: { where: { isPrimary: true }, take: 1, select: { url: true } },
+  } as const;
+
   // Try verified+active first, fall back to newest active only if empty
   let listings = await prisma.listing.findMany({
     where: { status: "ACTIVE", isVerified: true },
     orderBy: { createdAt: "desc" },
     take: 8,
-    include: {
-      images: { where: { isPrimary: true }, take: 1, select: { url: true } },
-    },
+    select: selectFields,
   });
 
   if (listings.length === 0) {
@@ -26,9 +44,7 @@ async function getRecommendedListings(): Promise<ListingCardData[]> {
       where: { status: "ACTIVE" },
       orderBy: { createdAt: "desc" },
       take: 8,
-      include: {
-        images: { where: { isPrimary: true }, take: 1, select: { url: true } },
-      },
+      select: selectFields,
     });
   }
 
@@ -48,6 +64,7 @@ async function getRecommendedListings(): Promise<ListingCardData[]> {
     mileageVerified: l.mileageVerified,
     viewCount: l.viewCount,
     favoriteCount: l.favoriteCount,
+    options: l.options,
     primaryImage: l.images[0]?.url ?? null,
   }));
 }

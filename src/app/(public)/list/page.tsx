@@ -106,7 +106,23 @@ export default async function ListPage({
       orderBy,
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      include: {
+      select: {
+        id: true,
+        type: true,
+        brand: true,
+        model: true,
+        year: true,
+        trim: true,
+        mileage: true,
+        monthlyPayment: true,
+        initialCost: true,
+        remainingMonths: true,
+        isVerified: true,
+        accidentCount: true,
+        mileageVerified: true,
+        viewCount: true,
+        favoriteCount: true,
+        options: true,
         images: { where: { isPrimary: true }, take: 1, select: { url: true } },
       },
     }),
@@ -138,6 +154,7 @@ export default async function ListPage({
     mileageVerified: l.mileageVerified,
     viewCount: l.viewCount,
     favoriteCount: l.favoriteCount,
+    options: l.options,
     primaryImage: l.images[0]?.url ?? null,
   }));
 

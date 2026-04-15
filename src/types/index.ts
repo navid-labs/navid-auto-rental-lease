@@ -49,6 +49,7 @@ export type ListingCardData = Pick<
   | "mileageVerified"
   | "viewCount"
   | "favoriteCount"
+  | "options"
 > & {
   primaryImage: string | null;
 };

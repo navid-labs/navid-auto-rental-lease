@@ -93,14 +93,14 @@ export function HeaderAuth() {
     <div className="flex items-center gap-2">
       <Link
         href="/login"
-        className="px-3 py-1.5 text-sm font-medium transition-colors hover:text-[var(--chayong-primary)]"
+        className="flex min-h-[44px] items-center px-3 text-sm font-medium transition-colors hover:text-[var(--chayong-primary)]"
         style={{ color: "var(--chayong-text-sub)" }}
       >
         로그인
       </Link>
       <Link
         href="/signup"
-        className="rounded-lg px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--chayong-primary-hover)]"
+        className="flex min-h-[44px] items-center rounded-lg px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--chayong-primary-hover)]"
         style={{ backgroundColor: "var(--chayong-primary)" }}
       >
         회원가입

@@ -101,7 +101,7 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full border px-3 py-1.5 text-sm transition ${
+      className={`rounded-full border px-3 py-1.5 text-sm transition min-h-[44px] ${
         active
           ? "border-[var(--chayong-primary)] bg-[var(--chayong-primary)] text-white"
           : "bg-white"

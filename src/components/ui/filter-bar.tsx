@@ -48,7 +48,7 @@ export function FilterBar() {
             key={value}
             type="button"
             onClick={() => handleFilter(value)}
-            className="shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
+            className="shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors min-h-[44px]"
             style={{
               backgroundColor: active
                 ? "var(--chayong-primary)"

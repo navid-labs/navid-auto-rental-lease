@@ -5,8 +5,7 @@ import { NotificationBell } from "./notification-bell";
 
 const NAV_LINKS = [
   { href: "/list", label: "매물보기" },
-  { href: "/list?type=USED_LEASE", label: "중고 리스·렌트" },
-  { href: "/sell", label: "매물등록" },
+  { href: "/sell", label: "내 차 등록" },
   { href: "/guide", label: "이용가이드" },
 ];
 
@@ -16,7 +15,7 @@ export function Header() {
       className="sticky top-0 z-50 w-full border-b bg-[var(--chayong-bg)]"
       style={{ borderColor: "var(--chayong-divider)" }}
     >
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <Image

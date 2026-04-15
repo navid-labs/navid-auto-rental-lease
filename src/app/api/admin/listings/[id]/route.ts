@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
 import { requireRole, isAuthError } from "@/lib/api/auth-guard";
+import { VALID_STATUS_TRANSITIONS } from "@/types/admin";
 import {
   ListingStatus,
   FuelType,
@@ -38,6 +39,8 @@ const adminListingUpdateSchema = z.object({
   interiorGrade: z.nativeEnum(Grade).optional().nullable(),
   mileageVerified: z.boolean().optional(),
   registrationRegion: z.string().max(100).optional().nullable(),
+  inspectionChecklist: z.any().optional().nullable(),
+  rejectionReason: z.string().max(1000).optional().nullable(),
 });
 
 export async function PATCH(
@@ -59,9 +62,33 @@ export async function PATCH(
       );
     }
 
+    const data = parsed.data as Record<string, unknown>;
+
+    if (data.status) {
+      const current = await prisma.listing.findUnique({
+        where: { id },
+        select: { status: true },
+      });
+      if (!current) {
+        return NextResponse.json({ error: "매물을 찾을 수 없습니다." }, { status: 404 });
+      }
+      const allowed = VALID_STATUS_TRANSITIONS[current.status];
+      if (!allowed?.includes(data.status as string)) {
+        return NextResponse.json(
+          { error: `${current.status} → ${data.status} 전이는 허용되지 않습니다.` },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (data.inspectionChecklist && data.status === "ACTIVE") {
+      data.inspectedAt = new Date();
+      data.inspectedBy = auth.userId;
+    }
+
     const listing = await prisma.listing.update({
       where: { id },
-      data: parsed.data,
+      data,
     });
 
     return NextResponse.json(listing);

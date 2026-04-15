@@ -11,6 +11,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import type { Notification, NotificationType } from "@/types";
+import { createClient } from "@/lib/supabase/client";
 
 type NotificationWithType = Notification;
 
@@ -47,18 +48,29 @@ export function NotificationBell() {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationWithType[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [authed, setAuthed] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetch("/api/notifications")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data) {
+    const supabase = createClient();
+    let active = true;
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!active || !user) return;
+      setAuthed(true);
+      fetch("/api/notifications")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (!active || !data) return;
           setNotifications(data.notifications);
           setUnreadCount(data.unreadCount);
-        }
-      })
-      .catch(() => {});
+        })
+        .catch(() => {});
+    });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   // Close on outside click
@@ -104,6 +116,8 @@ export function NotificationBell() {
       router.push(notification.linkUrl);
     }
   }
+
+  if (!authed) return null;
 
   return (
     <div className="relative" ref={dropdownRef}>

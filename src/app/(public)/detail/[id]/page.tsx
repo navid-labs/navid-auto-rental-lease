@@ -91,11 +91,11 @@ export default async function DetailPage({ params }: PageProps) {
     {
       label: "사고유무",
       value:
-        listing.accidentFree === null
-          ? null
-          : listing.accidentFree
-          ? "무사고"
-          : "사고 있음",
+        listing.accidentCount === null || listing.accidentCount === undefined
+          ? "확인 필요"
+          : listing.accidentCount === 0
+            ? "무사고"
+            : `사고이력 ${listing.accidentCount}건`,
     },
     { label: "캐피탈사", value: listing.capitalCompany },
   ];

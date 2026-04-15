@@ -40,7 +40,8 @@ export type ListingCardData = Pick<
   | "initialCost"
   | "remainingMonths"
   | "isVerified"
-  | "accidentFree"
+  | "accidentCount"
+  | "mileageVerified"
   | "viewCount"
   | "favoriteCount"
 > & {

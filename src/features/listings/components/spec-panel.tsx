@@ -183,7 +183,7 @@ export function SpecPanel(props: SpecPanelProps) {
 
         {/* 2-column grid on sm+, 1-column on mobile */}
         <div className="grid grid-cols-1 sm:grid-cols-2">
-          {rows.map(({ label, value, highlight }, i) => (
+          {rows.map(({ label, value, highlight }) => (
             <div
               key={label}
               className="flex items-center justify-between border-b px-4 py-3 last:border-b-0 sm:[&:nth-last-child(-n+2)]:border-b-0"

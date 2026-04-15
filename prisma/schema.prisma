@@ -323,6 +323,7 @@ model EscrowPayment {
   @@index([listingId])
   @@index([buyerId])
   @@index([sellerId])
+  @@index([status, createdAt])
   @@map("escrow_payments")
 }
 

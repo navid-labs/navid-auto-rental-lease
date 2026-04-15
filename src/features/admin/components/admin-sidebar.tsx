@@ -7,7 +7,6 @@ import {
   Users,
   Car,
   CreditCard,
-  Settings,
 } from "lucide-react";
 
 const navItems = [
@@ -15,7 +14,6 @@ const navItems = [
   { href: "/admin/leads", label: "상담 리드", icon: Users, exact: false },
   { href: "/admin/listings", label: "매물 관리", icon: Car, exact: false },
   { href: "/admin/escrow", label: "에스크로 관리", icon: CreditCard, exact: false },
-  { href: "/admin/settings", label: "설정", icon: Settings, exact: false },
 ];
 
 export function AdminSidebar() {

@@ -2,6 +2,13 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import type { ListingSort } from "@/lib/listings/filters";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const SORT_OPTIONS: Array<{ value: ListingSort; label: string }> = [
   { value: "newest", label: "최신순" },
@@ -17,7 +24,8 @@ export function SortSelect() {
   const searchParams = useSearchParams();
   const currentSort = searchParams.get("sort") ?? "newest";
 
-  function handleChange(value: string) {
+  function handleChange(value: string | null) {
+    if (!value) return;
     const params = new URLSearchParams(searchParams.toString());
     params.delete("page");
     if (value === "newest") {
@@ -29,22 +37,25 @@ export function SortSelect() {
   }
 
   return (
-    <select
-      value={currentSort}
-      onChange={(e) => handleChange(e.target.value)}
-      className="min-h-[44px] rounded-lg border px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[var(--chayong-primary)]"
-      style={{
-        borderColor: "var(--chayong-border)",
-        backgroundColor: "var(--chayong-bg)",
-        color: "var(--chayong-text)",
-      }}
-      aria-label="정렬 기준"
-    >
-      {SORT_OPTIONS.map(({ value, label }) => (
-        <option key={value} value={value}>
-          {label}
-        </option>
-      ))}
-    </select>
+    <Select value={currentSort} onValueChange={handleChange}>
+      <SelectTrigger
+        className="h-10 rounded-xl border chayong-focus-ring"
+        style={{
+          borderColor: "var(--chayong-border)",
+          backgroundColor: "var(--chayong-bg)",
+          color: "var(--chayong-text)",
+        }}
+        aria-label="정렬 기준"
+      >
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {SORT_OPTIONS.map(({ value, label }) => (
+          <SelectItem key={value} value={value}>
+            {label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }

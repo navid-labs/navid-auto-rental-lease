@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { ShieldCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -86,6 +87,7 @@ export function SellWizard() {
         {/* Step 0: 차량번호 조회 */}
         {step === 0 && (
           <div className="flex flex-col gap-4">
+            <TrustReinforcement message="입력 정보는 에스크로 시스템으로 보호되며, 검수 후 게재됩니다." />
             <div>
               <h1 className="text-2xl font-bold" style={{ color: "var(--chayong-text)" }}>
                 차량번호로 빠르게 조회
@@ -107,6 +109,7 @@ export function SellWizard() {
         {/* Step 1: 차종 확인/수정 */}
         {step === 1 && (
           <div className="flex flex-col gap-6">
+            <TrustReinforcement message="입력 정보는 에스크로 시스템으로 보호되며, 검수 후 게재됩니다." />
             <div>
               <h1 className="text-2xl font-bold" style={{ color: "var(--chayong-text)" }}>
                 차종을 확인해주세요
@@ -155,6 +158,7 @@ export function SellWizard() {
         {/* Step 2: 연식 + 주행거리 */}
         {step === 2 && (
           <div className="flex flex-col gap-6">
+            <TrustReinforcement message="입력 정보는 에스크로 시스템으로 보호되며, 검수 후 게재됩니다." />
             <div>
               <h1 className="text-2xl font-bold" style={{ color: "var(--chayong-text)" }}>
                 연식과 주행거리를 입력해주세요
@@ -206,6 +210,7 @@ export function SellWizard() {
         {/* Step 3: 상품 타입 */}
         {step === 3 && (
           <div className="flex flex-col gap-6">
+            <TrustReinforcement message="연락처는 채팅에서 자동 차단됩니다. 오직 차용 플랫폼을 통한 안전 거래만 보호됩니다." />
             <div>
               <h1 className="text-2xl font-bold" style={{ color: "var(--chayong-text)" }}>
                 매물 유형을 선택해주세요
@@ -238,6 +243,7 @@ export function SellWizard() {
         {/* Step 4: 월 납입금 */}
         {step === 4 && (
           <div className="flex flex-col gap-6">
+            <TrustReinforcement message="연락처는 채팅에서 자동 차단됩니다. 오직 차용 플랫폼을 통한 안전 거래만 보호됩니다." />
             <div>
               <h1 className="text-2xl font-bold" style={{ color: "var(--chayong-text)" }}>
                 월 납입금을 입력해주세요
@@ -267,6 +273,7 @@ export function SellWizard() {
         {/* Step 5: 잔여 개월 + 보증금 */}
         {step === 5 && (
           <div className="flex flex-col gap-6">
+            <TrustReinforcement message="연락처는 채팅에서 자동 차단됩니다. 오직 차용 플랫폼을 통한 안전 거래만 보호됩니다." />
             <div>
               <h1 className="text-2xl font-bold" style={{ color: "var(--chayong-text)" }}>
                 잔여 개월과 보증금을 입력해주세요
@@ -321,6 +328,7 @@ export function SellWizard() {
         {/* Step 6: 사진 업로드 */}
         {step === 6 && (
           <div className="flex flex-col gap-6">
+            <TrustReinforcement message="최소 5장 이상의 실차 사진이 승인 및 안심매물 뱃지에 도움됩니다." />
             <div>
               <h1 className="text-2xl font-bold" style={{ color: "var(--chayong-text)" }}>
                 차량 사진을 올려주세요
@@ -339,6 +347,7 @@ export function SellWizard() {
         {/* Step 7: 설명 + 제출 */}
         {step === 7 && (
           <div className="flex flex-col gap-6">
+            <TrustReinforcement message="등록 후 24시간 내 관리자 검수를 통해 게재됩니다." />
             <div>
               <h1 className="text-2xl font-bold" style={{ color: "var(--chayong-text)" }}>
                 차량 설명을 입력해주세요
@@ -364,6 +373,21 @@ export function SellWizard() {
         canNext={canNext()}
         isLast={step === TOTAL_STEPS - 1}
       />
+    </div>
+  );
+}
+
+function TrustReinforcement({ message }: { message: string }) {
+  return (
+    <div
+      className="flex items-center gap-2.5 rounded-xl p-3 text-xs"
+      style={{
+        backgroundColor: "var(--chayong-primary-soft)",
+        color: "var(--chayong-primary)",
+      }}
+    >
+      <ShieldCheck size={16} aria-hidden="true" />
+      <span className="font-medium">{message}</span>
     </div>
   );
 }

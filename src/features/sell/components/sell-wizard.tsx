@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useWizardState } from "./use-wizard-state";
 import { PlateLookup } from "./plate-lookup";
 import { PhotoGuide } from "./photo-guide";
+import { LivePreviewCard } from "./live-preview-card";
 
 const TOTAL_STEPS = 8;
 
@@ -80,10 +81,12 @@ export function SellWizard() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 pb-24 px-4 py-8">
-      <ProgressBar current={step} total={TOTAL_STEPS} />
+    <div className="mx-auto max-w-5xl px-4 py-8">
+      <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
+        <div className="space-y-6 pb-24">
+          <ProgressBar current={step} total={TOTAL_STEPS} />
 
-      <div className="min-h-[320px]">
+          <div className="min-h-[320px]">
         {/* Step 0: 차량번호 조회 */}
         {step === 0 && (
           <div className="flex flex-col gap-4">
@@ -366,13 +369,27 @@ export function SellWizard() {
         )}
       </div>
 
-      <StickyFooter
-        onPrev={prev}
-        onNext={step === TOTAL_STEPS - 1 ? handleSubmit : next}
-        canPrev={step > 0}
-        canNext={canNext()}
-        isLast={step === TOTAL_STEPS - 1}
-      />
+          <StickyFooter
+            onPrev={prev}
+            onNext={step === TOTAL_STEPS - 1 ? handleSubmit : next}
+            canPrev={step > 0}
+            canNext={canNext()}
+            isLast={step === TOTAL_STEPS - 1}
+          />
+        </div>
+
+        <div className="lg:sticky lg:top-20 lg:self-start">
+          <LivePreviewCard
+            brand={form.brand}
+            model={form.model}
+            year={form.year}
+            mileage={form.mileage}
+            monthlyPayment={form.monthlyPayment}
+            initialCost={form.initialCost}
+            remainingMonths={form.remainingMonths}
+          />
+        </div>
+      </div>
     </div>
   );
 }

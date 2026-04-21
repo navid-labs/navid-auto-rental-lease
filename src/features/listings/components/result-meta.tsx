@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { buildListingUrl, type ListingFilters } from "@/lib/listings/filters";
 import { SortSelect } from "./sort-select";
+import { CountUpNumber } from "@/features/home/count-up-number";
 
 interface Props {
   count: number;
@@ -34,8 +35,8 @@ export function ResultMeta({ count, filters }: Props) {
       <div className="flex flex-wrap items-center gap-3">
         <p className="text-sm font-semibold" style={{ color: "var(--chayong-text)" }}>
           총{" "}
-          <span className="tabular-nums" style={{ color: "var(--chayong-primary)" }}>
-            {count.toLocaleString("ko-KR")}
+          <span style={{ color: "var(--chayong-primary)" }}>
+            <CountUpNumber target={count} duration={500} className="tabular-nums" />
           </span>
           개 매물
         </p>

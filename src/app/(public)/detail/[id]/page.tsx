@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { ShieldCheck, CheckCircle, ArrowRight } from "lucide-react";
+import { ShieldCheck, ArrowRight, MessageCircle, FileCheck, PackageCheck } from "lucide-react";
 import { prisma } from "@/lib/db/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeListingForPublic } from "@/lib/listings/sanitize";
@@ -54,19 +54,29 @@ const TYPE_LABEL: Record<string, string> = {
 
 const ESCROW_STEPS = [
   {
+    icon: MessageCircle,
+    title: "매물 상담",
+    description: "관심 매물에 문의 및 예약",
+  },
+  {
     icon: ShieldCheck,
-    title: "가계약금 보호",
+    title: "가계약금 입금",
     description: "에스크로 계좌에 안전하게 보관",
   },
   {
-    icon: ArrowRight,
-    title: "승계 진행",
-    description: "금융사 심사 및 명의 이전 처리",
+    icon: FileCheck,
+    title: "금융사 심사",
+    description: "신용 및 명의 이전 심사",
   },
   {
-    icon: CheckCircle,
+    icon: ArrowRight,
+    title: "명의 이전",
+    description: "본계약 체결 및 차량 인도",
+  },
+  {
+    icon: PackageCheck,
     title: "거래 완료",
-    description: "심사 완료 후 판매자에게 지급",
+    description: "에스크로 해제, 판매자 지급",
   },
 ] as const;
 
@@ -226,7 +236,7 @@ export default async function DetailPage({ params }: PageProps) {
         >
           안심거래 시스템
         </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-5">
           {ESCROW_STEPS.map(({ icon: Icon, title, description }, i) => (
             <div key={title} className="flex flex-col items-center text-center">
               <div

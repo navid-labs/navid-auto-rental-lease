@@ -24,7 +24,7 @@ export function ListingCtaSidebar({
 
   return (
     <div
-      className="rounded-xl border shadow-sm p-5"
+      className="rounded-xl border chayong-shadow-float p-5"
       style={{ borderColor: "var(--chayong-border)", backgroundColor: "var(--chayong-bg)" }}
     >
       {/* Price */}

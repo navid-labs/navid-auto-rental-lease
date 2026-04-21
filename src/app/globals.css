@@ -144,6 +144,7 @@
   h1, h2, h3, h4 {
     letter-spacing: -0.02em;
     line-height: 1.3;
+    text-wrap: balance;
   }
 
   /* WCAG 2.3.3: Disable animations for reduced motion */

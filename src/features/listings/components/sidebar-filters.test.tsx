@@ -31,9 +31,11 @@ describe("SidebarFilters", () => {
     );
   });
 
-  it("checking GASOLINE calls router.push with fuel param", () => {
+  it("checking 가솔린 calls router.push with fuel=GASOLINE param", () => {
     render(<SidebarFilters brands={[]} />);
-    fireEvent.click(screen.getByLabelText("GASOLINE"));
+    // 연료 fieldset is collapsed by default — expand it first
+    fireEvent.click(screen.getByRole("button", { name: /연료/ }));
+    fireEvent.click(screen.getByLabelText("가솔린"));
     expect(mockPush).toHaveBeenCalledWith(
       expect.stringContaining("fuel=GASOLINE")
     );
@@ -41,6 +43,8 @@ describe("SidebarFilters", () => {
 
   it("renders accident radio options", () => {
     render(<SidebarFilters brands={[]} />);
+    // 사고 이력 fieldset is collapsed by default — expand it first
+    fireEvent.click(screen.getByRole("button", { name: /사고 이력/ }));
     expect(screen.getByLabelText("무사고")).toBeInTheDocument();
     expect(screen.getByLabelText("1회 이하")).toBeInTheDocument();
     expect(screen.getByLabelText("2회 이하")).toBeInTheDocument();

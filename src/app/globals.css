@@ -9,6 +9,9 @@
   --chayong-primary: #3182F6;
   --chayong-primary-hover: #1B6CF2;
   --chayong-primary-light: #EBF2FF;
+  --chayong-primary-wash: #EBF3FE;
+  --chayong-primary-soft: rgba(49, 130, 246, 0.1);
+  --chayong-primary-ring: rgba(49, 130, 246, 0.16);
   --chayong-success: #00C471;
   --chayong-danger: #F04452;
   --chayong-warning: #FF9500;
@@ -27,6 +30,39 @@
   /* ── Border ── */
   --chayong-divider: #E5E8EB;
   --chayong-border: #D1D5DB;
+
+  /* ── Gradients ── */
+  --chayong-gradient-hero:
+    linear-gradient(135deg, #EBF3FE 0%, #F0F4FF 50%, #FFFFFF 100%);
+  --chayong-gradient-cta:
+    linear-gradient(135deg, #3182F6 0%, #5B9CF6 100%);
+  --chayong-gradient-subtle:
+    linear-gradient(180deg, #F9FAFB 0%, #FFFFFF 100%);
+
+  /* ── Shadows ── */
+  --chayong-shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.04);
+  --chayong-shadow-md:
+    0 4px 6px rgba(17, 24, 39, 0.05),
+    0 1px 2px rgba(17, 24, 39, 0.04);
+  --chayong-shadow-lg:
+    0 10px 20px rgba(17, 24, 39, 0.06),
+    0 3px 6px rgba(17, 24, 39, 0.03);
+  --chayong-shadow-float:
+    0 12px 28px rgba(17, 24, 39, 0.08),
+    0 2px 6px rgba(17, 24, 39, 0.04);
+
+  /* ── Radii ── */
+  --chayong-radius-sm: 8px;
+  --chayong-radius-md: 10px;
+  --chayong-radius-lg: 12px;
+  --chayong-radius-xl: 16px;
+  --chayong-radius-2xl: 20px;
+  --chayong-radius-full: 9999px;
+
+  /* ── Motion ── */
+  --chayong-transition-fast: 150ms cubic-bezier(0.2, 0, 0.2, 1);
+  --chayong-transition-base: 200ms cubic-bezier(0.2, 0, 0.2, 1);
+  --chayong-transition-slow: 300ms cubic-bezier(0.2, 0, 0.2, 1);
 
   /* ── shadcn/ui Token Overrides ── */
   --radius: 0.625rem;
@@ -118,5 +154,86 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+@layer utilities {
+  /* ── 차용 Shadows ── */
+  .chayong-shadow-sm { box-shadow: var(--chayong-shadow-sm); }
+  .chayong-shadow-md { box-shadow: var(--chayong-shadow-md); }
+  .chayong-shadow-lg { box-shadow: var(--chayong-shadow-lg); }
+  .chayong-shadow-float { box-shadow: var(--chayong-shadow-float); }
+
+  /* ── Card hover lift pattern ── */
+  .chayong-hover-lift {
+    transition:
+      box-shadow var(--chayong-transition-base),
+      transform var(--chayong-transition-base);
+  }
+  .chayong-hover-lift:hover {
+    box-shadow: var(--chayong-shadow-md);
+    transform: translateY(-2px);
+  }
+
+  /* ── Icon wells (primary-tinted square) ── */
+  .chayong-icon-well {
+    background-color: var(--chayong-primary-soft);
+    border-radius: var(--chayong-radius-md);
+    color: var(--chayong-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Tabular numbers for prices/metrics ── */
+  .chayong-tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* ── Count-up entrance (opacity fade; JS drives the number) ── */
+  .chayong-count-up {
+    opacity: 0;
+    transform: translateY(4px);
+    animation: chayong-count-up-enter 600ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
+  }
+  @keyframes chayong-count-up-enter {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Live feed ticker (vertical slide) ── */
+  .chayong-ticker-item {
+    animation: chayong-ticker-slide 400ms cubic-bezier(0.2, 0, 0.2, 1);
+  }
+  @keyframes chayong-ticker-slide {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Ribbon motif (logo-derived decorative blob) ── */
+  .chayong-ribbon-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .chayong-ribbon-bg > * {
+    position: absolute;
+    opacity: 0.35;
+  }
+
+  /* ── Scrollbar suppression for mobile chip rows ── */
+  .chayong-scroll-x {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .chayong-scroll-x::-webkit-scrollbar { display: none; }
+
+  /* ── Focus ring (brand-aware) ── */
+  .chayong-focus-ring:focus-visible {
+    outline: 3px solid var(--chayong-primary-ring);
+    outline-offset: 2px;
   }
 }

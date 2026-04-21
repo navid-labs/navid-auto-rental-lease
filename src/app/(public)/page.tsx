@@ -6,6 +6,10 @@ import { TrustStripe } from "@/features/home/trust-stripe";
 import { StoryCards } from "@/features/home/story-cards";
 import { HowItWorksTimeline } from "@/features/home/how-it-works-timeline";
 import { SellCtaBanner } from "@/features/home/sell-cta-banner";
+import { RibbonMotif } from "@/components/ui/ribbon-motif";
+import { LiveActivityFeed } from "@/features/home/live-activity-feed";
+import { CostCalculatorHome } from "@/features/home/cost-calculator-home";
+import { CustomerStories } from "@/features/home/customer-stories";
 import type { ListingCardData } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -101,8 +105,14 @@ export default async function HomePage() {
   return (
     <div className="mx-auto max-w-7xl px-4">
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden rounded-2xl px-6 py-12 md:px-10 md:py-20" style={{ background: "linear-gradient(135deg, #EBF3FE 0%, #F0F4FF 50%, #FFFFFF 100%)" }}>
-        <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-10">
+      <section
+        className="relative overflow-hidden rounded-2xl px-6 py-12 md:px-10 md:py-20"
+        style={{ background: "var(--chayong-gradient-hero)" }}
+      >
+        <div className="chayong-ribbon-bg">
+          <RibbonMotif variant="hero" className="h-full w-full" />
+        </div>
+        <div className="relative z-10 grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-10">
           {/* Left: headline + CTAs */}
           <div>
             <h1 className="text-3xl font-bold leading-tight md:text-5xl" style={{ color: "var(--chayong-text)" }}>
@@ -174,9 +184,9 @@ export default async function HomePage() {
               <rect x="210" y="100" width="18" height="4" rx="2" fill="white" opacity="0.4" />
             </svg>
 
-            {/* Floating price widget */}
+            {/* Floating price widget (mobile: inline below car, desktop: floating) */}
             <div
-              className="absolute -bottom-2 right-0 w-56 rounded-xl border p-4 shadow-lg lg:right-4"
+              className="relative mt-6 w-56 rounded-xl border p-4 chayong-shadow-lg lg:absolute lg:-bottom-2 lg:right-4 lg:mt-0"
               style={{ backgroundColor: "var(--chayong-bg)", borderColor: "var(--chayong-border)" }}
             >
               <div className="flex items-center justify-between">
@@ -217,11 +227,16 @@ export default async function HomePage() {
         <TrustStripe />
       </section>
 
+      {/* ── Live Activity Feed ── */}
+      <section className="my-4 md:my-6">
+        <LiveActivityFeed />
+      </section>
+
       {/* ── 지금, 이 매물 어때요? ── */}
       <section className="py-5 md:py-8">
         <div className="mb-3 flex items-center justify-between md:mb-4">
           <div>
-            <h2 className="text-lg font-bold md:text-xl" style={{ color: "var(--chayong-text)" }}>
+            <h2 className="text-xl font-bold md:text-2xl" style={{ color: "var(--chayong-text)" }}>
               지금, 이 매물 어때요?
             </h2>
             <p className="mt-0.5 text-xs md:text-sm" style={{ color: "var(--chayong-text-sub)" }}>실시간으로 매칭되는 승계 매물을 확인해보세요.</p>
@@ -253,9 +268,14 @@ export default async function HomePage() {
         )}
       </section>
 
+      {/* ── Cost Calculator ── */}
+      <section className="py-5 md:py-8">
+        <CostCalculatorHome />
+      </section>
+
       {/* ── Story Cards ── */}
       <section className="py-5 md:py-8">
-        <h2 className="mb-4 text-lg font-bold md:mb-6 md:text-xl" style={{ color: "var(--chayong-text)" }}>
+        <h2 className="mb-4 text-xl font-bold md:mb-6 md:text-2xl" style={{ color: "var(--chayong-text)" }}>
           차용으로 이런 거래가 가능해요
         </h2>
         <StoryCards />
@@ -263,12 +283,17 @@ export default async function HomePage() {
 
       {/* ── How It Works Timeline ── */}
       <section className="py-6 mb-4 md:py-10 md:mb-8">
-        <h2 className="mb-5 text-lg font-bold md:mb-8 md:text-xl" style={{ color: "var(--chayong-text)" }}>
+        <h2 className="mb-5 text-xl font-bold md:mb-8 md:text-2xl" style={{ color: "var(--chayong-text)" }}>
           이용 방법
         </h2>
         <div className="max-w-lg">
           <HowItWorksTimeline />
         </div>
+      </section>
+
+      {/* ── Customer Stories ── */}
+      <section className="py-6 md:py-10">
+        <CustomerStories />
       </section>
 
       {/* ── Sell CTA Banner ── */}

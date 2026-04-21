@@ -61,7 +61,11 @@ export function StoryCards() {
   return (
     <div className="grid gap-4 md:grid-cols-3">
       {stories.map((s) => (
-        <article key={s.type} className="rounded-2xl border bg-white p-5 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
+        <article
+          key={s.type}
+          className="rounded-2xl border bg-white p-5 chayong-shadow-sm chayong-hover-lift"
+          style={{ borderColor: "var(--chayong-border)" }}
+        >
           <div className="flex items-center gap-2">
             <span className="text-2xl">{s.icon}</span>
             <p className="text-xs font-semibold" style={{ color: "var(--chayong-primary)" }}>

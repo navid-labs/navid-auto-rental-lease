@@ -166,7 +166,7 @@ export default async function ListPage({
     <div className="mx-auto max-w-7xl px-4 py-8">
       {/* Header */}
       <div className="mb-6 flex items-center gap-3">
-        <h1 className="text-2xl font-bold" style={{ color: "var(--chayong-text)" }}>
+        <h1 className="text-[32px] font-bold" style={{ color: "var(--chayong-text)" }}>
           {typeLabel ?? "매물 목록"}
         </h1>
         <span

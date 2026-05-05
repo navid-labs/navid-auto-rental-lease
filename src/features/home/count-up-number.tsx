@@ -17,23 +17,27 @@ export function CountUpNumber({
   format = defaultFormat,
   className,
 }: CountUpNumberProps) {
-  const [value, setValue] = useState(0);
+  const [prefersReducedMotion] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return (
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false
+    );
+  });
+  const [value, setValue] = useState(() =>
+    prefersReducedMotion ? target : 0,
+  );
   const ref = useRef<HTMLSpanElement>(null);
   const started = useRef(false);
 
   useEffect(() => {
-    const prefersReducedMotion =
-      typeof window !== "undefined" &&
-      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
     if (prefersReducedMotion) {
-      setValue(target);
       return;
     }
 
     const el = ref.current;
     if (!el) return;
 
+    started.current = false;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting && !started.current) {
@@ -54,11 +58,11 @@ export function CountUpNumber({
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [target, duration]);
+  }, [target, duration, prefersReducedMotion]);
 
   return (
     <span ref={ref} className={className}>
-      {format(value)}
+      {format(prefersReducedMotion ? target : value)}
     </span>
   );
 }

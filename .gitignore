@@ -55,3 +55,9 @@ next-env.d.ts
 src/lib/api/generated/
 src/openapi/bundled.yaml
 .gstack/
+
+# Hybrid harness ledger (TASK cards and handoff artifacts are ephemeral)
+/.tasks/*
+!/.tasks/.gitkeep
+/.handoff/*
+!/.handoff/.gitkeep

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DecisionOverride",
+  "type": "object",
+  "required": ["task_id", "override_by", "override_at", "strict_verdict", "strict_severity", "override_reason", "followup_task", "evidence"],
+  "properties": {
+    "task_id": { "type": "string" },
+    "override_by": { "type": "string" },
+    "override_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "strict_verdict": { "enum": ["fail"] },
+    "strict_severity": { "enum": ["low", "medium", "high"] },
+    "override_reason": {
+      "type": "string",
+      "minLength": 10
+    },
+    "followup_task": { "type": "string" },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false
+}

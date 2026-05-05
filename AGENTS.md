@@ -1,169 +1,161 @@
 # AGENTS.md
 
-이 파일은 Antigravity / AI 에이전트가 이 저장소에서 작업할 때 참고하는 가이드라인입니다.
+Universal agent context for all AI coding tools (Claude Code, Codex, Gemini CLI, Aider, Cursor, Antigravity, etc.)
+Tool-specific instructions: see `CLAUDE.md`. Hybrid Harness routing: see `.harness/routing.md`.
+
+## Project
+
+- **Name**: 차용(Chayong) — 중고 승계 + 중고 리스/렌트 C2C 거래 플랫폼
+- **Concept**: "플랫폼은 유입 도구, 계약은 사람이 만든다"
+- **Package Manager**: `bun` (npm/yarn/npx 사용 금지)
+- **Dev Server**: http://localhost:3000
 
 ## 읽지 말 것 (토큰 절약)
 
-다음 경로는 읽지 마세요:
-- `node_modules/` - 의존성 (yarn.lock으로 버전 확인)
-- `.next/` - Next.js 빌드 캐시
-- `dist/`, `build/` - 빌드 출력
-- `.git/` - Git 내부 파일
-- `coverage/` - 테스트 커버리지
-- `*.log`, `*.lock` - 로그 및 락 파일
-- `prisma/migrations/` - 마이그레이션 히스토리 (schema.prisma만 참조)
-- `.gemini/` - Antigravity 로컬 데이터
-
-## Package Manager
-
-**Always use `yarn` instead of `npm`** for all package management operations:
-- Install: `yarn add <package>` / `yarn add -D <package>`
-- Run scripts: `yarn <script-name>`
-- Do NOT use `npm install`, `npm run`, `npx` (프로젝트 초기화 시 제외)
+- `node_modules/` — 의존성 (`bun.lock`으로 버전 확인)
+- `.next/`, `dist/`, `build/` — 빌드 출력
+- `.git/` — Git 내부
+- `coverage/` — 테스트 커버리지
+- `*.log`, `*.lock` — 로그/락
+- `prisma/migrations/` — 마이그레이션 히스토리 (`schema.prisma`만 참조)
+- `.gemini/`, `.omc/`, `.firecrawl/`, `.context/`, `.planning/` — 다른 도구 산출물
 
 ## Commands
 
 ```bash
-# Development
-yarn dev              # Start Next.js dev server (http://localhost:3000)
-yarn build            # Production build
-yarn lint             # ESLint
-yarn lint:fix         # ESLint with auto-fix
-yarn type-check       # TypeScript check (tsc --noEmit)
-
-# Testing
-yarn test             # Run all unit tests (vitest)
-yarn test:watch       # Watch mode
-yarn test:coverage    # Coverage report
-
-# Database (PostgreSQL via Prisma + Supabase)
-yarn db:generate      # Generate Prisma client
-yarn db:migrate       # Deploy migrations (prisma migrate deploy)
-yarn db:push          # Push schema changes (prisma db push)
-yarn db:seed          # Seed database
-yarn db:studio        # Open Prisma Studio
+bun dev               # Dev server (:3000)
+bun run build         # Production build (prisma generate + next build)
+bun run lint          # ESLint
+bun run lint:fix      # ESLint auto-fix
+bun run type-check    # tsc --noEmit
+bun run test          # Unit tests (vitest run) — 주의: `bun test`는 bun 내장 러너
+bun run test:watch    # Vitest watch
+bun run test:coverage # Coverage 리포트
+bun run test:e2e      # Playwright E2E
+bun run db:generate   # Prisma client
+bun run db:push       # prisma db push
+bun run db:seed       # Seed
+bun run db:studio     # Prisma Studio (직접 SQL은 여기서만)
 ```
 
-## Architecture Overview
+## Tech Stack
 
-### Tech Stack
-- **Framework**: Next.js 15 (App Router), React 19, TypeScript 5
-- **Styling**: Tailwind CSS 4
-- **Forms**: React Hook Form + Zod validation
-- **Database**: PostgreSQL via Prisma (hosted on Supabase)
-- **State**: Zustand
-- **Package Manager**: yarn
+- Next.js 16 (App Router), React 19, TypeScript 5
+- Tailwind CSS 4 + shadcn/ui
+- PostgreSQL via Prisma 6 (Supabase)
+- Auth: Supabase Auth (`@supabase/ssr`)
+- Realtime (chat): Supabase Realtime
+- Storage: Supabase Storage (이미지)
+- Payment: 토스페이먼츠 SDK (에스크로)
+- Forms: React Hook Form + Zod
+- State: Zustand
+- Testing: Vitest (unit) + Playwright (e2e)
 
-### Project Structure
+## Project Structure
 
 ```
 src/
-├── app/                    # Next.js App Router
-│   ├── api/               # API routes
-│   ├── admin/             # Admin dashboard pages
-│   └── (marketing)/       # Marketing & public pages
+├── app/
+│   ├── (public)/      # HOME, LIST, DETAIL, SELL, GUIDE
+│   ├── (auth)/        # LOGIN, SIGNUP
+│   ├── (protected)/   # CHAT, PAYMENT, MY
+│   ├── admin/         # 관리자 (대시보드/리드/매물/에스크로)
+│   └── api/           # listings, chat, payment, favorites, notifications, admin, sell, upload, reviews, csp-report
 ├── components/
-│   ├── ui/                # Primitives (Button, Input, Card, etc.)
-│   └── layout/            # Header, Footer, Navigation
-├── features/              # Domain modules
-│   ├── vehicles/          # Vehicle catalog (rental/lease inventory)
-│   ├── rental/            # Rental management
-│   ├── lease/             # Lease management
-│   ├── customers/         # Customer CRM
-│   ├── contracts/         # Contract management
-│   └── marketing/         # Marketing & promotions
+│   ├── ui/            # shadcn + 차용 공유 (VehicleCard, PriceDisplay, TrustBadge, FilterBar, StepIndicator, ImageUpload)
+│   └── layout/        # Header, HeaderAuth, Footer, MobileNav, NotificationBell
+├── features/          # listings, chat, payment, sell, my, auth, admin, home, compare, blog, reviews
 ├── lib/
-│   ├── db/                # Prisma client (prisma.ts, supabase.ts)
-│   ├── validation/        # Zod schemas
-│   ├── finance/           # Payment & lease calculations
-│   └── utils/             # Shared utilities
-└── types/                 # Shared TypeScript definitions
-
-prisma/
-├── schema.prisma          # Database schema
-├── migrations/            # Migration files
-└── seed.ts                # Seed script
+│   ├── db/prisma.ts
+│   ├── supabase/      # client.ts, server.ts, auth.ts
+│   ├── api/auth-guard.ts          # requireAuth, requireRole — 모든 API 단일 게이트
+│   ├── finance/calculations.ts    # 비용 계산
+│   ├── chat/contact-filter.ts     # 연락처 차단 (비즈니스 모델 핵심)
+│   └── utils/format.ts
+└── types/index.ts
 ```
 
-### Database Schema (Key Domains)
+## Database Schema (10 모델)
 
-**Vehicle Catalog**:
-- `Brand` → `CarModel` → `Generation` → `Trim`
-- Vehicle inventory for rental and lease
+| 모델 | 역할 |
+|------|------|
+| `Profile` | 유저 (BUYER/SELLER/DEALER/ADMIN) |
+| `Listing` | 매물 (TRANSFER 승계/USED_LEASE/USED_RENTAL) |
+| `ListingImage` | 매물 이미지 |
+| `ChatRoom` | 채팅방 (buyer + seller per listing) |
+| `ChatMessage` | 채팅 메시지 (TEXT/IMAGE/SYSTEM) |
+| `ConsultationLead` | 상담 리드 (WAITING→CONSULTING→CONTRACTED) |
+| `EscrowPayment` | 에스크로 (PENDING→PAID→RELEASED/REFUNDED/DISPUTED) |
+| `Favorite` | 찜 |
+| `Notification` | 알림 |
+| `DealerReview` | 딜러 후기 (별점, 코멘트) |
 
-**Rental & Lease**:
-- `RentalContract` - 렌탈 계약 관리
-- `LeaseContract` - 리스 계약 관리
-- `Payment` - 결제 기록
+## API Security Invariants
 
-**Customer CRM**:
-- `Customer` - 고객 정보
-- `Inquiry` - 상담/문의
-- `ConsultationLead` - 상담 리드
-
-### API Pattern
-
-API routes follow REST conventions:
-- `GET /api/vehicles` - List with filters
-- `GET /api/vehicles/[id]` - Detail
-- `POST /api/inquiry` - Create inquiry
-- `POST /api/contracts` - Create contract
-- Admin APIs require session auth (`/api/admin/*`)
-
-## Environment Variables
-
-Required in `.env.local`:
-```env
-DATABASE_URL="postgresql://..."
-DIRECT_URL="postgresql://..."
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-```
-
-## Branch Strategy
-
-- `main`: Production (PR + approval required)
-- `dev`: Integration (PR required)
-- `feature/*`: Development branches
-
-**Workflow:** `feature/xxx` -> PR -> `dev` -> PR -> `main`
-
-**Important:** Never push directly to main or dev. Always use PRs.
+- **Public**: `GET /api/listings`, `GET /api/listings/[id]`, `GET /api/listings/brands` 만
+- **Auth required**: 그 외 모든 API → `requireAuth()` 필수
+- **Admin only**: `/api/admin/*` → `requireRole("ADMIN")` 필수
+- `senderId` / `buyerId` / `sellerId`는 항상 **세션에서 추출** (request body 무시)
+- PUT은 **allowlist 필드만** 업데이트 가능
+- 업로드는 MIME + size 검증, `bucket`/`folder`는 절대 그대로 신뢰 금지
 
 ## Code Conventions
 
-- Use named exports (avoid default exports)
-- Functional components with hooks
-- Zod schemas in `features/*/schemas/` or `lib/validation/`
-- Server Components by default; add `'use client'` only when needed
+- Named exports (default export 지양)
+- Server Components by default; `"use client"` 필요할 때만
+- `var(--chayong-*)` CSS vars 사용
+- API routes: `requireAuth()` / `requireRole()` + try/catch + 입력 검증
+- Zod schemas는 `features/*/schemas/` 또는 `lib/validation/`
+- `import type` for type-only imports
 
 ### Performance Rules
 
-**Async (CRITICAL):**
-- 독립적인 async 호출은 반드시 `Promise.all()` 사용 — 순차 await 금지
-- API 라우트에서 DB 쿼리 2개 이상이면 병렬 가능 여부 확인
+- 독립 async 호출은 반드시 `Promise.all()` (순차 await 금지)
+- 대형 라이브러리(100KB+)는 `next/dynamic({ ssr: false })`
+- 서버 컴포넌트 중복 fetch는 `React.cache()`
+- Barrel import 지양, 직접 파일 import
 
-**Bundle (CRITICAL):**
-- 대형 라이브러리(100KB+)는 반드시 `next/dynamic`으로 import (`ssr: false`)
-- barrel file(index.ts)에서 import보다 직접 파일 import 선호
+## Branch Strategy
 
-**Server (HIGH):**
-- 서버 컴포넌트에서 동일 데이터 중복 fetch 시 `React.cache()` 사용
-- 클라이언트 컴포넌트에 전달하는 props 최소화 (필요한 필드만)
+- `main`: Production (PR + approval)
+- `dev`: Integration (PR)
+- `feature/*`: 개발 브랜치
+- Workflow: `feature/xxx` → PR → `dev` → PR → `main`
+- main/dev 직접 push 금지, 강제 push 금지
 
-## Design Philosophy
+## Hybrid Harness (Codex 통합)
 
-- **High-Fidelity Aesthetics (Nano Banana Pro 2)**: 프리미엄, 고밀도 랜딩 페이지 디자인
-- **Visual Density**: 2-column 비주얼 에셋, shadow-card 레이아웃, 배경 워터마크
-- **Mobile-First**: 모바일 우선 반응형 디자인
-- **Glassmorphism**: backdrop-blur, 반투명 카드 UI
+차용 레포는 Hybrid Harness가 활성화되어 있습니다.
+
+- **Layer 1 (Claude/human)**: 계획, 라우팅, accept/reject. 제품 코드 직접 작성 금지.
+- **Layer 2 (codex-fast)**: `codex exec --profile fast` — 단일 파일 실행.
+- **Layer 2.5 (codex-strict)**: `codex exec --profile strict` — read-only 리뷰.
+- **Layer 3 (Claude/human)**: `.handoff/*.review.json` 읽고 merge/reject.
+
+**Hard rules:**
+- 제품 코드 직접 구현 금지. `.tasks/TASK-XXX.md` 카드 작성 → `.harness/scripts/orchestrate.sh` 디스패치.
+- OMC `/team` `/autopilot` `/ralph`로 Hybrid TASK와 동일 파일 실행 금지.
+- `.handoff/decision-brief.md` 먼저 읽기. diff는 ambiguity / severity ≥ medium / 인증·결제·관리자·금융 변경에서만.
+- 2회 review fail → `status: blocked`, 사람 에스컬레이션.
+- Codex Fast는 Superpowers/OMC/gstack/ralph/autopilot 등 Claude 플러그인 사용 금지. `.tasks` / `.handoff` 산출물로만 연결.
+
+상세 라우팅 매트릭스: `.harness/routing.md`. 글로벌 규칙: `~/dotfiles/harness/{HARNESS,ONTOLOGY,WORKFLOW,HANDOFF}.md`.
+
+## Environment Variables
+
+```env
+DATABASE_URL="postgresql://..."
+DIRECT_URL="postgresql://..."
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_TOSS_CLIENT_KEY=test_ck_...   # optional, 없으면 테스트 모드
+```
 
 ## Testing Structure
 
 ```
 tests/
-├── unit/                  # Unit tests (vitest)
-├── integration/           # Integration tests
-└── e2e/                   # End-to-end tests (Playwright)
+├── unit/                  # vitest (29 tests — finance, chat filter, utils)
+├── integration/
+└── e2e/                   # Playwright (20 specs — navigation, auth, sell wizard, detail)
 ```

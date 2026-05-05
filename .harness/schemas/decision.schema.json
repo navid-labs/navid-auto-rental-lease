@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DecisionReviewResult",
+  "type": "object",
+  "required": ["scope", "verdict", "rule", "evidence_paths", "reviewer", "evaluated_at"],
+  "properties": {
+    "scope": { "type": "string" },
+    "verdict": { "enum": ["pass", "fail", "rescope_required"] },
+    "rule": { "enum": ["rule-1", "rule-2", "rule-3"] },
+    "evidence_paths": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "reviewer": { "enum": ["claude", "code-reviewer", "critic"] },
+    "evaluated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "InventoryStats",
+  "type": "object",
+  "required": ["batch_id", "total", "accept", "defer", "reject", "defer_rate", "threshold", "emitted_by", "emitted_at"],
+  "properties": {
+    "batch_id": { "type": "string" },
+    "total": { "type": "integer", "minimum": 0 },
+    "accept": { "type": "integer", "minimum": 0 },
+    "defer": { "type": "integer", "minimum": 0 },
+    "reject": { "type": "integer", "minimum": 0 },
+    "defer_rate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "threshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "emitted_by": { "type": "string" },
+    "emitted_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

@@ -38,7 +38,7 @@ bun run db:studio     # Open Prisma Studio
 
 ## Tech Stack
 
-- **Framework**: Next.js 15 (App Router), React 19, TypeScript 5
+- **Framework**: Next.js 16 (App Router), React 19, TypeScript 5
 - **Styling**: Tailwind CSS 4 + shadcn/ui
 - **Database**: PostgreSQL via Prisma 6 (Supabase)
 - **Auth**: Supabase Auth (@supabase/ssr)
@@ -98,9 +98,10 @@ src/
 | ChatRoom | 채팅방 (buyer + seller per listing) |
 | ChatMessage | 채팅 메시지 (TEXT/IMAGE/SYSTEM) |
 | ConsultationLead | 상담 리드 (WAITING/CONSULTING/CONTRACTED) |
-| EscrowPayment | 에스크로 결제 (PENDING→PAID→RELEASED/REFUNDED) |
+| EscrowPayment | 에스크로 결제 (PENDING→PAID→RELEASED/REFUNDED/DISPUTED) |
 | Favorite | 찜 |
 | Notification | 알림 |
+| DealerReview | 딜러 후기 (별점, 코멘트) |
 
 ## API Security
 
@@ -187,3 +188,34 @@ Key routing rules:
 - Architecture review → invoke plan-eng-review
 - Save progress, checkpoint, resume → invoke checkpoint
 - Code quality, health check → invoke health
+
+## Hybrid Harness (Codex 통합)
+
+차용은 Hybrid Harness 활성. 작업 시작 전 **반드시** `.harness/routing.md`를 먼저 읽어 Owner/Reviewer를 확인.
+
+### Layers
+- **Layer 1 (you)**: 계획·라우팅·accept/reject. 제품 코드 직접 작성 금지.
+- **Layer 2 (codex-fast)**: `codex exec --profile fast` — 단일 파일 실행.
+- **Layer 2.5 (codex-strict)**: `codex exec --profile strict` — read-only 리뷰.
+- **Layer 3 (you)**: `.handoff/<TASK>.review.json` 읽고 merge/reject.
+
+### Hard rules (차용)
+- 제품 코드 직접 구현 금지. `.tasks/TASK-XXX.md` 카드 작성 → `.harness/scripts/orchestrate.sh` 디스패치.
+- OMC `/team` `/autopilot` `/ralph`로 Hybrid TASK와 동일 파일 실행 금지.
+- `.handoff/decision-brief.md` 먼저 읽기. 원본 diff는 ambiguity / severity ≥ medium / 인증·결제·관리자·금융·업로드·연락처필터 변경에서만 직접 확인.
+- review fail 2회 → `status: blocked`, 사람 에스컬레이션.
+- 1 TASK = 1 파일. 둘 이상 파일이 함께 변경되어야 하면 claude가 미리 split.
+
+### 차용 Cross-cutting invariants (claude split 강제)
+1. 에스크로 상태 머신 (`payment/**` + `admin/escrow/**` + `Listing.status RESERVED/SOLD` + `Notification(ESCROW_STATUS)`)
+2. 인증 흐름 (`auth-guard.ts` + `supabase/server.ts` + `(protected)/layout.tsx`)
+3. 매물 승인 파이프라인 (`admin/listings approve` + `Listing.status PENDING→ACTIVE` + `Notification(LISTING_APPROVED)` + 카드 노출 조건)
+4. 연락처 필터 강화 (`contact-filter.ts` + `chat/messages POST` + 클라이언트 sanitize hook + 테스트)
+
+### 보호 영역 (Codex 손대지 않음)
+- `.harness/**`, `.tasks/**`, `.handoff/*.override.json`, `.handoff/SUB-*.decision.json`
+- `prisma/migrations/**` (사람만 작성)
+- `.env*`, `node_modules/**`, `.next/**`, `coverage/**`, `dist/**`, `build/**`
+- 다른 도구 산출물: `.gemini/**`, `.omc/**`, `.firecrawl/**`, `.context/**`, `.planning/**`, `*.log`, `*.lock`
+
+상세 라우팅 매트릭스: `.harness/routing.md`. 글로벌 규칙: `~/dotfiles/harness/{HARNESS,ONTOLOGY,WORKFLOW,HANDOFF}.md`.

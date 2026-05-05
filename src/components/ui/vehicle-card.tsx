@@ -116,14 +116,14 @@ export function VehicleCard({ listing, priority = false, showCompare = false }: 
         <p className="truncate text-sm font-semibold" style={{ color: "var(--chayong-text)" }}>
           {vehicleName}
         </p>
-        <p className="truncate text-xs" style={{ color: "var(--chayong-text-caption)" }}>
+        <p className="truncate text-xs tabular-nums" style={{ color: "var(--chayong-text-caption)" }}>
           {subtitle}
         </p>
 
         <PriceDisplay monthlyPayment={monthlyPayment} size="md" />
 
         <div className="flex items-center justify-between text-xs" style={{ color: "var(--chayong-text-caption)" }}>
-          <span>
+          <span className="tabular-nums">
             보증금 {initialCost ? `${(initialCost / 10000).toLocaleString("ko-KR")}만원` : "없음"}
             {remainingMonths ? ` · 잔여 ${remainingMonths}개월` : ""}
           </span>
@@ -150,18 +150,18 @@ export function VehicleCard({ listing, priority = false, showCompare = false }: 
 
         {/* Accident count badge */}
         {accidentCount !== undefined && accidentCount !== null && accidentCount > 0 && (
-          <span className="text-[10px] font-medium" style={{ color: "var(--chayong-danger)" }}>
+          <span className="tabular-nums text-[10px] font-medium" style={{ color: "var(--chayong-danger)" }}>
             사고 {accidentCount}회
           </span>
         )}
 
         {/* Stats */}
         <div className="flex items-center gap-3 border-t pt-2" style={{ borderColor: "var(--chayong-divider)" }}>
-          <span className="flex items-center gap-1 text-xs" style={{ color: "var(--chayong-text-caption)" }}>
+          <span className="tabular-nums flex items-center gap-1 text-xs" style={{ color: "var(--chayong-text-caption)" }}>
             <Eye size={12} />
             {viewCount.toLocaleString("ko-KR")}
           </span>
-          <span className="flex items-center gap-1 text-xs" style={{ color: "var(--chayong-text-caption)" }}>
+          <span className="tabular-nums flex items-center gap-1 text-xs" style={{ color: "var(--chayong-text-caption)" }}>
             <Heart size={12} />
             {favoriteCount.toLocaleString("ko-KR")}
           </span>

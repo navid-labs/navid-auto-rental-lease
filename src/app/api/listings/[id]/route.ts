@@ -12,7 +12,7 @@ const UPDATABLE_FIELDS = [
   "seatingCapacity", "mileage", "color", "plateNumber", "vin",
   "displacement", "bodyType", "drivetrain", "plateType",
   "options", "accidentCount", "ownerCount", "exteriorGrade", "interiorGrade",
-  "mileageVerified", "registrationRegion", "inspectionReportUrl", "inspectionDate",
+  "mileageVerified", "registrationRegion", "inspectionReportKey", "inspectionDate",
   "monthlyPayment", "initialCost", "remainingMonths", "totalPrice",
   "remainingBalance", "capitalCompany", "transferFee",
   "carryoverPremium", "terminationFee", "deposit", "mileageLimit",

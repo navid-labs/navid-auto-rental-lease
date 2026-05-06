@@ -39,7 +39,7 @@ const baseListing = z.object({
   interiorGrade: grade.optional().nullable(),
   mileageVerified: z.boolean().default(false),
   registrationRegion: z.string().optional().nullable(),
-  inspectionReportUrl: z.string().url().optional().nullable(),
+  inspectionReportKey: z.string().optional().nullable(),
   inspectionDate: z.coerce.date().optional().nullable(),
 
   monthlyPayment: z.number().int().nonnegative(),

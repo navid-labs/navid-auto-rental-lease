@@ -18,11 +18,23 @@ Generic rules: `$HARNESS_HOME/ONTOLOGY.md`. Repo-specific overrides:
 | `src/app/api/chat/**`                                                                              | codex-strict            | claude       | yes      |
 | `src/lib/chat/contact-filter.ts`                                                                   | codex-strict            | claude       | yes      |
 | `src/lib/api/auth-guard.ts`, `src/lib/supabase/auth.ts`, `src/lib/supabase/**`                     | codex-strict            | claude       | yes      |
+| `src/lib/supabase/storage.ts` (private bucket helper, service_role)                                | codex-strict            | claude       | yes      |
 | `src/lib/finance/**`                                                                               | codex-strict            | claude       | yes      |
+| `src/lib/notifications/**`                                                                        | codex-fast              | codex-strict | optional |
+| `src/lib/capital/**` (정적 데이터)                                                                  | codex-fast              | codex-strict | no       |
+| `src/types/admin.ts`, `src/types/**`                                                              | codex-fast              | codex-strict | optional |
+| `src/app/(public)/guide/**`                                                                       | codex-fast              | codex-strict | no       |
+| `src/app/api/reports/**` (POST — abuse-prevention 가드)                                             | codex-strict            | claude       | yes      |
+| `src/app/api/admin/reports/**` (GET only)                                                         | codex-fast              | codex-strict | optional |
+| `src/app/api/admin/reports/[id]/resolve/**`                                                       | codex-strict            | claude       | yes      |
+| `src/app/api/admin/profiles/[id]/penalty/**`                                                      | codex-strict            | claude       | yes      |
+| `src/app/api/listings/[id]/registration-document/**`                                              | codex-strict            | claude       | yes      |
+| `src/app/api/escrow/**`                                                                           | codex-strict            | claude       | yes      |
+| `src/app/api/admin/escrow/[id]/verify-transfer/**`                                                | codex-strict            | claude       | yes      |
 | `src/app/api/payment/**`                                                                           | codex-strict            | claude       | yes      |
 | `src/app/api/admin/**`, `src/app/admin/**`, `src/features/admin/**`                                | codex-strict            | claude       | yes      |
 | `prisma/schema.prisma`                                                                             | codex-strict            | claude       | yes      |
-| `prisma/migrations/**`                                                                             | claude                  | optional     | yes      |
+| `prisma/migrations/**`                                                                             | claude                  | human        | yes      |
 | `tests/**`, `src/**/*.test.ts`, `src/**/*.test.tsx`                                                | codex-fast              | codex-strict | no       |
 | `*.md`, `.harness/**`, `CLAUDE.md`, `AGENTS.md`, `.tasks/**`                                       | claude                  | optional     | no       |
 | any task touching > 1 file                                                                         | claude must split first | n/a          | n/a      |
@@ -47,10 +59,41 @@ Generic rules: `$HARNESS_HOME/ONTOLOGY.md`. Repo-specific overrides:
 
 다음 변경은 단일 TASK로 묶지 말고 claude가 미리 split:
 
-1. **에스크로 상태 머신** — `payment/**` + `admin/escrow/**` + `Listing.status (RESERVED/SOLD)` + `Notification(ESCROW_STATUS)`는 함께 변경되어야 일관됨. 한 번에 한 파일만 건드리는 단일 TASK는 불가능에 가까움.
-2. **인증 흐름 변경** — `auth-guard.ts` + `supabase/server.ts` + `(protected)/layout.tsx` 동시 영향. 한 파일 수정이 다른 파일의 invariant를 깰 수 있음.
-3. **매물 승인 파이프라인** — `admin/listings approve` + `Listing.status (PENDING→ACTIVE)` + `Notification(LISTING_APPROVED)` + 매물 카드 노출 조건 동시 변경.
-4. **연락처 필터 강화** — `contact-filter.ts` + `chat/messages POST` + 클라이언트 sanitize hook + 테스트. 일부만 강화하면 우회 가능.
+1. **에스크로 상태 머신** (sub_boundary `ESCROW_STATE`) — `payment/**` + `admin/escrow/**` + `Listing.status (RESERVED/SOLD)` + `Notification(ESCROW_*)` + 명의변경 검증(`verify-transfer`) + 분쟁 처리. 한 번에 한 파일만 건드리는 단일 TASK는 불가능에 가까움.
+2. **인증 흐름 변경** (sub_boundary `AUTH`) — `auth-guard.ts` + `supabase/server.ts` + `(protected)/layout.tsx` + `requireActiveProfile()` 동시 영향. 한 파일 수정이 다른 파일의 invariant를 깰 수 있음.
+3. **매물 승인 파이프라인** (sub_boundary `APPROVAL_PIPELINE`) — `admin/listings PATCH` + `VALID_STATUS_TRANSITIONS (REJECTED 추가)` + `Notification(LISTING_APPROVED|LISTING_REJECTED)` + admin UI 거절 모달 동시 변경.
+4. **연락처 필터 강화** (sub_boundary `CONTACT_FILTER`) — `contact-filter.ts` + `chat/messages POST` + 클라이언트 sanitize hook + 테스트. 일부만 강화하면 우회 가능.
+5. **신고 처분 흐름** (sub_boundary `REPORT_FLOW`) — `Report` 모델 + `reports POST` + `admin/reports GET` + `admin/reports/[id]/resolve POST` + 자동 가림 트리거. abuse-prevention 가드(자격 + 24h 카운트)는 모든 진입점에 일관 적용.
+6. **패널티 처분 흐름** (sub_boundary `PENALTY`) — `admin/profiles/[id]/penalty POST` + Profile 패널티 필드(violationCount/penaltyLevel/suspendedUntil/bannedAt) + `requireActiveProfile()` 가드 동시 정합 필요.
+7. **Private 업로드 흐름** (sub_boundary `UPLOAD_PRIVATE`) — `src/lib/supabase/storage.ts` + `listings/[id]/registration-document` + `escrow/[id]/transfer-proof`. 모든 진입점이 동일 헬퍼를 통해 storage key만 저장(서명 URL은 조회 시 발급) — 정책 어김 시 RLS 우회 가능.
+
+## Sub-boundary → TASK 매핑 (Phase 1 Launch Blocker)
+
+| sub_boundary | 관련 카드 | 핵심 invariant |
+|--------------|----------|---------------|
+| APPROVAL_PIPELINE | TASK-011, TASK-012, TASK-013 | VALID_STATUS_TRANSITIONS + rejectionReason 필수 + LISTING_APPROVED/REJECTED 알림 |
+| UPLOAD_PRIVATE | TASK-015, TASK-016 | storage key 저장(URL 아님) + bucket 고정 + folder 고정 |
+| ESCROW_STATE | TASK-017, TASK-029 | PAID→RESERVED→SOLD 전이 + 양측 ESCROW_* 알림 + prisma.$transaction 원자성 |
+| REPORT_FLOW | TASK-019, TASK-020, TASK-021 | abuse 가드(reporterId 24h ≤5) + 자격 검증(가입 1일+) + status PENDING→REVIEWED |
+| PENALTY | TASK-022 | WARNING/LIGHT/HEAVY/BAN/CLEAR 5단계 + bannedAt 우선 |
+| AUTH | TASK-023 | requireActiveProfile() 추가만, 기존 requireAuth/requireRole 변경 금지 |
+| CONTACT_FILTER | TASK-024, TASK-025 | decideMessageReview → reviewStatus/blockReason 저장. AI는 Stretch |
+
+> 동일 sub_boundary의 카드들은 `.handoff/SUB-<X>.decision.json` (verdict: pass) 발급 후에야 codex-fast/strict 디스패치 허용 (Decision Layer 1.5 Rule 1).
+> sub_boundary 없는 단일 카드(TASK-010 helper, TASK-018/026/027/028 UI/data)는 일반 디스패치 가능.
+
+## Schema baseline 게이트 (Phase 1)
+
+- `TASK-009` (schema baseline + Storage 버킷·RLS) 완료 전까지 TASK-010~023, TASK-025, TASK-028, TASK-029는 dispatch 금지.
+- TASK-026/027 (캐피탈 가이드 정적 데이터/페이지)와 TASK-024 (contact-filter 헬퍼) 만 schema 독립.
+- claude는 TASK-009 완료 확인 후 `.handoff/SCHEMA-BASELINE.decision.json` (verdict: pass)을 발급하고, 후속 카드를 unblock.
+
+### TASK-009 진행 중 임시 잠금
+
+- `prisma/schema.prisma`는 일반 룰상 `codex-strict + claude + human`이지만, **TASK-009 진행 동안에는 claude/human only로 임시 잠금**.
+- single-owner 운영을 위함 — schema baseline 동결 중 다른 codex 디스패치가 schema.prisma를 동시 편집하면 7 slice 누적이 깨진다.
+- TASK-009 status가 `completed`로 전환되고 `.handoff/SCHEMA-BASELINE.decision.json` 발급된 시점부터 일반 룰 환원.
+- 일반 룰 환원 후의 schema 변경은 별도 단발 TASK로 codex-strict 가능.
 
 ## Decision Layer (Layer 1.5)
 
@@ -73,7 +116,13 @@ connect through `.tasks`, `.handoff`, and `decision-brief.md` artifacts only.
 | `.harness/**`, `$HARNESS_HOME/**`                                      | protected — Claude/human only                    |
 | `.tasks/**`                                                            | protected — Claude/human only                    |
 | `.handoff/*.override.json`, `.handoff/SUB-*.decision.json`             | protected — Claude/human only                    |
+| `prisma/migrations/**`                                                 | protected — Claude/human only                    |
+| `prisma/schema.prisma`                                                 | Fast forbidden — Strict + claude + human         |
+| `src/lib/supabase/storage.ts` (service_role)                           | Fast forbidden — Strict + claude + human         |
+| `src/lib/supabase/admin.ts`, `src/lib/supabase/server.ts`              | Fast forbidden — Strict + claude + human         |
+| `src/lib/api/auth-guard.ts`                                            | Fast forbidden — Strict + claude + human         |
 | auth/payment/admin/finance/contact-filter/upload/sell paths            | human checkpoint required                        |
+| reports/penalty/escrow verify-transfer/registration-document paths     | human checkpoint required                        |
 
 **Forbidden reads (모든 Codex 프로파일):**
 

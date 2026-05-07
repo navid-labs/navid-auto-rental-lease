@@ -256,6 +256,110 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── 빠른승계 대행 ── */}
+      <section className="py-4 md:py-6">
+        <div
+          className="relative overflow-hidden rounded-3xl border px-5 py-6 md:px-8 md:py-8"
+          style={{
+            background: "linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(225,238,255,0.92) 100%)",
+            borderColor: "rgba(27, 89, 199, 0.14)",
+          }}
+        >
+          <div className="absolute inset-x-0 top-0 h-1" style={{ backgroundColor: "var(--chayong-primary)" }} />
+          <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-white"
+                  style={{ backgroundColor: "var(--chayong-primary)" }}
+                >
+                  빠른승계
+                </span>
+                <span className="inline-flex items-center rounded-full border border-[var(--chayong-divider)] bg-white px-3 py-1 text-xs font-semibold text-[var(--chayong-text)]">
+                  일반 등록 무료
+                </span>
+                <span className="inline-flex items-center rounded-full border border-[var(--chayong-divider)] bg-white px-3 py-1 text-xs font-semibold text-[var(--chayong-text)]">
+                  매니저 대행 빠른승계
+                </span>
+              </div>
+
+              <h2 className="mt-4 text-2xl font-bold md:text-3xl" style={{ color: "var(--chayong-text)" }}>
+                내 차를
+                <span style={{ color: "var(--chayong-primary)" }}> 빠른승계</span>로 맡기고 싶다면
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-6 md:text-base md:leading-7" style={{ color: "var(--chayong-text-sub)" }}>
+                일반 등록은 무료로 시작하고, 매니저 대행 빠른승계는 검수와 노출 운영을 함께 맡기는 방식입니다. 가격은 기획 기준이며 상담 시 확정됩니다.
+              </p>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                {[
+                  { label: "매니저 검수", value: "등록 전 확인" },
+                  { label: "상단 노출", value: "선별 매물 강조" },
+                  { label: "증명 신호", value: "후기 또는 절감액" },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-2xl border bg-white/75 px-4 py-3" style={{ borderColor: "rgba(27, 89, 199, 0.12)" }}>
+                    <p className="text-xs font-medium" style={{ color: "var(--chayong-text-caption)" }}>
+                      {item.label}
+                    </p>
+                    <p className="mt-1 text-sm font-semibold" style={{ color: "var(--chayong-text)" }}>
+                      {item.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-4 rounded-3xl border bg-white p-4 md:p-5" style={{ borderColor: "rgba(27, 89, 199, 0.14)" }}>
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="rounded-2xl border border-[var(--chayong-divider)] bg-[var(--chayong-surface)] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--chayong-text-caption)" }}>
+                    일반 등록
+                  </p>
+                  <p className="mt-2 text-xl font-bold" style={{ color: "var(--chayong-text)" }}>
+                    무료
+                  </p>
+                  <p className="mt-2 text-sm leading-6" style={{ color: "var(--chayong-text-sub)" }}>
+                    혼자 등록하고 기본 노출만 원하는 경우
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border px-4 py-4" style={{ borderColor: "rgba(27, 89, 199, 0.2)", backgroundColor: "rgba(27, 89, 199, 0.06)" }}>
+                  <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--chayong-primary)" }}>
+                    매니저 대행 빠른승계
+                  </p>
+                  <p className="mt-2 text-xl font-bold" style={{ color: "var(--chayong-text)" }}>
+                    등록비 99,000원
+                  </p>
+                  <p className="mt-2 text-sm leading-6" style={{ color: "var(--chayong-text-sub)" }}>
+                    완료 수수료: 중고차 시세 4%
+                  </p>
+                  <p className="mt-1 text-sm font-semibold" style={{ color: "var(--chayong-text)" }}>
+                    최저 수수료 770,000원, VAT 포함
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-dashed px-4 py-3" style={{ borderColor: "rgba(27, 89, 199, 0.22)", backgroundColor: "rgba(255,255,255,0.92)" }}>
+                <p className="text-sm font-medium" style={{ color: "var(--chayong-text)" }}>
+                  매니저가 검수하고 상단 노출까지 챙기는 빠른승계 상품입니다.
+                </p>
+                <p className="mt-1 text-xs leading-5" style={{ color: "var(--chayong-text-sub)" }}>
+                  상담 과정에서 조건을 확인한 뒤 최종 금액이 확정됩니다.
+                </p>
+              </div>
+
+              <Link
+                href="/sell"
+                className="inline-flex min-h-12 items-center justify-center rounded-2xl px-5 text-sm font-semibold text-white transition-colors hover:opacity-90"
+                style={{ backgroundColor: "var(--chayong-primary)" }}
+              >
+                내 차 빠른승계 신청
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Quick Entries ── */}
       <section className="py-4 md:py-6" aria-label="빠른 시작">
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">

@@ -283,6 +283,57 @@ export function SellWizard({ initialVehicle, manualEntry = false }: SellWizardPr
                 </button>
               ))}
             </div>
+            {form.type === "TRANSFER" && (
+              <div className="rounded-2xl border border-[var(--chayong-border)] bg-[var(--chayong-surface)] p-4 sm:p-5">
+                <div className="flex flex-col gap-1.5">
+                  <p className="text-sm font-bold" style={{ color: "var(--chayong-text)" }}>
+                    승계 등록 방식 안내
+                  </p>
+                  <p className="text-sm leading-6" style={{ color: "var(--chayong-text-sub)" }}>
+                    다음 단계는 그대로 진행되고, 아래 안내는 등록 방식 차이만 설명합니다.
+                  </p>
+                </div>
+                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                  <div className="min-w-0 rounded-xl border border-[var(--chayong-border)] bg-white p-4">
+                    <p className="text-sm font-bold" style={{ color: "var(--chayong-text)" }}>
+                      일반 등록
+                    </p>
+                    <p className="mt-1 text-sm leading-6 break-words text-[var(--chayong-text-sub)]">
+                      무료로 직접 등록하고, 문의도 직접 응대하는 방식입니다.
+                    </p>
+                    <ul className="mt-3 space-y-1.5 text-sm leading-6 text-[var(--chayong-text-sub)]">
+                      <li>• 등록비 0원</li>
+                      <li>• 직접 등록</li>
+                      <li>• 직접 문의 응대</li>
+                    </ul>
+                  </div>
+                  <div
+                    className="min-w-0 rounded-xl border p-4"
+                    style={{
+                      borderColor: "var(--chayong-primary)",
+                      backgroundColor: "var(--chayong-primary-soft)",
+                    }}
+                  >
+                    <p className="text-sm font-bold" style={{ color: "var(--chayong-primary)" }}>
+                      매니저 대행 빠른승계
+                    </p>
+                    <p className="mt-1 text-sm leading-6 break-words" style={{ color: "var(--chayong-text-sub)" }}>
+                      상담을 시작으로 검수와 상단 노출까지 돕는 대행형 안내입니다.
+                    </p>
+                    <ul className="mt-3 space-y-1.5 text-sm leading-6" style={{ color: "var(--chayong-text-sub)" }}>
+                      <li>• 등록비 99,000원</li>
+                      <li>• 완료 수수료: 중고차 시세 4%</li>
+                      <li>• 최저 수수료 770,000원, VAT 포함</li>
+                      <li>• 상담 시 범위 확정</li>
+                      <li>• 검수 지원 및 상단 노출 안내</li>
+                    </ul>
+                  </div>
+                </div>
+                <p className="mt-4 text-xs leading-5" style={{ color: "var(--chayong-text-caption)" }}>
+                  빠른승계는 이번 단계에서 저장되지 않으며, 선택 후에도 다음 단계로 바로 이어집니다.
+                </p>
+              </div>
+            )}
           </div>
         )}
 

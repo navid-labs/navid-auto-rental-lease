@@ -6,7 +6,7 @@ import { Home, Search, PlusCircle, MessageCircle, User } from "lucide-react";
 
 const TABS = [
   { href: "/", label: "홈", Icon: Home },
-  { href: "/list", label: "매물", Icon: Search },
+  { href: "/list?type=TRANSFER", label: "승계", Icon: Search },
   { href: "/sell", label: "등록", Icon: PlusCircle },
   { href: "/chat", label: "채팅", Icon: MessageCircle },
   { href: "/my", label: "MY", Icon: User },
@@ -22,7 +22,8 @@ export function MobileNav() {
     >
       {TABS.map(({ href, label, Icon }) => {
         // Exact match for home, prefix match for others
-        const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href);
+        const tabPath = href.split("?")[0];
+        const isActive = tabPath === "/" ? pathname === "/" : pathname.startsWith(tabPath);
 
         return (
           <Link

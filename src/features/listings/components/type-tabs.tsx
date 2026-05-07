@@ -7,9 +7,9 @@ import type { ListingTypeFilter, ListingSort } from "@/lib/listings/filters";
 
 const TABS: Array<{ value: ListingTypeFilter | undefined; label: string }> = [
   { value: undefined, label: "전체" },
-  { value: "TRANSFER", label: "승계" },
-  { value: "USED_LEASE", label: "리스" },
-  { value: "USED_RENTAL", label: "렌트" },
+  { value: "TRANSFER", label: "승계차량" },
+  { value: "USED_LEASE", label: "중고리스" },
+  { value: "USED_RENTAL", label: "중고렌트" },
 ];
 
 export function TypeTabs() {

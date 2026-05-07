@@ -17,9 +17,15 @@ export const dynamic = "force-dynamic";
 const PAGE_SIZE = 12;
 
 const TYPE_LABEL: Record<string, string> = {
-  TRANSFER: "승계 차량",
-  USED_LEASE: "중고 리스",
-  USED_RENTAL: "중고 렌트",
+  TRANSFER: "승계차량",
+  USED_LEASE: "중고리스",
+  USED_RENTAL: "중고렌트",
+};
+
+const HERO_COPY: Record<string, string> = {
+  TRANSFER: "기존 계약의 잔여기간, 월납입금, 초기비용을 함께 보며 중도해지 부담을 줄일 승계 차량을 비교하세요.",
+  USED_LEASE: "중고 리스 차량을 월납입·초기비용 기준으로 비교하고 내 조건에 맞는 계약을 찾아보세요.",
+  USED_RENTAL: "중고 렌트 차량을 월납입·초기비용 기준으로 비교하고 보험·정비 조건까지 함께 확인하세요.",
 };
 
 function buildWhereFromFilters(filters: ListingFilters): Prisma.ListingWhereInput {
@@ -161,20 +167,28 @@ export default async function ListPage({
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const typeLabel = filters.type ? TYPE_LABEL[filters.type] : null;
+  const heroCopy = filters.type
+    ? HERO_COPY[filters.type]
+    : "승계차량과 중고 리스·렌트를 월납입·초기비용 기준으로 비교하세요.";
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       {/* Header */}
-      <div className="mb-6 flex items-center gap-3">
-        <h1 className="text-[32px] font-bold" style={{ color: "var(--chayong-text)" }}>
-          {typeLabel ?? "매물 목록"}
-        </h1>
-        <span
-          className="rounded-full px-2.5 py-0.5 text-sm font-semibold text-white"
-          style={{ backgroundColor: "var(--chayong-primary)" }}
-        >
-          {total.toLocaleString("ko-KR")}건
-        </span>
+      <div className="mb-6">
+        <div className="flex items-center gap-3">
+          <h1 className="text-[32px] font-bold" style={{ color: "var(--chayong-text)" }}>
+            {typeLabel ?? "매물 목록"}
+          </h1>
+          <span
+            className="rounded-full px-2.5 py-0.5 text-sm font-semibold text-white"
+            style={{ backgroundColor: "var(--chayong-primary)" }}
+          >
+            {total.toLocaleString("ko-KR")}건
+          </span>
+        </div>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed md:text-base" style={{ color: "var(--chayong-text-sub)" }}>
+          {heroCopy}
+        </p>
       </div>
 
       {/* Sidebar + Grid layout */}

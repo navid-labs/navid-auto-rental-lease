@@ -116,12 +116,12 @@ export default async function HomePage() {
           {/* Left: headline + CTAs */}
           <div>
             <h1 className="text-3xl font-bold leading-tight md:text-5xl" style={{ color: "var(--chayong-text)" }}>
-              안전하게 승계하는
+              승계차량과 중고차를
               <br />
-              <span style={{ color: "var(--chayong-primary)" }}>가장 쉬운 방법, 차용</span>
+              <span style={{ color: "var(--chayong-primary)" }}>구분해서 보는 차용</span>
             </h1>
             <p className="mt-4 text-base md:text-lg" style={{ color: "var(--chayong-text-sub)" }}>
-              월 납입금만 보고 간편하게 비교하세요.
+              중도해지 부담을 줄이는 승계차량부터 월 부담 기준으로 비교하는 중고 리스·렌트까지 한눈에 탐색하세요.
             </p>
             {newListingCount > 0 && (
               <span
@@ -133,11 +133,22 @@ export default async function HomePage() {
             )}
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href="/list"
+                href="/list?type=TRANSFER"
                 className="inline-flex h-12 items-center rounded-xl px-6 text-[15px] font-semibold text-white transition-colors hover:opacity-90"
                 style={{ backgroundColor: "var(--chayong-primary)" }}
               >
-                매물 보러가기
+                승계차량 보기
+              </Link>
+              <Link
+                href="/used"
+                className="inline-flex h-12 items-center rounded-xl border px-6 text-[15px] font-semibold transition-colors hover:bg-[var(--chayong-surface)]"
+                style={{
+                  borderColor: "var(--chayong-border)",
+                  color: "var(--chayong-text)",
+                  backgroundColor: "var(--chayong-bg)",
+                }}
+              >
+                중고차 보기
               </Link>
               <Link
                 href="/sell"
@@ -206,11 +217,11 @@ export default async function HomePage() {
                 ))}
               </div>
               <Link
-                href="/list"
+                href="/list?type=TRANSFER"
                 className="mt-3 block w-full rounded-lg py-2 text-center text-xs font-semibold text-white transition-colors"
                 style={{ backgroundColor: "var(--chayong-primary)" }}
               >
-                매물 보기
+                승계차량 보기
               </Link>
             </div>
           </div>

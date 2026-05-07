@@ -4,7 +4,8 @@ import { HeaderAuth } from "./header-auth";
 import { NotificationBell } from "./notification-bell";
 
 const NAV_LINKS = [
-  { href: "/list", label: "매물보기" },
+  { href: "/list?type=TRANSFER", label: "승계차량" },
+  { href: "/used", label: "중고차" },
   { href: "/sell", label: "내 차 등록" },
   { href: "/guide", label: "이용가이드" },
 ];

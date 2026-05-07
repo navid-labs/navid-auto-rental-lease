@@ -5,8 +5,8 @@ import { VehicleCard } from "@/components/ui/vehicle-card";
 import type { ListingCardData } from "@/types";
 
 export const metadata: Metadata = {
-  title: "중고 리스·렌트",
-  description: "중고 리스와 렌트 매물을 월 납입금으로 비교하세요.",
+  title: "중고차",
+  description: "중고 리스와 중고 렌트 차량을 월 납입금과 초기비용으로 비교하세요.",
 };
 
 export const dynamic = "force-dynamic";
@@ -83,17 +83,17 @@ export default async function UsedPage() {
           className="text-3xl font-bold leading-tight md:text-4xl"
           style={{ color: "var(--chayong-text)" }}
         >
-          중고 리스·렌트
+          중고차
           <br />
           <span style={{ color: "var(--chayong-primary)" }}>
-            월 납입금부터 비교하세요
+            리스·렌트 조건부터 비교하세요
           </span>
         </h1>
         <p
           className="mt-4 text-base"
           style={{ color: "var(--chayong-text-sub)" }}
         >
-          새 차 리스 대비 부담 없는 월 납입금
+          중고 리스와 중고 렌트를 월납입·초기비용 기준으로 나눠 확인하세요.
         </p>
         <div className="mt-8 flex justify-center gap-3">
           <Link
@@ -101,7 +101,7 @@ export default async function UsedPage() {
             className="inline-flex h-12 items-center rounded-xl px-6 text-[15px] font-semibold text-white transition-colors hover:opacity-90"
             style={{ backgroundColor: "var(--chayong-primary)" }}
           >
-            리스 매물 보기
+            중고리스 보기
           </Link>
           <Link
             href="/list?type=USED_RENTAL"
@@ -111,7 +111,7 @@ export default async function UsedPage() {
               color: "var(--chayong-text)",
             }}
           >
-            렌트 매물 보기
+            중고렌트 보기
           </Link>
         </div>
       </section>

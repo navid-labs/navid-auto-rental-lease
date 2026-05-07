@@ -11,16 +11,25 @@ import { AuthDivider } from "./auth-divider";
 
 type Role = "BUYER" | "SELLER";
 
-export function SignupForm() {
+interface SignupFormProps {
+  initialRole?: Role;
+  redirectPath?: string;
+}
+
+export function SignupForm({ initialRole = "BUYER", redirectPath }: SignupFormProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [role, setRole] = useState<Role>("BUYER");
+  const [role, setRole] = useState<Role>(initialRole);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const loginHref = redirectPath
+    ? `/login?redirect=${encodeURIComponent(redirectPath)}`
+    : "/login";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -74,7 +83,7 @@ export function SignupForm() {
           메일함을 확인해 인증을 완료해주세요.
         </p>
         <Link
-          href="/login"
+          href={loginHref}
           className="mt-2 text-sm text-[var(--chayong-primary)] font-medium hover:underline"
         >
           로그인으로 돌아가기
@@ -100,6 +109,7 @@ export function SignupForm() {
             <button
               key={r}
               type="button"
+              aria-pressed={role === r}
               onClick={() => setRole(r)}
               className={[
                 "h-11 rounded-xl border text-sm font-medium transition-colors",
@@ -199,12 +209,12 @@ export function SignupForm() {
       </Button>
 
       <AuthDivider />
-      <SocialAuthButtons />
+      <SocialAuthButtons next={redirectPath} />
 
       <p className="text-center text-sm text-[var(--chayong-text-sub)]">
         이미 계정이 있으신가요?{" "}
         <Link
-          href="/login"
+          href={loginHref}
           className="text-[var(--chayong-primary)] font-medium hover:underline"
         >
           로그인

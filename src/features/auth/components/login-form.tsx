@@ -16,11 +16,22 @@ const ERROR_MESSAGES: Record<string, string> = {
   invalid_callback: "잘못된 접근입니다.",
 };
 
-export function LoginForm() {
+interface LoginFormProps {
+  redirectPath?: string;
+}
+
+export function LoginForm({ redirectPath = "/" }: LoginFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryError = searchParams.get("error");
   const initialError = queryError ? (ERROR_MESSAGES[queryError] ?? null) : null;
+
+  const signupHref =
+    redirectPath === "/"
+      ? "/signup"
+      : `/signup?${redirectPath === "/sell/new" ? "role=SELLER&" : ""}redirect=${encodeURIComponent(
+          redirectPath
+        )}`;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,7 +50,7 @@ export function LoginForm() {
         setError("이메일 또는 비밀번호가 올바르지 않습니다.");
         return;
       }
-      router.push("/");
+      router.push(redirectPath);
       router.refresh();
     } finally {
       setLoading(false);
@@ -100,7 +111,7 @@ export function LoginForm() {
 
       <p className="text-center text-sm text-[var(--chayong-text-sub)]">
         아직 회원이 아니신가요?{" "}
-        <Link href="/signup" className="text-[var(--chayong-primary)] font-medium hover:underline">
+        <Link href={signupHref} className="text-[var(--chayong-primary)] font-medium hover:underline">
           회원가입
         </Link>
       </p>

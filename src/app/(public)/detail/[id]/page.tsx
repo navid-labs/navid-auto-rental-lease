@@ -9,6 +9,7 @@ import { TrustBadge } from "@/components/ui/trust-badge";
 import { ListingGallery } from "@/features/listings/components/listing-gallery";
 import { ListingCostCalculator } from "@/features/listings/components/listing-cost-calculator";
 import { ListingCtaSidebar } from "@/features/listings/components/listing-cta-sidebar";
+import { ReportListingButton } from "@/features/listings/components/report-listing-button";
 import { ShareButton } from "@/features/listings/components/share-button";
 import { MobileCTABar } from "@/features/listings/components/mobile-cta-bar";
 import { SpecPanel } from "@/features/listings/components/spec-panel";
@@ -221,6 +222,12 @@ export default async function DetailPage({ params }: PageProps) {
             transferFee={listing.transferFee}
             monthlyPayment={listing.monthlyPayment}
             remainingMonths={listing.remainingMonths}
+          />
+
+          <ReportListingButton
+            listingId={listing.id}
+            sellerId={listing.sellerId}
+            listingTitle={vehicleName}
           />
         </div>
       </div>

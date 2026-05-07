@@ -554,6 +554,8 @@ enum PenaltyLevel { NONE WARNING LIGHT HEAVY BAN }
 | 5 | 신고 + 패널티 | TASK-021 | src/app/api/admin/reports/[id]/resolve/route.ts | codex-strict / claude | REPORT_FLOW |
 | 5 | 신고 + 패널티 | TASK-022 | src/app/api/admin/profiles/[id]/penalty/route.ts | codex-strict / claude | PENALTY |
 | 5 | 신고 + 패널티 | TASK-023 | src/lib/api/auth-guard.ts (`requireActiveProfile()` 추가) | codex-strict / claude | AUTH |
+| 5 | 신고 + 패널티 | TASK-030 | src/app/api/reports/route.ts (누적 신고 자동 가림) | codex-strict / claude | REPORT_FLOW |
+| 5 | 신고 + 패널티 | TASK-031 | src/app/api/admin/reports/[id]/resolve/route.ts (target 처분/복구) | codex-strict / claude | REPORT_FLOW |
 | 6 | 연락처 차단 강화 | TASK-024 | src/lib/chat/contact-filter.ts (reviewStatus 매핑) | codex-strict / claude | CONTACT_FILTER |
 | 6 | 연락처 차단 강화 | TASK-025 | src/app/api/chat/messages/route.ts (블록 사유 저장) | codex-strict / claude | CONTACT_FILTER |
 | 7 | 캐피탈 가이드 | TASK-026 | src/app/(public)/guide/capital-companies/[name]/page.tsx | codex-fast | — |

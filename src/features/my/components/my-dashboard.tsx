@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { VehicleCard } from "@/components/ui/vehicle-card";
+import { PendingReviewsSection } from "@/features/my/components/pending-reviews-section";
 import { MyListingCard } from "./my-listing-card";
 import type { Listing, ListingCardData } from "@/types";
 import {
@@ -154,6 +155,8 @@ export function MyDashboard({ profile, myListings, favorites: initialFavorites =
           </div>
         ))}
       </div>
+
+      <PendingReviewsSection />
 
       {/* Tabs */}
       <div

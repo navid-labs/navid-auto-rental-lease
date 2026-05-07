@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { requireAuth, isAuthError } from "@/lib/api/auth-guard";
+import { requireActiveProfile, isAuthError } from "@/lib/api/auth-guard";
 import { sanitizeListingForPublic } from "@/lib/listings/sanitize";
 import { createClient } from "@/lib/supabase/server";
 
@@ -63,7 +63,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 
 export async function PUT(request: NextRequest, context: RouteContext) {
   try {
-    const auth = await requireAuth();
+    const auth = await requireActiveProfile();
     if (isAuthError(auth)) return auth;
 
     const { id } = await context.params;

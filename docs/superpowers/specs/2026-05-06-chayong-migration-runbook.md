@@ -308,6 +308,7 @@ model Report {
 ```
 
 **SQL 검토 포인트**:
+- `id`는 `@default(uuid())`와 맞게 `UUID NOT NULL DEFAULT gen_random_uuid()` 여야 함.
 - `target_id`는 application-level FK — DB FK 미설정 (다형성 + 신고 대상 삭제 시 신고 보존 의도)
 - 인덱스 3개:
   - `(target_type, target_id, created_at)` — 자동 가림 임계값 쿼리(24h N건)

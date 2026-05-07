@@ -74,7 +74,7 @@ Generic rules: `$HARNESS_HOME/ONTOLOGY.md`. Repo-specific overrides:
 | APPROVAL_PIPELINE | TASK-011, TASK-012, TASK-013 | VALID_STATUS_TRANSITIONS + rejectionReason 필수 + LISTING_APPROVED/REJECTED 알림 |
 | UPLOAD_PRIVATE | TASK-015, TASK-016 | storage key 저장(URL 아님) + bucket 고정 + folder 고정 |
 | ESCROW_STATE | TASK-017, TASK-029 | PAID→RESERVED→SOLD 전이 + 양측 ESCROW_* 알림 + prisma.$transaction 원자성 |
-| REPORT_FLOW | TASK-019, TASK-020, TASK-021 | abuse 가드(reporterId 24h ≤5) + 자격 검증(가입 1일+) + status PENDING→REVIEWED |
+| REPORT_FLOW | TASK-019, TASK-020, TASK-021, TASK-030, TASK-031 | abuse 가드(reporterId 24h ≤5) + 자격 검증(가입 1일+) + 누적 신고 자동 가림 + status PENDING→REVIEWED + target 처분/복구 |
 | PENALTY | TASK-022 | WARNING/LIGHT/HEAVY/BAN/CLEAR 5단계 + bannedAt 우선 |
 | AUTH | TASK-023 | requireActiveProfile() 추가만, 기존 requireAuth/requireRole 변경 금지 |
 | CONTACT_FILTER | TASK-024, TASK-025 | decideMessageReview → reviewStatus/blockReason 저장. AI는 Stretch |

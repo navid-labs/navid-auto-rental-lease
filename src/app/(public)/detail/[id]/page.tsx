@@ -186,7 +186,9 @@ export default async function DetailPage({ params }: PageProps) {
             interiorGrade={listing.interiorGrade ?? null}
             mileageVerified={listing.mileageVerified}
             inspectionDate={listing.inspectionDate ?? null}
-            inspectionReportUrl={listing.inspectionReportUrl ?? null}
+            inspectionReportUrl={
+              listing.inspectionReportKey?.startsWith("http") ? listing.inspectionReportKey : null
+            }
           />
 
           {/* Vehicle History */}

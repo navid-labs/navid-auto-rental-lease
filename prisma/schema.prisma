@@ -29,7 +29,16 @@ enum ListingStatus {
   ACTIVE // 게시중
   RESERVED // 예약중
   SOLD // 거래완료
-  HIDDEN // 숨김
+  HIDDEN // 숨김 (매도자 자율)
+  REJECTED // 거절됨 (admin 결정, rejectionReason 필수)
+}
+
+enum PenaltyLevel {
+  NONE
+  WARNING
+  LIGHT
+  HEAVY
+  BAN
 }
 
 enum MessageType {
@@ -55,10 +64,18 @@ enum EscrowStatus {
 
 enum NotificationType {
   CHAT_MESSAGE
-  ESCROW_STATUS
+  ESCROW_STATUS // deprecated: 신규 row 발행 금지
   LEAD_ASSIGNED
   LISTING_APPROVED
   LISTING_LIKED
+  LISTING_REJECTED
+  ESCROW_PAID
+  ESCROW_RELEASED
+  ESCROW_REFUNDED
+  TRANSFER_DOWNGRADE_PROPOSAL
+  ESCROW_DISPUTE_OPENED
+  ESCROW_DISPUTE_RESOLVED
+  REVIEW_REQUESTED
 }
 
 enum FuelType {
@@ -124,28 +141,35 @@ enum ImagePosition {
 // ─── Models ──────────────────────────────────────────────
 
 model Profile {
-  id        String   @id @db.Uuid
-  email     String   @unique
-  name      String?
-  phone     String?
-  role      UserRole @default(BUYER)
-  avatarUrl String?  @map("avatar_url")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id               String       @id @db.Uuid
+  email            String       @unique
+  name             String?
+  phone            String?
+  role             UserRole     @default(BUYER)
+  avatarUrl        String?      @map("avatar_url")
+  violationCount   Int          @default(0) @map("violation_count")
+  penaltyLevel     PenaltyLevel @default(NONE) @map("penalty_level")
+  suspendedUntil   DateTime?    @map("suspended_until")
+  suspensionReason String?      @map("suspension_reason")
+  bannedAt         DateTime?    @map("banned_at")
+  lastViolationAt  DateTime?    @map("last_violation_at")
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
 
   // Relations
-  sellerListings Listing[]          @relation("SellerListings")
-  buyerChats     ChatRoom[]         @relation("BuyerChats")
-  sellerChats    ChatRoom[]         @relation("SellerChats")
-  sentMessages   ChatMessage[]      @relation("SentMessages")
-  userLeads      ConsultationLead[] @relation("UserLeads")
-  assignedLeads  ConsultationLead[] @relation("AssignedLeads")
-  buyerPayments  EscrowPayment[]    @relation("BuyerPayments")
-  sellerPayments EscrowPayment[]    @relation("SellerPayments")
+  sellerListings  Listing[]          @relation("SellerListings")
+  buyerChats      ChatRoom[]         @relation("BuyerChats")
+  sellerChats     ChatRoom[]         @relation("SellerChats")
+  sentMessages    ChatMessage[]      @relation("SentMessages")
+  userLeads       ConsultationLead[] @relation("UserLeads")
+  assignedLeads   ConsultationLead[] @relation("AssignedLeads")
+  buyerPayments   EscrowPayment[]    @relation("BuyerPayments")
+  sellerPayments  EscrowPayment[]    @relation("SellerPayments")
   favorites       Favorite[]         @relation("UserFavorites")
   notifications   Notification[]     @relation("UserNotifications")
   reviewsWritten  DealerReview[]     @relation("ReviewsWritten")
   reviewsReceived DealerReview[]     @relation("ReviewsReceived")
+  reportsFiled    Report[]           @relation("ReportsFiled")
 
   @@map("profiles")
 }
@@ -194,7 +218,7 @@ model Listing {
   interiorGrade       Grade?    @map("interior_grade")
   mileageVerified     Boolean   @default(false) @map("mileage_verified")
   registrationRegion  String?   @map("registration_region")
-  inspectionReportUrl String?   @map("inspection_report_url")
+  inspectionReportKey String?   @map("inspection_report_key")
   inspectionDate      DateTime? @map("inspection_date")
 
   // 타입별 금융 세부
@@ -204,13 +228,21 @@ model Listing {
   mileageLimit     Int? @map("mileage_limit")
 
   // 상태
-  isVerified  Boolean  @default(false) @map("is_verified")
+  isVerified Boolean @default(false) @map("is_verified")
 
   // Inspection
-  inspectionChecklist Json?      @map("inspection_checklist")
-  rejectionReason     String?    @map("rejection_reason")
-  inspectedAt         DateTime?  @map("inspected_at")
-  inspectedBy         String?    @map("inspected_by") @db.Uuid
+  estimatedMarketPrice       Int?      @map("estimated_market_price")
+  dealerNote                 String?   @map("dealer_note")
+  inspectionChecklist        Json?     @map("inspection_checklist")
+  rejectionReason            String?   @map("rejection_reason")
+  inspectedAt                DateTime? @map("inspected_at")
+  inspectedBy                String?   @map("inspected_by") @db.Uuid
+  isFastTransfer             Boolean   @default(false) @map("is_fast_transfer")
+  registrationDocumentKey    String?   @map("registration_document_key")
+  capitalGuideAcknowledgedAt DateTime? @map("capital_guide_acknowledged_at")
+  proposalSentAt             DateTime? @map("proposal_sent_at")
+  followUpAttemptedAt        DateTime? @map("follow_up_attempted_at")
+  reviewReason               String?   @map("review_reason")
 
   description String?
   options     String[] @default([])
@@ -235,6 +267,7 @@ model Listing {
   @@index([status, type, monthlyPayment])
   @@index([status, brand, model])
   @@index([status, year(sort: Desc)])
+  @@index([status, isFastTransfer, createdAt(sort: Desc)])
   @@map("listings")
 }
 
@@ -273,19 +306,26 @@ model ChatRoom {
 }
 
 model ChatMessage {
-  id         String      @id @default(uuid()) @db.Uuid
-  chatRoomId String      @map("chat_room_id") @db.Uuid
-  senderId   String      @map("sender_id") @db.Uuid
-  type       MessageType @default(TEXT)
-  content    String
-  imageUrl   String?     @map("image_url")
-  isRead     Boolean     @default(false) @map("is_read")
-  createdAt  DateTime    @default(now()) @map("created_at")
+  id               String      @id @default(uuid()) @db.Uuid
+  chatRoomId       String      @map("chat_room_id") @db.Uuid
+  senderId         String      @map("sender_id") @db.Uuid
+  type             MessageType @default(TEXT)
+  content          String
+  imageUrl         String?     @map("image_url")
+  isRead           Boolean     @default(false) @map("is_read")
+  reviewStatus     String      @default("APPROVED") @map("review_status")
+  reviewedBy       String?     @map("reviewed_by") @db.Uuid
+  reviewedAt       DateTime?   @map("reviewed_at")
+  aiSuspicionScore Float?      @map("ai_suspicion_score")
+  aiReason         String?     @map("ai_reason")
+  blockReason      String?     @map("block_reason")
+  createdAt        DateTime    @default(now()) @map("created_at")
 
   chatRoom ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
   sender   Profile  @relation("SentMessages", fields: [senderId], references: [id])
 
   @@index([chatRoomId, createdAt])
+  @@index([reviewStatus, createdAt])
   @@map("chat_messages")
 }
 
@@ -310,21 +350,39 @@ model ConsultationLead {
 }
 
 model EscrowPayment {
-  id            String       @id @default(uuid()) @db.Uuid
-  listingId     String       @map("listing_id") @db.Uuid
-  buyerId       String       @map("buyer_id") @db.Uuid
-  sellerId      String       @map("seller_id") @db.Uuid
-  depositAmount Int          @map("deposit_amount")
-  transferFee   Int          @map("transfer_fee")
-  totalAmount   Int          @map("total_amount")
-  status        EscrowStatus @default(PENDING)
-  paidAt        DateTime?    @map("paid_at")
-  releasedAt    DateTime?    @map("released_at")
-  refundedAt    DateTime?    @map("refunded_at")
-  pgOrderId     String?      @map("pg_order_id")
-  pgPaymentKey  String?      @map("pg_payment_key")
-  createdAt     DateTime     @default(now()) @map("created_at")
-  updatedAt     DateTime     @updatedAt @map("updated_at")
+  id                     String       @id @default(uuid()) @db.Uuid
+  listingId              String       @map("listing_id") @db.Uuid
+  buyerId                String       @map("buyer_id") @db.Uuid
+  sellerId               String       @map("seller_id") @db.Uuid
+  depositAmount          Int          @map("deposit_amount")
+  transferFee            Int          @map("transfer_fee")
+  totalAmount            Int          @map("total_amount")
+  status                 EscrowStatus @default(PENDING)
+  paidAt                 DateTime?    @map("paid_at")
+  releasedAt             DateTime?    @map("released_at")
+  refundedAt             DateTime?    @map("refunded_at")
+  pgOrderId              String?      @map("pg_order_id")
+  pgPaymentKey           String?      @map("pg_payment_key")
+  transferProofKey       String?      @map("transfer_proof_key")
+  rejectionProofKey      String?      @map("rejection_proof_key")
+  verifiedBy             String?      @map("verified_by") @db.Uuid
+  verifiedAt             DateTime?    @map("verified_at")
+  verificationRejectedAt DateTime?    @map("verification_rejected_at")
+  rejectionReason        String?      @map("rejection_reason")
+  disputedAt             DateTime?    @map("disputed_at")
+  disputeReason          String?      @map("dispute_reason")
+  disputeEvidenceKeys    Json?        @map("dispute_evidence_keys")
+  mediatedBy             String?      @map("mediated_by") @db.Uuid
+  mediationNote          String?      @map("mediation_note")
+  mediationResolvedAt    DateTime?    @map("mediation_resolved_at")
+  mediationResolution    String?      @map("mediation_resolution")
+  externalMediationAt    DateTime?    @map("external_mediation_at")
+  platformFee            Int          @default(0) @map("platform_fee")
+  pgFee                  Int?         @map("pg_fee")
+  payoutAmount           Int?         @map("payout_amount")
+  payoutAt               DateTime?    @map("payout_at")
+  createdAt              DateTime     @default(now()) @map("created_at")
+  updatedAt              DateTime     @updatedAt @map("updated_at")
 
   listing Listing @relation(fields: [listingId], references: [id])
   buyer   Profile @relation("BuyerPayments", fields: [buyerId], references: [id])
@@ -366,12 +424,34 @@ model Notification {
   @@map("notifications")
 }
 
+model Report {
+  id           String    @id @default(uuid()) @db.Uuid
+  reporterId   String    @map("reporter_id") @db.Uuid
+  targetType   String    @map("target_type")
+  targetId     String    @map("target_id") @db.Uuid
+  reason       String
+  description  String?
+  evidenceKeys Json?     @map("evidence_keys")
+  status       String    @default("PENDING")
+  reviewedBy   String?   @map("reviewed_by") @db.Uuid
+  reviewedAt   DateTime? @map("reviewed_at")
+  resolution   String?
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  reporter Profile @relation("ReportsFiled", fields: [reporterId], references: [id])
+
+  @@index([targetType, targetId, createdAt])
+  @@index([reporterId, createdAt])
+  @@index([status])
+  @@map("reports")
+}
+
 model DealerReview {
   id         String   @id @default(uuid()) @db.Uuid
   reviewerId String   @map("reviewer_id") @db.Uuid
   dealerId   String   @map("dealer_id") @db.Uuid
   listingId  String   @map("listing_id") @db.Uuid
-  rating     Int      // 1~5
+  rating     Int // 1~5
   comment    String
   createdAt  DateTime @default(now()) @map("created_at")
 

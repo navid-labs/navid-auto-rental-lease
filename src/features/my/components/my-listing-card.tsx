@@ -18,6 +18,7 @@ const STATUS_LABEL: Record<ListingStatus, string> = {
   RESERVED: "예약중",
   SOLD: "거래완료",
   HIDDEN: "숨김",
+  REJECTED: "거절됨",
 };
 
 const STATUS_STYLE: Record<ListingStatus, { bg: string; color: string }> = {
@@ -27,6 +28,7 @@ const STATUS_STYLE: Record<ListingStatus, { bg: string; color: string }> = {
   RESERVED: { bg: "#e0f2fe", color: "#0369a1" },
   SOLD: { bg: "#dcfce7", color: "#16a34a" },
   HIDDEN: { bg: "#fee2e2", color: "#dc2626" },
+  REJECTED: { bg: "#fee2e2", color: "#b91c1c" },
 };
 
 export function MyListingCard({ listing }: MyListingCardProps) {

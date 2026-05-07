@@ -1,0 +1,20 @@
+-- AlterTable
+ALTER TABLE "escrow_payments"
+  ADD COLUMN "transfer_proof_key" TEXT,
+  ADD COLUMN "rejection_proof_key" TEXT,
+  ADD COLUMN "verified_by" UUID,
+  ADD COLUMN "verified_at" TIMESTAMP(3),
+  ADD COLUMN "verification_rejected_at" TIMESTAMP(3),
+  ADD COLUMN "rejection_reason" TEXT,
+  ADD COLUMN "disputed_at" TIMESTAMP(3),
+  ADD COLUMN "dispute_reason" TEXT,
+  ADD COLUMN "dispute_evidence_keys" JSONB,
+  ADD COLUMN "mediated_by" UUID,
+  ADD COLUMN "mediation_note" TEXT,
+  ADD COLUMN "mediation_resolved_at" TIMESTAMP(3),
+  ADD COLUMN "mediation_resolution" TEXT,
+  ADD COLUMN "external_mediation_at" TIMESTAMP(3),
+  ADD COLUMN "platform_fee" INTEGER NOT NULL DEFAULT 0,
+  ADD COLUMN "pg_fee" INTEGER,
+  ADD COLUMN "payout_amount" INTEGER,
+  ADD COLUMN "payout_at" TIMESTAMP(3);

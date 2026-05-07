@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
         interiorGrade: input.interiorGrade ?? null,
         mileageVerified: input.mileageVerified,
         registrationRegion: input.registrationRegion ?? null,
-        inspectionReportUrl: input.inspectionReportUrl ?? null,
+        inspectionReportKey: input.inspectionReportKey ?? null,
         inspectionDate: input.inspectionDate ?? null,
         monthlyPayment: input.monthlyPayment,
         remainingMonths: input.remainingMonths,

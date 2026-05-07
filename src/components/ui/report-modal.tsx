@@ -335,7 +335,7 @@ export function ReportModal({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent
-        className="sm:max-w-2xl"
+        className="max-h-[calc(100dvh-2rem)] grid-rows-[auto_minmax(0,1fr)] overflow-hidden sm:max-w-2xl"
         showCloseButton={!submitting && !uploading}
       >
         <DialogHeader>
@@ -345,194 +345,199 @@ export function ReportModal({
           </DialogDescription>
         </DialogHeader>
 
-        <form className="grid gap-5" onSubmit={handleSubmit}>
-          <section className="grid gap-3 rounded-2xl border border-[var(--chayong-divider)] bg-[var(--chayong-surface)] p-4">
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0">
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--chayong-text-caption)]">
-                  신고 대상
+        <form
+          className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto]"
+          onSubmit={handleSubmit}
+        >
+          <div className="min-h-0 space-y-5 overflow-y-auto overscroll-contain pr-1">
+            <section className="grid gap-3 rounded-2xl border border-[var(--chayong-divider)] bg-[var(--chayong-surface)] p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--chayong-text-caption)]">
+                    신고 대상
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-[var(--chayong-text)]">
+                    {TARGET_LABELS[targetType]}
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full bg-[var(--chayong-primary-light)] px-2.5 py-1 text-xs font-medium text-[var(--chayong-primary)]">
+                  {targetType}
+                </span>
+              </div>
+
+              <div className="rounded-xl border border-[var(--chayong-divider)] bg-[var(--chayong-bg)] px-3 py-2">
+                <p className="text-xs font-medium text-[var(--chayong-text-caption)]">
+                  요약
                 </p>
-                <p className="mt-1 text-sm font-medium text-[var(--chayong-text)]">
-                  {TARGET_LABELS[targetType]}
+                <p className="mt-1 whitespace-pre-wrap break-words text-sm text-[var(--chayong-text)]">
+                  {summaryText}
                 </p>
               </div>
-              <span className="shrink-0 rounded-full bg-[var(--chayong-primary-light)] px-2.5 py-1 text-xs font-medium text-[var(--chayong-primary)]">
-                {targetType}
-              </span>
-            </div>
+            </section>
 
-            <div className="rounded-xl border border-[var(--chayong-divider)] bg-[var(--chayong-bg)] px-3 py-2">
-              <p className="text-xs font-medium text-[var(--chayong-text-caption)]">
-                요약
-              </p>
-              <p className="mt-1 whitespace-pre-wrap break-words text-sm text-[var(--chayong-text)]">
-                {summaryText}
-              </p>
-            </div>
-          </section>
+            <fieldset className="grid gap-3">
+              <legend className="text-sm font-medium text-[var(--chayong-text)]">
+                신고 사유
+              </legend>
 
-          <fieldset className="grid gap-3">
-            <legend className="text-sm font-medium text-[var(--chayong-text)]">
-              신고 사유
-            </legend>
+              <RadioGroup
+                value={reason}
+                onValueChange={(value) => setReason(value as ReportReason)}
+                className="grid gap-3"
+                disabled={submitting}
+              >
+                {REASON_OPTIONS.map((option) => {
+                  const selected = reason === option.value;
 
-            <RadioGroup
-              value={reason}
-              onValueChange={(value) => setReason(value as ReportReason)}
-              className="grid gap-3"
-              disabled={submitting}
-            >
-              {REASON_OPTIONS.map((option) => {
-                const selected = reason === option.value;
-
-                return (
-                  <label
-                    key={option.value}
-                    className={cn(
-                      "flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors",
-                      selected
-                        ? "border-[var(--chayong-primary)] bg-[var(--chayong-primary-light)]/30"
-                        : "border-[var(--chayong-divider)] bg-[var(--chayong-surface)] hover:bg-[var(--chayong-bg)]",
-                      submitting && "cursor-not-allowed opacity-70"
-                    )}
-                  >
-                    <RadioGroupItem
-                      value={option.value}
-                      className="mt-0.5"
-                    />
-                    <span className="grid gap-1">
-                      <span className="text-sm font-medium text-[var(--chayong-text)]">
-                        {option.label}
-                      </span>
-                      <span className="text-sm leading-5 text-[var(--chayong-text-caption)]">
-                        {option.description}
-                      </span>
-                    </span>
-                  </label>
-                );
-              })}
-            </RadioGroup>
-          </fieldset>
-
-          <section className="grid gap-3 rounded-2xl border border-[var(--chayong-divider)] bg-[var(--chayong-surface)] p-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-medium text-[var(--chayong-text)]">
-                  증거 이미지
-                </p>
-                <p className="mt-1 text-xs text-[var(--chayong-text-caption)]">
-                  JPEG, PNG, WebP만 가능 · 최대 5개 · 파일당 10MB 이하
-                </p>
-              </div>
-              <span className="text-xs text-[var(--chayong-text-caption)]">
-                {evidenceItems.length}/{MAX_EVIDENCE_FILES}
-              </span>
-            </div>
-
-            {evidenceItems.length > 0 ? (
-              <div className="grid gap-2">
-                {evidenceItems.map((item, index) => (
-                  <div
-                    key={item.key}
-                    className="flex items-center gap-3 rounded-xl border border-[var(--chayong-divider)] bg-[var(--chayong-bg)] p-2.5"
-                  >
-                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-[var(--chayong-surface)]">
-                      <Image
-                        src={item.url}
-                        alt={item.name}
-                        fill
-                        sizes="48px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-[var(--chayong-text)]">
-                        증거 이미지 {index + 1}
-                      </p>
-                      <p className="truncate text-xs text-[var(--chayong-text-caption)]">
-                        {item.name}
-                      </p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleRemoveEvidence(item.key)}
-                      disabled={submitting || uploading}
-                      className="shrink-0 text-[var(--chayong-text-caption)] hover:text-[var(--chayong-text)]"
-                      aria-label={`${item.name} 제거`}
+                  return (
+                    <label
+                      key={option.value}
+                      className={cn(
+                        "flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors",
+                        selected
+                          ? "border-[var(--chayong-primary)] bg-[var(--chayong-primary-light)]/30"
+                          : "border-[var(--chayong-divider)] bg-[var(--chayong-surface)] hover:bg-[var(--chayong-bg)]",
+                        submitting && "cursor-not-allowed opacity-70"
+                      )}
                     >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
+                      <RadioGroupItem
+                        value={option.value}
+                        className="mt-0.5"
+                      />
+                      <span className="grid gap-1">
+                        <span className="text-sm font-medium text-[var(--chayong-text)]">
+                          {option.label}
+                        </span>
+                        <span className="text-sm leading-5 text-[var(--chayong-text-caption)]">
+                          {option.description}
+                        </span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </RadioGroup>
+            </fieldset>
+
+            <section className="grid gap-3 rounded-2xl border border-[var(--chayong-divider)] bg-[var(--chayong-surface)] p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium text-[var(--chayong-text)]">
+                    증거 이미지
+                  </p>
+                  <p className="mt-1 text-xs text-[var(--chayong-text-caption)]">
+                    JPEG, PNG, WebP만 가능 · 최대 5개 · 파일당 10MB 이하
+                  </p>
+                </div>
+                <span className="text-xs text-[var(--chayong-text-caption)]">
+                  {evidenceItems.length}/{MAX_EVIDENCE_FILES}
+                </span>
               </div>
-            ) : null}
 
-            {evidenceItems.length < MAX_EVIDENCE_FILES ? (
-              <label
-                className={cn(
-                  "flex min-h-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-5 text-center transition-colors",
-                  uploading
-                    ? "cursor-not-allowed border-[var(--chayong-divider)] bg-[var(--chayong-bg)] text-[var(--chayong-text-caption)]"
-                    : "border-[var(--chayong-divider)] bg-[var(--chayong-bg)] text-[var(--chayong-text-caption)] hover:border-[var(--chayong-primary)] hover:bg-[var(--chayong-primary-light)]/20"
-                )}
-              >
-                {uploading ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin text-[var(--chayong-primary)]" />
-                    <span className="text-sm font-medium text-[var(--chayong-text)]">
-                      업로드 중...
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <ImagePlus className="h-5 w-5" />
-                    <span className="text-sm font-medium text-[var(--chayong-text)]">
-                      증거 이미지 추가
-                    </span>
-                    <span className="text-xs">
-                      클릭하거나 파일을 선택하세요.
-                    </span>
-                  </>
-                )}
-                <input
-                  ref={evidenceInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  multiple
-                  className="hidden"
-                  onChange={handleEvidenceFileChange}
-                  disabled={submitting || uploading}
-                />
-              </label>
-            ) : null}
-          </section>
+              {evidenceItems.length > 0 ? (
+                <div className="grid gap-2">
+                  {evidenceItems.map((item, index) => (
+                    <div
+                      key={item.key}
+                      className="flex items-center gap-3 rounded-xl border border-[var(--chayong-divider)] bg-[var(--chayong-bg)] p-2.5"
+                    >
+                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-[var(--chayong-surface)]">
+                        <Image
+                          src={item.url}
+                          alt={item.name}
+                          fill
+                          sizes="48px"
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-[var(--chayong-text)]">
+                          증거 이미지 {index + 1}
+                        </p>
+                        <p className="truncate text-xs text-[var(--chayong-text-caption)]">
+                          {item.name}
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemoveEvidence(item.key)}
+                        disabled={submitting || uploading}
+                        className="shrink-0 text-[var(--chayong-text-caption)] hover:text-[var(--chayong-text)]"
+                        aria-label={`${item.name} 제거`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
 
-          <section className="grid gap-2">
-            <div className="flex items-center justify-between gap-3">
-              <label
-                htmlFor="report-description"
-                className="text-sm font-medium text-[var(--chayong-text)]"
-              >
-                보충 설명
-              </label>
-              <span className="text-xs text-[var(--chayong-text-caption)]">
-                {descriptionCount}/1000
-              </span>
-            </div>
-            <Textarea
-              id="report-description"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              maxLength={1000}
-              rows={5}
-              placeholder="신고 사유를 조금 더 자세히 적어주세요. 선택 입력입니다."
-              disabled={submitting || uploading}
-            />
-          </section>
+              {evidenceItems.length < MAX_EVIDENCE_FILES ? (
+                <label
+                  className={cn(
+                    "flex min-h-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-5 text-center transition-colors",
+                    uploading
+                      ? "cursor-not-allowed border-[var(--chayong-divider)] bg-[var(--chayong-bg)] text-[var(--chayong-text-caption)]"
+                      : "border-[var(--chayong-divider)] bg-[var(--chayong-bg)] text-[var(--chayong-text-caption)] hover:border-[var(--chayong-primary)] hover:bg-[var(--chayong-primary-light)]/20"
+                  )}
+                >
+                  {uploading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin text-[var(--chayong-primary)]" />
+                      <span className="text-sm font-medium text-[var(--chayong-text)]">
+                        업로드 중...
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <ImagePlus className="h-5 w-5" />
+                      <span className="text-sm font-medium text-[var(--chayong-text)]">
+                        증거 이미지 추가
+                      </span>
+                      <span className="text-xs">
+                        클릭하거나 파일을 선택하세요.
+                      </span>
+                    </>
+                  )}
+                  <input
+                    ref={evidenceInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    multiple
+                    className="hidden"
+                    onChange={handleEvidenceFileChange}
+                    disabled={submitting || uploading}
+                  />
+                </label>
+              ) : null}
+            </section>
 
-          <DialogFooter className="px-0 pb-0 pt-2">
+            <section className="grid gap-2">
+              <div className="flex items-center justify-between gap-3">
+                <label
+                  htmlFor="report-description"
+                  className="text-sm font-medium text-[var(--chayong-text)]"
+                >
+                  보충 설명
+                </label>
+                <span className="text-xs text-[var(--chayong-text-caption)]">
+                  {descriptionCount}/1000
+                </span>
+              </div>
+              <Textarea
+                id="report-description"
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                maxLength={1000}
+                rows={5}
+                placeholder="신고 사유를 조금 더 자세히 적어주세요. 선택 입력입니다."
+                disabled={submitting || uploading}
+              />
+            </section>
+          </div>
+
+          <DialogFooter className="mx-0 mb-0 border-t border-[var(--chayong-divider)] bg-background px-0 pb-0 pt-4">
             <Button
               type="button"
               variant="outline"

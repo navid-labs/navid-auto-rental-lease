@@ -153,6 +153,12 @@ model Profile {
   suspensionReason String?      @map("suspension_reason")
   bannedAt         DateTime?    @map("banned_at")
   lastViolationAt  DateTime?    @map("last_violation_at")
+  // Auth provider tracking (social login)
+  authProvider      String?   @map("auth_provider")
+  termsAcceptedAt   DateTime? @map("terms_accepted_at")
+  privacyAcceptedAt DateTime? @map("privacy_accepted_at")
+  marketingOptIn    Boolean   @default(false) @map("marketing_opt_in")
+  marketingOptInAt  DateTime? @map("marketing_opt_in_at")
   createdAt        DateTime     @default(now()) @map("created_at")
   updatedAt        DateTime     @updatedAt @map("updated_at")
 

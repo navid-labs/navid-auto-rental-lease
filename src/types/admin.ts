@@ -52,11 +52,12 @@ export const INSPECTION_SECTION_LABELS: Record<string, string> = {
 
 export const VALID_STATUS_TRANSITIONS: Record<string, string[]> = {
   DRAFT: ["PENDING", "HIDDEN"],
-  PENDING: ["ACTIVE", "DRAFT", "HIDDEN"],
-  ACTIVE: ["RESERVED", "HIDDEN"],
+  PENDING: ["ACTIVE", "REJECTED", "DRAFT", "HIDDEN"],
+  ACTIVE: ["RESERVED", "HIDDEN", "PENDING"],
   RESERVED: ["SOLD", "ACTIVE", "HIDDEN"],
   SOLD: ["HIDDEN"],
   HIDDEN: ["DRAFT"],
+  REJECTED: [],
 };
 
 export interface ActionCardData {

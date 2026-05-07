@@ -16,9 +16,10 @@ export interface PlateLookupResult {
 interface Props {
   onResult: (r: PlateLookupResult) => void;
   onSkip: () => void;
+  onError?: () => void;
 }
 
-export function PlateLookup({ onResult, onSkip }: Props) {
+export function PlateLookup({ onResult, onSkip, onError }: Props) {
   const [plate, setPlate] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,6 +27,7 @@ export function PlateLookup({ onResult, onSkip }: Props) {
   async function lookup() {
     if (!PLATE_RE.test(plate.trim())) {
       setError("번호판 형식이 올바르지 않습니다 (예: 12가3456)");
+      onError?.();
       return;
     }
     setError(null);
@@ -38,11 +40,13 @@ export function PlateLookup({ onResult, onSkip }: Props) {
       });
       if (!res.ok) {
         setError("조회에 실패했습니다. 수동으로 입력해주세요.");
+        onError?.();
         return;
       }
       onResult(await res.json());
     } catch {
       setError("네트워크 오류. 수동으로 입력해주세요.");
+      onError?.();
     } finally {
       setLoading(false);
     }

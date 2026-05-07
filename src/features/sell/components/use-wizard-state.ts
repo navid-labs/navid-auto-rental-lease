@@ -35,9 +35,17 @@ const INITIAL: WizardForm = {
   imageUrls: [],
 };
 
-export function useWizardState() {
-  const [step, setStep] = useState(0);
-  const [form, setForm] = useState<WizardForm>(INITIAL);
+interface UseWizardStateOptions {
+  initialForm?: Partial<WizardForm>;
+  initialStep?: number;
+}
+
+export function useWizardState(options: UseWizardStateOptions = {}) {
+  const [step, setStep] = useState(options.initialStep ?? 0);
+  const [form, setForm] = useState<WizardForm>({
+    ...INITIAL,
+    ...options.initialForm,
+  });
 
   const patch = (p: Partial<WizardForm>) => setForm((f) => ({ ...f, ...p }));
   const next = () => setStep((s) => s + 1);

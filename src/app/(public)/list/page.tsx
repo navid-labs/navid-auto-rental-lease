@@ -17,15 +17,9 @@ export const dynamic = "force-dynamic";
 const PAGE_SIZE = 12;
 
 const TYPE_LABEL: Record<string, string> = {
-  TRANSFER: "승계차량",
-  USED_LEASE: "중고리스",
-  USED_RENTAL: "중고렌트",
-};
-
-const HERO_COPY: Record<string, string> = {
-  TRANSFER: "기존 계약의 잔여기간, 월납입금, 초기비용을 함께 보며 중도해지 부담을 줄일 승계 차량을 비교하세요.",
-  USED_LEASE: "중고 리스 차량을 월납입·초기비용 기준으로 비교하고 내 조건에 맞는 계약을 찾아보세요.",
-  USED_RENTAL: "중고 렌트 차량을 월납입·초기비용 기준으로 비교하고 보험·정비 조건까지 함께 확인하세요.",
+  TRANSFER: "승계 차량",
+  USED_LEASE: "중고 리스",
+  USED_RENTAL: "중고 렌트",
 };
 
 function buildWhereFromFilters(filters: ListingFilters): Prisma.ListingWhereInput {
@@ -167,28 +161,98 @@ export default async function ListPage({
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const typeLabel = filters.type ? TYPE_LABEL[filters.type] : null;
-  const heroCopy = filters.type
-    ? HERO_COPY[filters.type]
-    : "승계차량과 중고 리스·렌트를 월납입·초기비용 기준으로 비교하세요.";
+  const headlineLabel = typeLabel ?? "전체 매물";
+  let sortLabel = "최신 등록 순";
+  switch (filters.sort) {
+    case "price_asc":
+      sortLabel = "월납입 낮은 순";
+      break;
+    case "price_desc":
+      sortLabel = "월납입 높은 순";
+      break;
+    case "year_desc":
+      sortLabel = "연식 최신 순";
+      break;
+    case "mileage_asc":
+      sortLabel = "주행거리 낮은 순";
+      break;
+  }
+  const summaryCards = [
+    {
+      label: "월납입 기준 비교",
+      value: `${sortLabel}${filters.q ? " · 검색 반영" : ""}`,
+    },
+    {
+      label: "검수 정보 확인",
+      value: `${new Intl.NumberFormat("ko-KR").format(
+        listings.filter((listing) => listing.isVerified).length,
+      )}개 노출`,
+    },
+    {
+      label: "비교 담기",
+      value: "관심 매물만 빠르게 저장",
+    },
+    {
+      label: "인기 브랜드",
+      value: `${topBrands.length}개`,
+    },
+  ];
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3">
-          <h1 className="text-[32px] font-bold" style={{ color: "var(--chayong-text)" }}>
-            {typeLabel ?? "매물 목록"}
-          </h1>
-          <span
-            className="rounded-full px-2.5 py-0.5 text-sm font-semibold text-white"
-            style={{ backgroundColor: "var(--chayong-primary)" }}
-          >
-            {total.toLocaleString("ko-KR")}건
-          </span>
+      <div
+        className="mb-6 overflow-hidden rounded-2xl border p-5 shadow-sm sm:p-6"
+        style={{
+          borderColor: "var(--chayong-border)",
+          background: "var(--chayong-bg)",
+        }}
+      >
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0 space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-white"
+                style={{ backgroundColor: "var(--chayong-primary)" }}
+              >
+                {headlineLabel}
+              </span>
+              <span className="rounded-full border bg-white px-3 py-1 text-xs font-semibold tabular-nums text-[var(--chayong-text)]" style={{ borderColor: "var(--chayong-divider)" }}>
+                총 {total.toLocaleString("ko-KR")}건
+              </span>
+              <span className="rounded-full border bg-[var(--chayong-surface)] px-3 py-1 text-xs font-medium text-[var(--chayong-text-sub)]" style={{ borderColor: "var(--chayong-divider)" }}>
+                {sortLabel}
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold tracking-tight text-[var(--chayong-text)] sm:text-[32px]">
+                {headlineLabel} 한눈에 비교
+              </h1>
+              <p className="max-w-2xl text-sm leading-6 text-[var(--chayong-text-sub)] sm:text-base">
+                월납입, 초기비용, 검수 여부를 먼저 보고 조건을 좁혀보세요. 현재
+                보여지는 결과와 인기 브랜드를 함께 묶어 빠르게 스캔할 수 있습니다.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:w-[420px]">
+            {summaryCards.map((card) => (
+              <div
+                key={card.label}
+                className="rounded-xl border bg-[var(--chayong-surface)] p-4"
+                style={{ borderColor: "var(--chayong-divider)" }}
+              >
+                <p className="text-xs font-semibold text-[var(--chayong-text-caption)]">
+                  {card.label}
+                </p>
+                <p className="mt-2 break-words text-sm font-semibold leading-5 text-[var(--chayong-text)]">
+                  {card.value}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed md:text-base" style={{ color: "var(--chayong-text-sub)" }}>
-          {heroCopy}
-        </p>
       </div>
 
       {/* Sidebar + Grid layout */}

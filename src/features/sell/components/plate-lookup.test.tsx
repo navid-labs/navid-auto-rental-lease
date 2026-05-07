@@ -21,9 +21,21 @@ describe("PlateLookup", () => {
   });
 
   it("shows error on invalid plate (client-side)", () => {
-    render(<PlateLookup onResult={() => {}} onSkip={() => {}} />);
+    const onError = vi.fn();
+    render(<PlateLookup onResult={() => {}} onSkip={() => {}} onError={onError} />);
     fireEvent.change(screen.getByPlaceholderText(/차량번호/i), { target: { value: "BADPLATE" } });
     fireEvent.click(screen.getByRole("button", { name: /조회/i }));
     expect(screen.getByText(/번호판 형식/i)).toBeInTheDocument();
+    expect(onError).toHaveBeenCalled();
+  });
+
+  it("shows manual continuation after lookup failure", async () => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: false }) as unknown as typeof fetch;
+    const onError = vi.fn();
+    render(<PlateLookup onResult={() => {}} onSkip={() => {}} onError={onError} />);
+    fireEvent.change(screen.getByPlaceholderText(/차량번호/i), { target: { value: "12가3456" } });
+    fireEvent.click(screen.getByRole("button", { name: /조회/i }));
+    await waitFor(() => expect(screen.getByText(/조회에 실패했습니다/i)).toBeInTheDocument());
+    expect(onError).toHaveBeenCalled();
   });
 });

@@ -16,7 +16,7 @@ describe("SearchHub", () => {
 
   it("builds correct link when type is selected", () => {
     render(<SearchHub brands={[]} />);
-    const cta = screen.getByRole("link", { name: /검색/ });
+    const cta = screen.getByRole("link", { name: "선택 조건으로 매물 검색" });
     fireEvent.click(screen.getByText("승계"));
     expect(cta.getAttribute("href")).toContain("type=TRANSFER");
   });

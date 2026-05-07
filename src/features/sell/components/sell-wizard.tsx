@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { useWizardState } from "./use-wizard-state";
 import { PlateLookup } from "./plate-lookup";
 import { PhotoGuide } from "./photo-guide";
 import { LivePreviewCard } from "./live-preview-card";
+import type { WizardForm } from "./use-wizard-state";
 
 const TOTAL_STEPS = 8;
 
@@ -18,35 +20,54 @@ const LISTING_TYPE_OPTIONS = [
   { value: "USED_RENTAL" as const, label: "중고 렌트", desc: "만기 후 차량을 렌트 조건으로 다시 내놓을 때" },
 ];
 
-export function SellWizard() {
+export interface SellWizardInitialVehicle {
+  plate?: string;
+  brand?: string;
+  model?: string;
+  year?: number;
+  fuel?: WizardForm["fuel"];
+}
+
+interface SellWizardProps {
+  initialVehicle?: SellWizardInitialVehicle;
+  manualEntry?: boolean;
+}
+
+export function SellWizard({ initialVehicle, manualEntry = false }: SellWizardProps) {
   const router = useRouter();
-  const { step, form, patch, next, prev } = useWizardState();
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const hasInitialVehicle = Boolean(
+    initialVehicle?.plate ||
+      initialVehicle?.brand ||
+      initialVehicle?.model ||
+      initialVehicle?.year ||
+      initialVehicle?.fuel
+  );
+  const { step, form, patch, next, prev } = useWizardState({
+    initialStep: hasInitialVehicle || manualEntry ? 1 : 0,
+    initialForm: {
+      plate: initialVehicle?.plate,
+      brand: initialVehicle?.brand ?? "",
+      model: initialVehicle?.model ?? "",
+      year: initialVehicle?.year,
+      fuel: initialVehicle?.fuel,
+    },
+  });
 
   async function handleSubmit() {
+    setSubmitError(null);
+
     try {
       const res = await fetch("/api/listings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sellerId: "00000000-0000-0000-0000-000000000000",
-          type: form.type ?? "TRANSFER",
-          monthlyPayment: form.monthlyPayment ?? 0,
-          remainingMonths: form.remainingMonths ?? 0,
-          initialCost: form.initialCost ?? 0,
-          transferFee: 0,
-          brand: form.brand || null,
-          model: form.model || null,
-          year: form.year ?? null,
-          trim: form.trim || null,
-          mileage: form.mileage ?? null,
-          color: form.color || null,
-          capitalCompany: form.capitalCompany || null,
-          description: form.description || null,
-          options: form.options,
-        }),
+        body: JSON.stringify(buildListingPayload(form)),
       });
 
-      if (!res.ok) throw new Error(`등록에 실패했습니다 (${res.status})`);
+      if (!res.ok) {
+        const data: unknown = await res.json().catch(() => null);
+        throw new Error(getListingErrorMessage(data, res.status));
+      }
 
       const listing = await res.json();
 
@@ -58,9 +79,10 @@ export function SellWizard() {
         });
       }
 
-      router.push("/my");
+      router.push(`/sell/promote?listingId=${listing.id}`);
     } catch (err) {
       console.error(err);
+      setSubmitError(err instanceof Error ? err.message : "등록에 실패했습니다.");
     }
   }
 
@@ -74,6 +96,8 @@ export function SellWizard() {
   // Step 7: 설명 + 제출
 
   const canNext = (): boolean => {
+    if (step === 1) return form.brand.trim().length > 0 && form.model.trim().length > 0;
+    if (step === 2) return form.year !== undefined;
     if (step === 3) return form.type !== undefined;
     if (step === 4) return (form.monthlyPayment ?? 0) > 0;
     if (step === 5) return (form.remainingMonths ?? 0) > 0;
@@ -84,6 +108,11 @@ export function SellWizard() {
     <div className="mx-auto max-w-5xl px-4 py-8">
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="space-y-6 pb-24">
+          {manualEntry && !hasInitialVehicle && (
+            <div className="rounded-xl border border-[var(--chayong-border)] bg-white p-4 text-sm font-medium text-[var(--chayong-text-sub)]">
+              조회되지 않아 직접 입력합니다. 차량명과 계약 조건을 순서대로 채워주세요.
+            </div>
+          )}
           <ProgressBar current={step} total={TOTAL_STEPS} />
 
           <div className="min-h-[320px]">
@@ -122,6 +151,15 @@ export function SellWizard() {
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
+              {form.plate && (
+                <div className="col-span-2 flex flex-col gap-2">
+                  <Label style={{ color: "var(--chayong-text)" }}>차량번호</Label>
+                  <Input
+                    value={form.plate}
+                    onChange={(e) => patch({ plate: e.target.value })}
+                  />
+                </div>
+              )}
               <div className="flex flex-col gap-2">
                 <Label style={{ color: "var(--chayong-text)" }}>제조사</Label>
                 <Input
@@ -154,6 +192,11 @@ export function SellWizard() {
                   onChange={(e) => patch({ color: e.target.value })}
                 />
               </div>
+              {form.fuel && (
+                <div className="col-span-2 rounded-xl bg-[var(--chayong-surface)] px-4 py-3 text-sm font-medium text-[var(--chayong-text-sub)]">
+                  조회된 연료: {formatFuel(form.fuel)}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -365,6 +408,11 @@ export function SellWizard() {
               value={form.description}
               onChange={(e) => patch({ description: e.target.value })}
             />
+            {submitError && (
+              <p className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm text-[var(--chayong-danger)]">
+                {submitError}
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -392,6 +440,65 @@ export function SellWizard() {
       </div>
     </div>
   );
+}
+
+export function buildListingPayload(form: WizardForm) {
+  const type = form.type ?? "TRANSFER";
+  const common = {
+    type,
+    monthlyPayment: form.monthlyPayment ?? 0,
+    remainingMonths: form.remainingMonths ?? 0,
+    initialCost: form.initialCost ?? 0,
+    brand: form.brand.trim(),
+    model: form.model.trim(),
+    year: form.year,
+    plateNumber: form.plate || null,
+    fuelType: form.fuel ?? null,
+    trim: form.trim || null,
+    mileage: form.mileage ?? undefined,
+    color: form.color || null,
+    capitalCompany: form.capitalCompany || null,
+    description: form.description || null,
+    options: form.options,
+  };
+
+  if (type === "TRANSFER") {
+    return {
+      ...common,
+      type,
+      transferFee: 0,
+      carryoverPremium: form.initialCost ?? 0,
+    };
+  }
+
+  return {
+    ...common,
+    type,
+    deposit: form.initialCost ?? 0,
+    terminationFee: 0,
+    mileageLimit: null,
+  };
+}
+
+function getListingErrorMessage(data: unknown, status: number) {
+  if (
+    data &&
+    typeof data === "object" &&
+    "error" in data &&
+    typeof data.error === "string"
+  ) {
+    return `${data.error} (${status})`;
+  }
+
+  return `등록에 실패했습니다 (${status})`;
+}
+
+function formatFuel(fuel: WizardForm["fuel"]): string {
+  if (fuel === "GASOLINE") return "가솔린";
+  if (fuel === "DIESEL") return "디젤";
+  if (fuel === "HYBRID") return "하이브리드";
+  if (fuel === "EV") return "전기";
+  return "";
 }
 
 function TrustReinforcement({ message }: { message: string }) {

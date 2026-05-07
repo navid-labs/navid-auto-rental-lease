@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
 import { requireRole, isAuthError } from "@/lib/api/auth-guard";
+import { sendNotification } from "@/lib/notifications/send";
 import { VALID_STATUS_TRANSITIONS } from "@/types/admin";
 import {
   ListingStatus,
+  NotificationType,
   FuelType,
   Transmission,
   BodyType,
@@ -40,7 +42,8 @@ const adminListingUpdateSchema = z.object({
   mileageVerified: z.boolean().optional(),
   registrationRegion: z.string().max(100).optional().nullable(),
   inspectionChecklist: z.any().optional().nullable(),
-  rejectionReason: z.string().max(1000).optional().nullable(),
+  rejectionReason: z.string().min(10).max(1000).optional().nullable(),
+  reviewReason: z.string().max(100).optional().nullable(),
 });
 
 export async function PATCH(
@@ -62,22 +65,68 @@ export async function PATCH(
       );
     }
 
-    const data = parsed.data as Record<string, unknown>;
+    const data = { ...parsed.data } as Record<string, unknown>;
+    let shouldNotifyApproval = false;
+    let shouldNotifyRejection = false;
 
     if (data.status) {
       const current = await prisma.listing.findUnique({
         where: { id },
-        select: { status: true },
+        select: { status: true, sellerId: true },
       });
       if (!current) {
         return NextResponse.json({ error: "매물을 찾을 수 없습니다." }, { status: 404 });
       }
-      const allowed = VALID_STATUS_TRANSITIONS[current.status];
-      if (!allowed?.includes(data.status as string)) {
+
+      const nextStatus = data.status as ListingStatus;
+      const rejectionReason =
+        typeof data.rejectionReason === "string" ? data.rejectionReason.trim() : "";
+      const reviewReason =
+        typeof data.reviewReason === "string" ? data.reviewReason.trim() : "";
+
+      if (nextStatus === "REJECTED" && rejectionReason.length < 10) {
         return NextResponse.json(
-          { error: `${current.status} → ${data.status} 전이는 허용되지 않습니다.` },
+          { error: "거절 사유는 10자 이상 입력해주세요." },
           { status: 400 }
         );
+      }
+
+      if (
+        current.status === "ACTIVE" &&
+        nextStatus === "PENDING" &&
+        reviewReason !== "REPORTS_THRESHOLD"
+      ) {
+        return NextResponse.json(
+          { error: "자동 가림 전이는 REPORTS_THRESHOLD 사유만 허용됩니다." },
+          { status: 400 }
+        );
+      }
+
+      if (nextStatus === current.status) {
+        delete data.status;
+      } else {
+        const allowed = VALID_STATUS_TRANSITIONS[current.status];
+        if (!allowed?.includes(nextStatus)) {
+          return NextResponse.json(
+            { error: `${current.status} → ${nextStatus} 전이는 허용되지 않습니다.` },
+            { status: 400 }
+          );
+        }
+
+        shouldNotifyApproval = nextStatus === "ACTIVE";
+        shouldNotifyRejection = nextStatus === "REJECTED";
+      }
+
+      if (nextStatus === "REJECTED") {
+        data.rejectionReason = rejectionReason;
+        if (shouldNotifyRejection) {
+          data.inspectedAt = new Date();
+          data.inspectedBy = auth.userId;
+        }
+      }
+
+      if (reviewReason) {
+        data.reviewReason = reviewReason;
       }
     }
 
@@ -90,6 +139,26 @@ export async function PATCH(
       where: { id },
       data,
     });
+
+    if (shouldNotifyApproval) {
+      await sendNotification({
+        userId: listing.sellerId,
+        type: NotificationType.LISTING_APPROVED,
+        title: "매물이 승인되었습니다",
+        message: "게시판에 공개되었습니다",
+        linkUrl: `/listings/${id}`,
+      });
+    }
+
+    if (shouldNotifyRejection && listing.rejectionReason) {
+      await sendNotification({
+        userId: listing.sellerId,
+        type: NotificationType.LISTING_REJECTED,
+        title: "매물이 거절되었습니다",
+        message: listing.rejectionReason,
+        linkUrl: `/sell/edit/${id}`,
+      });
+    }
 
     return NextResponse.json(listing);
   } catch (error) {

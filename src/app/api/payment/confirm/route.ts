@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { NotificationType } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { requireAuth, isAuthError } from "@/lib/api/auth-guard";
+import { sendBulkNotifications } from "@/lib/notifications/send";
 
 // POST /api/payment/confirm
 // Called after PG (Toss Payments) callback — verify then update escrow status
@@ -40,15 +42,44 @@ export async function POST(request: NextRequest) {
     // In test mode they are omitted and we skip PG verification.
     // TODO: call verifyTossPayment(pgPaymentKey, pgOrderId, existing.totalAmount) in production
 
-    const updated = await prisma.escrowPayment.update({
-      where: { id: paymentId },
-      data: {
-        status: "PAID",
-        paidAt: new Date(),
-        ...(pgOrderId && { pgOrderId }),
-        ...(pgPaymentKey && { pgPaymentKey }),
-      },
+    const paidAt = new Date();
+    const updated = await prisma.$transaction(async (tx) => {
+      const escrow = await tx.escrowPayment.update({
+        where: { id: paymentId },
+        data: {
+          status: "PAID",
+          paidAt,
+          ...(pgOrderId && { pgOrderId }),
+          ...(pgPaymentKey && { pgPaymentKey }),
+        },
+      });
+
+      // Conditional transition: ACTIVE → RESERVED only.
+      // 0 rows updated (already RESERVED/SOLD) is acceptable — transaction succeeds.
+      await tx.listing.updateMany({
+        where: { id: existing.listingId, status: "ACTIVE" },
+        data: { status: "RESERVED" },
+      });
+
+      return escrow;
     });
+
+    await sendBulkNotifications([
+      {
+        userId: existing.buyerId,
+        type: NotificationType.ESCROW_PAID,
+        title: "결제가 완료되었습니다",
+        message: "명의변경 절차를 진행하세요.",
+        linkUrl: `/payment/${paymentId}`,
+      },
+      {
+        userId: existing.sellerId,
+        type: NotificationType.ESCROW_PAID,
+        title: "구매 결제가 완료되었습니다",
+        message: "명의변경 안내를 확인하세요.",
+        linkUrl: `/payment/${paymentId}`,
+      },
+    ]);
 
     return NextResponse.json(updated);
   } catch (error) {

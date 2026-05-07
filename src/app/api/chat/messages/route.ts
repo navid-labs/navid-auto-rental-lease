@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { requireAuth, isAuthError } from "@/lib/api/auth-guard";
-import { containsContactInfo } from "@/lib/chat/contact-filter";
+import { requireActiveProfile, requireAuth, isAuthError } from "@/lib/api/auth-guard";
+import { decideMessageReview } from "@/lib/chat/contact-filter";
 
 const PAGE_SIZE = 50;
 
@@ -34,7 +34,10 @@ export async function GET(request: NextRequest) {
     }
 
     const messages = await prisma.chatMessage.findMany({
-      where: { chatRoomId: roomId },
+      where: {
+        chatRoomId: roomId,
+        OR: [{ reviewStatus: "APPROVED" }, { senderId: auth.userId }],
+      },
       orderBy: { createdAt: "asc" },
       take: PAGE_SIZE,
       ...(cursor
@@ -51,6 +54,8 @@ export async function GET(request: NextRequest) {
         content: true,
         imageUrl: true,
         isRead: true,
+        reviewStatus: true,
+        blockReason: true,
         createdAt: true,
       },
     });
@@ -65,7 +70,7 @@ export async function GET(request: NextRequest) {
 // POST /api/chat/messages — send a message
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireAuth();
+    const auth = await requireActiveProfile();
     if (isAuthError(auth)) return auth;
 
     const body = await request.json();
@@ -92,13 +97,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
     }
 
-    // Server-side contact info check (must mirror client-side filter)
-    if (type === "TEXT" && containsContactInfo(content)) {
-      return NextResponse.json(
-        { error: "외부 연락처 공유가 제한됩니다." },
-        { status: 422 }
-      );
-    }
+    const decision =
+      type === "TEXT"
+        ? decideMessageReview(content)
+        : { reviewStatus: "APPROVED" as const, sanitized: content, blockReason: undefined };
 
     // senderId is always taken from the session — never from body
     const message = await prisma.chatMessage.create({
@@ -106,9 +108,19 @@ export async function POST(request: NextRequest) {
         chatRoomId,
         senderId: auth.userId,
         type,
-        content,
+        content: decision.sanitized,
+        reviewStatus: decision.reviewStatus,
+        blockReason: decision.blockReason,
       },
     });
+
+    if (decision.reviewStatus === "BLOCKED") {
+      return NextResponse.json({
+        id: message.id,
+        reviewStatus: decision.reviewStatus,
+        blockReason: decision.blockReason,
+      });
+    }
 
     // Touch updatedAt on the parent room so room list re-sorts
     await prisma.chatRoom.update({

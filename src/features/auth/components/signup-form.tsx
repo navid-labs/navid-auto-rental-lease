@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { SocialAuthButtons } from "./social-auth-buttons";
+import { AuthDivider } from "./auth-divider";
 
 type Role = "BUYER" | "SELLER";
 
@@ -195,6 +197,9 @@ export function SignupForm() {
       >
         {loading ? "처리 중..." : "회원가입"}
       </Button>
+
+      <AuthDivider />
+      <SocialAuthButtons />
 
       <p className="text-center text-sm text-[var(--chayong-text-sub)]">
         이미 계정이 있으신가요?{" "}

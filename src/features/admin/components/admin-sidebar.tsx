@@ -12,6 +12,7 @@ import {
   Shield,
   ClipboardCheck,
   Wallet,
+  Flag,
   ChevronDown,
 } from "lucide-react";
 import { useAdminRoleStore } from "@/lib/admin/role-store";
@@ -58,6 +59,13 @@ const navItems = [
     href: "/admin/escrow",
     label: "에스크로 관리",
     icon: CreditCard,
+    exact: false,
+    roles: ["admin"] as AdminRole[],
+  },
+  {
+    href: "/admin/reports",
+    label: "신고 관리",
+    icon: Flag,
     exact: false,
     roles: ["admin"] as AdminRole[],
   },

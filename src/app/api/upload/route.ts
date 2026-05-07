@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { requireAuth, isAuthError } from "@/lib/api/auth-guard";
+import { requireActiveProfile, isAuthError } from "@/lib/api/auth-guard";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireAuth();
+    const auth = await requireActiveProfile();
     if (isAuthError(auth)) return auth;
 
     const supabase = await createClient();

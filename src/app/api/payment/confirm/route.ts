@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { NotificationType } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
-import { requireAuth, isAuthError } from "@/lib/api/auth-guard";
+import { requireActiveProfile, isAuthError } from "@/lib/api/auth-guard";
 import { sendBulkNotifications } from "@/lib/notifications/send";
 
 // POST /api/payment/confirm
 // Called after PG (Toss Payments) callback — verify then update escrow status
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireAuth();
+    const auth = await requireActiveProfile();
     if (isAuthError(auth)) return auth;
 
     const body = await request.json();

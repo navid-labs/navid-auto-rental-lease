@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { isAuthError, requireAuth } from "@/lib/api/auth-guard";
+import { isAuthError, requireActiveProfile } from "@/lib/api/auth-guard";
 import { prisma } from "@/lib/db/prisma";
 import {
   ALLOWED_TYPES,
@@ -16,7 +16,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireAuth();
+    const auth = await requireActiveProfile();
     if (isAuthError(auth)) return auth;
 
     const { id } = await params;

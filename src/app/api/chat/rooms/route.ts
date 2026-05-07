@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { requireAuth, isAuthError } from "@/lib/api/auth-guard";
+import { requireAuth, requireActiveProfile, isAuthError } from "@/lib/api/auth-guard";
 
 // GET /api/chat/rooms — list rooms for the authenticated user
 export async function GET(_request: NextRequest) {
@@ -76,7 +76,7 @@ export async function GET(_request: NextRequest) {
 // POST /api/chat/rooms — create or return existing room
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireAuth();
+    const auth = await requireActiveProfile();
     if (isAuthError(auth)) return auth;
 
     const body = await request.json();

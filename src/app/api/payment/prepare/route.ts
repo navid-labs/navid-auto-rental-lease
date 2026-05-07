@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { requireAuth, isAuthError } from "@/lib/api/auth-guard";
+import { requireActiveProfile, isAuthError } from "@/lib/api/auth-guard";
 
 const DEPOSIT_AMOUNT = 500_000; // 가계약금 고정 500,000원
 
 // POST /api/payment/prepare
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireAuth();
+    const auth = await requireActiveProfile();
     if (isAuthError(auth)) return auth;
 
     const body = await request.json();

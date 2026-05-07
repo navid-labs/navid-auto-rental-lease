@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { ImagePlus, Loader2, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -86,6 +88,20 @@ function getTargetSummary(targetType: ReportTargetType, targetSummary?: string) 
   return `${TARGET_LABELS[targetType]} 요약 정보가 제공되지 않았습니다.`;
 }
 
+type EvidenceItem = {
+  key: string;
+  url: string;
+  name: string;
+};
+
+const MAX_EVIDENCE_FILES = 5;
+const MAX_EVIDENCE_SIZE_BYTES = 10 * 1024 * 1024;
+const ALLOWED_EVIDENCE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
+
 export function ReportModal({
   targetType,
   targetId,
@@ -97,34 +113,168 @@ export function ReportModal({
   const [reason, setReason] = useState<ReportReason | "">("");
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [evidenceItems, setEvidenceItems] = useState<EvidenceItem[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const evidenceInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isOpen) {
       setReason("");
       setDescription("");
       setSubmitting(false);
+      setEvidenceItems([]);
+      setUploading(false);
       return;
     }
 
     setReason("");
     setDescription("");
     setSubmitting(false);
+    setEvidenceItems([]);
+    setUploading(false);
   }, [isOpen, targetId, targetType]);
 
   const descriptionCount = description.length;
-  const canSubmit = Boolean(reason) && !submitting;
+  const canSubmit = Boolean(reason) && !submitting && !uploading;
   const summaryText = getTargetSummary(targetType, targetSummary);
 
   const handleOpenChange = (nextOpen: boolean) => {
-    if (!nextOpen && !submitting) {
+    if (!nextOpen && !submitting && !uploading) {
       onClose();
     }
+  };
+
+  const validateEvidenceFile = (file: File) => {
+    if (!ALLOWED_EVIDENCE_TYPES.has(file.type)) {
+      return "허용되지 않는 파일 형식입니다. (JPEG, PNG, WebP만 가능)";
+    }
+
+    if (file.size > MAX_EVIDENCE_SIZE_BYTES) {
+      return "파일 크기는 10MB 이하여야 합니다.";
+    }
+
+    return null;
+  };
+
+  const handleEvidenceFileChange = async (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    const input = event.currentTarget;
+    const files = Array.from(input.files ?? []);
+
+    if (files.length === 0 || uploading || submitting) {
+      input.value = "";
+      return;
+    }
+
+    const remainingSlots = MAX_EVIDENCE_FILES - evidenceItems.length;
+    if (remainingSlots <= 0) {
+      window.alert("증거 이미지는 최대 5개까지 첨부할 수 있습니다.");
+      input.value = "";
+      return;
+    }
+
+    const validFiles: File[] = [];
+    let hadValidationError = false;
+
+    for (const file of files) {
+      if (validFiles.length >= remainingSlots) {
+        break;
+      }
+
+      const validationError = validateEvidenceFile(file);
+      if (validationError) {
+        hadValidationError = true;
+        window.alert(validationError);
+        continue;
+      }
+
+      validFiles.push(file);
+    }
+
+    if (files.length > remainingSlots) {
+      hadValidationError = true;
+      window.alert("증거 이미지는 최대 5개까지 첨부할 수 있습니다.");
+    }
+
+    if (validFiles.length === 0) {
+      input.value = "";
+      if (hadValidationError) {
+        setUploading(false);
+      }
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const uploadedItems: EvidenceItem[] = [];
+
+      for (const file of validFiles) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("folder", "reports");
+
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const body = (await response.json().catch(() => ({}))) as {
+          error?: unknown;
+          url?: unknown;
+          path?: unknown;
+        };
+
+        if (!response.ok) {
+          const errorMessage =
+            typeof body.error === "string" && body.error.trim().length > 0
+              ? body.error
+              : "증거 이미지 업로드에 실패했습니다.";
+          window.alert(errorMessage);
+          continue;
+        }
+
+        if (
+          typeof body.url !== "string" ||
+          body.url.trim().length === 0 ||
+          typeof body.path !== "string" ||
+          body.path.trim().length === 0
+        ) {
+          window.alert("증거 이미지 업로드에 실패했습니다.");
+          continue;
+        }
+
+        uploadedItems.push({
+          key: body.path,
+          url: body.url,
+          name: file.name,
+        });
+      }
+
+      if (uploadedItems.length > 0) {
+        setEvidenceItems((current) => [...current, ...uploadedItems]);
+      }
+    } catch {
+      window.alert("증거 이미지 업로드에 실패했습니다.");
+    } finally {
+      setUploading(false);
+      input.value = "";
+    }
+  };
+
+  const handleRemoveEvidence = (key: string) => {
+    if (submitting || uploading) {
+      return;
+    }
+
+    setEvidenceItems((current) => current.filter((item) => item.key !== key));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!reason || submitting) {
+    if (!reason || submitting || uploading) {
       return;
     }
 
@@ -136,6 +286,7 @@ export function ReportModal({
         targetId: string;
         reason: ReportReason;
         description?: string;
+        evidenceKeys?: string[];
       } = {
         targetType,
         targetId,
@@ -145,6 +296,10 @@ export function ReportModal({
       const trimmedDescription = description.trim();
       if (trimmedDescription.length > 0) {
         payload.description = trimmedDescription;
+      }
+
+      if (evidenceItems.length > 0) {
+        payload.evidenceKeys = evidenceItems.map((item) => item.key);
       }
 
       const response = await fetch("/api/reports", {
@@ -179,7 +334,10 @@ export function ReportModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-2xl" showCloseButton={!submitting}>
+      <DialogContent
+        className="sm:max-w-2xl"
+        showCloseButton={!submitting && !uploading}
+      >
         <DialogHeader>
           <DialogTitle>신고하기</DialogTitle>
           <DialogDescription>
@@ -256,6 +414,101 @@ export function ReportModal({
             </RadioGroup>
           </fieldset>
 
+          <section className="grid gap-3 rounded-2xl border border-[var(--chayong-divider)] bg-[var(--chayong-surface)] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-[var(--chayong-text)]">
+                  증거 이미지
+                </p>
+                <p className="mt-1 text-xs text-[var(--chayong-text-caption)]">
+                  JPEG, PNG, WebP만 가능 · 최대 5개 · 파일당 10MB 이하
+                </p>
+              </div>
+              <span className="text-xs text-[var(--chayong-text-caption)]">
+                {evidenceItems.length}/{MAX_EVIDENCE_FILES}
+              </span>
+            </div>
+
+            {evidenceItems.length > 0 ? (
+              <div className="grid gap-2">
+                {evidenceItems.map((item, index) => (
+                  <div
+                    key={item.key}
+                    className="flex items-center gap-3 rounded-xl border border-[var(--chayong-divider)] bg-[var(--chayong-bg)] p-2.5"
+                  >
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-[var(--chayong-surface)]">
+                      <Image
+                        src={item.url}
+                        alt={item.name}
+                        fill
+                        sizes="48px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-[var(--chayong-text)]">
+                        증거 이미지 {index + 1}
+                      </p>
+                      <p className="truncate text-xs text-[var(--chayong-text-caption)]">
+                        {item.name}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRemoveEvidence(item.key)}
+                      disabled={submitting || uploading}
+                      className="shrink-0 text-[var(--chayong-text-caption)] hover:text-[var(--chayong-text)]"
+                      aria-label={`${item.name} 제거`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            {evidenceItems.length < MAX_EVIDENCE_FILES ? (
+              <label
+                className={cn(
+                  "flex min-h-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-5 text-center transition-colors",
+                  uploading
+                    ? "cursor-not-allowed border-[var(--chayong-divider)] bg-[var(--chayong-bg)] text-[var(--chayong-text-caption)]"
+                    : "border-[var(--chayong-divider)] bg-[var(--chayong-bg)] text-[var(--chayong-text-caption)] hover:border-[var(--chayong-primary)] hover:bg-[var(--chayong-primary-light)]/20"
+                )}
+              >
+                {uploading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin text-[var(--chayong-primary)]" />
+                    <span className="text-sm font-medium text-[var(--chayong-text)]">
+                      업로드 중...
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <ImagePlus className="h-5 w-5" />
+                    <span className="text-sm font-medium text-[var(--chayong-text)]">
+                      증거 이미지 추가
+                    </span>
+                    <span className="text-xs">
+                      클릭하거나 파일을 선택하세요.
+                    </span>
+                  </>
+                )}
+                <input
+                  ref={evidenceInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  className="hidden"
+                  onChange={handleEvidenceFileChange}
+                  disabled={submitting || uploading}
+                />
+              </label>
+            ) : null}
+          </section>
+
           <section className="grid gap-2">
             <div className="flex items-center justify-between gap-3">
               <label
@@ -275,7 +528,7 @@ export function ReportModal({
               maxLength={1000}
               rows={5}
               placeholder="신고 사유를 조금 더 자세히 적어주세요. 선택 입력입니다."
-              disabled={submitting}
+              disabled={submitting || uploading}
             />
           </section>
 
@@ -284,7 +537,7 @@ export function ReportModal({
               type="button"
               variant="outline"
               onClick={onClose}
-              disabled={submitting}
+              disabled={submitting || uploading}
             >
               취소
             </Button>

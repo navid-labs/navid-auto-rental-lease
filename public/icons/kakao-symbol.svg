@@ -1,0 +1,9 @@
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <!-- Kakao chat bubble (placeholder approximation) -->
+  <!-- TODO: Replace with official asset from https://developers.kakao.com/tool/resource/login (button.zip → PSD) before production -->
+  <path
+    d="M10 3C5.582 3 2 5.733 2 9.107c0 2.165 1.475 4.063 3.694 5.16l-.79 2.886c-.07.252.21.45.435.31l3.46-2.286c.392.04.79.061 1.201.061 4.418 0 8-2.733 8-6.107S14.418 3 10 3z"
+    fill="currentColor"
+    fill-opacity="0.85"
+  />
+</svg>

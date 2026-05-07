@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { sanitizeMessage } from "@/lib/chat/contact-filter";
 import { createClient } from "@/lib/supabase/client";
-import { ImageIcon, Send } from "lucide-react";
+import { ReportModal } from "@/components/ui/report-modal";
+import { Flag, ImageIcon, Send } from "lucide-react";
 
 interface Message {
   id: string;
@@ -44,6 +45,10 @@ export function ChatMessageArea({
   const [inputText, setInputText] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
+  const [reportTarget, setReportTarget] = useState<{
+    id: string;
+    summary: string;
+  } | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -194,11 +199,12 @@ export function ChatMessageArea({
           }
 
           const isMine = msg.senderId === currentUserId;
+          const reportSummary = msg.content.trim().slice(0, 80);
 
           return (
             <div
               key={msg.id}
-              className={`flex items-end gap-2 ${isMine ? "flex-row-reverse" : "flex-row"}`}
+              className={`group flex items-end gap-2 ${isMine ? "flex-row-reverse" : "flex-row"}`}
             >
               {/* Avatar (only for received) */}
               {!isMine && (
@@ -214,24 +220,42 @@ export function ChatMessageArea({
               <div
                 className={`flex flex-col gap-1 ${isMine ? "items-end" : "items-start"}`}
               >
-                <div
-                  className="max-w-xs rounded-2xl px-4 py-2.5 text-sm leading-relaxed break-words lg:max-w-md"
-                  style={
-                    isMine
-                      ? {
-                          backgroundColor: "var(--chayong-primary)",
-                          color: "#ffffff",
-                          borderBottomRightRadius: "4px",
-                        }
-                      : {
-                          backgroundColor: "var(--chayong-surface)",
-                          color: "var(--chayong-text)",
-                          border: "1px solid var(--chayong-border)",
-                          borderBottomLeftRadius: "4px",
-                        }
-                  }
-                >
-                  {msg.content}
+                <div className="flex items-end gap-2">
+                  {!isMine && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setReportTarget({
+                          id: msg.id,
+                          summary: reportSummary,
+                        })
+                      }
+                      className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border border-[var(--chayong-divider)] bg-[var(--chayong-surface)] text-[var(--chayong-text-caption)] opacity-0 shadow-sm transition-all duration-150 hover:bg-[var(--chayong-bg)] hover:text-[var(--chayong-primary)] focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--chayong-primary)] focus-visible:ring-offset-2 active:scale-95 group-hover:opacity-100 group-focus-within:opacity-100 group-active:opacity-100"
+                      aria-label="메시지 신고"
+                    >
+                      <Flag size={12} />
+                    </button>
+                  )}
+
+                  <div
+                    className="max-w-xs rounded-2xl px-4 py-2.5 text-sm leading-relaxed break-words lg:max-w-md"
+                    style={
+                      isMine
+                        ? {
+                            backgroundColor: "var(--chayong-primary)",
+                            color: "#ffffff",
+                            borderBottomRightRadius: "4px",
+                          }
+                        : {
+                            backgroundColor: "var(--chayong-surface)",
+                            color: "var(--chayong-text)",
+                            border: "1px solid var(--chayong-border)",
+                            borderBottomLeftRadius: "4px",
+                          }
+                    }
+                  >
+                    {msg.content}
+                  </div>
                 </div>
                 <span
                   className="text-xs"
@@ -246,6 +270,14 @@ export function ChatMessageArea({
 
         <div ref={bottomRef} />
       </div>
+
+      <ReportModal
+        targetType="MESSAGE"
+        targetId={reportTarget?.id ?? ""}
+        targetSummary={reportTarget?.summary}
+        isOpen={reportTarget !== null}
+        onClose={() => setReportTarget(null)}
+      />
 
       {/* Warning toast */}
       {warning && (

@@ -1,5 +1,6 @@
 import { UserRole } from "@prisma/client";
 import { BadgeCheck, User } from "lucide-react";
+import { ChatInquiryModal } from "@/features/chat/components/chat-inquiry-modal";
 import { ReviewList } from "@/features/reviews/components/review-list";
 
 interface SellerCardProps {
@@ -9,6 +10,8 @@ interface SellerCardProps {
   isVerified?: boolean;
   /** Listing ID to pre-fill chat link */
   listingId: string;
+  listingName?: string;
+  monthlyPayment: number;
 }
 
 const ROLE_LABEL: Partial<Record<UserRole, string>> = {
@@ -29,6 +32,8 @@ export function SellerCard({
   sellerRole,
   isVerified,
   listingId,
+  listingName = "매물",
+  monthlyPayment,
 }: SellerCardProps) {
   const roleLabel = ROLE_LABEL[sellerRole] ?? sellerRole;
   const badgeStyle = ROLE_BADGE_STYLE[sellerRole];
@@ -89,8 +94,10 @@ export function SellerCard({
       </div>
 
       {/* Chat CTA */}
-      <a
-        href={`/chat?listing=${listingId}`}
+      <ChatInquiryModal
+        listingId={listingId}
+        listingName={listingName}
+        monthlyPayment={monthlyPayment}
         className="mt-4 flex h-10 w-full items-center justify-center rounded-xl border text-sm font-semibold transition hover:bg-[var(--chayong-surface)]"
         style={{
           borderColor: "var(--chayong-border)",
@@ -98,7 +105,7 @@ export function SellerCard({
         }}
       >
         판매자에게 문의
-      </a>
+      </ChatInquiryModal>
 
       {/* Seller reviews */}
       <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--chayong-divider)" }}>

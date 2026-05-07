@@ -23,6 +23,7 @@ export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ chatRoom?: string }>;
 }
 
 async function getListing(id: string) {
@@ -81,8 +82,9 @@ const ESCROW_STEPS = [
   },
 ] as const;
 
-export default async function DetailPage({ params }: PageProps) {
+export default async function DetailPage({ params, searchParams }: PageProps) {
   const { id } = await params;
+  const { chatRoom: chatRoomId } = (await searchParams) ?? {};
   const rawListing = await getListing(id);
 
   if (!rawListing) notFound();
@@ -108,6 +110,39 @@ export default async function DetailPage({ params }: PageProps) {
 
   const vehicleName =
     [listing.brand, listing.model].filter(Boolean).join(" ") || "차량 정보 없음";
+
+  const initialChatRoom =
+    viewerId && chatRoomId
+      ? await prisma.chatRoom.findFirst({
+          where: {
+            id: chatRoomId,
+            listingId: listing.id,
+            OR: [{ buyerId: viewerId }, { sellerId: viewerId }],
+          },
+          select: {
+            id: true,
+            messages: {
+              where: {
+                OR: [{ reviewStatus: "APPROVED" }, { senderId: viewerId }],
+              },
+              orderBy: { createdAt: "asc" },
+              take: 50,
+              select: {
+                id: true,
+                chatRoomId: true,
+                senderId: true,
+                type: true,
+                content: true,
+                imageUrl: true,
+                isRead: true,
+                reviewStatus: true,
+                blockReason: true,
+                createdAt: true,
+              },
+            },
+          },
+        })
+      : null;
 
   // Map images for gallery (add alt text)
   const galleryImages = listing.images.map((img) => ({
@@ -205,6 +240,8 @@ export default async function DetailPage({ params }: PageProps) {
             sellerRole={listing.seller.role}
             isVerified={listing.isVerified}
             listingId={listing.id}
+            listingName={vehicleName}
+            monthlyPayment={listing.monthlyPayment}
           />
         </div>
 
@@ -215,6 +252,19 @@ export default async function DetailPage({ params }: PageProps) {
             initialCost={listing.initialCost}
             remainingMonths={listing.remainingMonths}
             listingId={listing.id}
+            listingName={vehicleName}
+            initialChatRoom={
+              initialChatRoom
+                ? {
+                    id: initialChatRoom.id,
+                    currentUserId: viewerId!,
+                    messages: initialChatRoom.messages.map((message) => ({
+                      ...message,
+                      createdAt: message.createdAt.toISOString(),
+                    })),
+                  }
+                : undefined
+            }
           />
 
           <ListingCostCalculator
@@ -308,7 +358,11 @@ export default async function DetailPage({ params }: PageProps) {
       </div>
 
       {/* Mobile fixed bottom CTA */}
-      <MobileCTABar monthlyPayment={listing.monthlyPayment} listingId={listing.id} />
+      <MobileCTABar
+        monthlyPayment={listing.monthlyPayment}
+        listingId={listing.id}
+        listingName={vehicleName}
+      />
     </div>
   );
 }

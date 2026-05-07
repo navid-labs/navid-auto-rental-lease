@@ -1,15 +1,20 @@
 "use client";
 
-import Link from "next/link";
+import type { ComponentProps } from "react";
 import { Calculator, Heart, ShieldCheck } from "lucide-react";
 import { PriceDisplay } from "@/components/ui/price-display";
+import { ChatInquiryModal } from "@/features/chat/components/chat-inquiry-modal";
 import { useFavorite } from "@/features/listings/hooks/use-favorite";
+
+type InitialChatRoom = ComponentProps<typeof ChatInquiryModal>["initialRoom"];
 
 interface ListingCtaSidebarProps {
   monthlyPayment: number;
   initialCost: number;
   remainingMonths: number;
   listingId: string;
+  listingName?: string;
+  initialChatRoom?: InitialChatRoom;
   initialFavoriteCount?: number;
 }
 
@@ -30,6 +35,8 @@ export function ListingCtaSidebar({
   initialCost,
   remainingMonths,
   listingId,
+  listingName = "매물",
+  initialChatRoom,
   initialFavoriteCount = 0,
 }: ListingCtaSidebarProps) {
   const { isFavorited, count, loading, toggle } = useFavorite(listingId, initialFavoriteCount);
@@ -89,14 +96,17 @@ export function ListingCtaSidebar({
       </div>
 
       <div className="flex flex-col gap-2">
-        <Link
-          href={`/chat?listing=${listingId}`}
+        <ChatInquiryModal
+          listingId={listingId}
+          listingName={listingName}
+          monthlyPayment={monthlyPayment}
+          initialRoom={initialChatRoom}
           className="flex h-12 w-full min-w-0 items-center justify-center gap-2 rounded-xl px-4 text-[15px] font-semibold text-white transition-colors hover:opacity-90"
           style={{ backgroundColor: "var(--chayong-primary)" }}
         >
           <ShieldCheck size={16} className="shrink-0" />
           <span className="truncate">채팅 문의하기</span>
-        </Link>
+        </ChatInquiryModal>
 
         <button
           type="button"

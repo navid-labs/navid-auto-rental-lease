@@ -1,20 +1,114 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { ChatRoomList } from "@/features/chat/components/chat-room-list";
+import { prisma } from "@/lib/db/prisma";
+import { requireActiveProfile, isAuthError } from "@/lib/api/auth-guard";
 
 export const metadata: Metadata = {
   title: "채팅",
   description: "상담 채팅 목록을 확인하세요.",
 };
 
-export default async function ChatListPage() {
-  // TODO: Get authenticated user, fetch their chat rooms
-  // const supabase = await createClient();
-  // const { data: { user } } = await supabase.auth.getUser();
-  // if (!user) redirect('/login');
-  // const res = await fetch(`/api/chat/rooms?userId=${user.id}`, { cache: 'no-store' });
-  // const { data: rooms } = await res.json();
+interface PageProps {
+  searchParams: Promise<{ listing?: string }>;
+}
 
-  const rooms: never[] = [];
+export const dynamic = "force-dynamic";
+
+export default async function ChatListPage({ searchParams }: PageProps) {
+  const auth = await requireActiveProfile();
+  if (isAuthError(auth)) redirect("/login");
+
+  const { listing: listingId } = await searchParams;
+
+  if (listingId) {
+    const listing = await prisma.listing.findUnique({
+      where: { id: listingId },
+      select: { sellerId: true, status: true },
+    });
+
+    if (!listing || listing.status !== "ACTIVE") {
+      redirect("/chat?error=unavailable");
+    }
+
+    if (listing.sellerId === auth.userId) {
+      redirect("/chat?error=self");
+    }
+
+    const room = await prisma.chatRoom.upsert({
+      where: { listingId_buyerId: { listingId, buyerId: auth.userId } },
+      update: {},
+      create: {
+        listingId,
+        buyerId: auth.userId,
+        sellerId: listing.sellerId,
+      },
+      select: { id: true },
+    });
+
+    redirect(`/chat/${room.id}`);
+  }
+
+  const rooms = await prisma.chatRoom.findMany({
+    where: {
+      isActive: true,
+      OR: [{ buyerId: auth.userId }, { sellerId: auth.userId }],
+    },
+    orderBy: { updatedAt: "desc" },
+    include: {
+      listing: {
+        select: {
+          id: true,
+          brand: true,
+          model: true,
+          monthlyPayment: true,
+          images: {
+            where: { isPrimary: true },
+            take: 1,
+            select: { url: true },
+          },
+        },
+      },
+      messages: {
+        where: {
+          OR: [{ reviewStatus: "APPROVED" }, { senderId: auth.userId }],
+        },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: {
+          content: true,
+          type: true,
+          createdAt: true,
+          senderId: true,
+        },
+      },
+    },
+  });
+
+  const roomItems = rooms.map((room) => {
+    const lastMessage = room.messages[0] ?? null;
+    return {
+      id: room.id,
+      listing: {
+        id: room.listing.id,
+        brand: room.listing.brand,
+        model: room.listing.model,
+        monthlyPayment: room.listing.monthlyPayment,
+        primaryImage: room.listing.images[0]?.url ?? null,
+      },
+      buyerId: room.buyerId,
+      sellerId: room.sellerId,
+      lastMessage: lastMessage
+        ? {
+            content: lastMessage.content,
+            type: lastMessage.type,
+            createdAt: lastMessage.createdAt.toISOString(),
+            isMine: lastMessage.senderId === auth.userId,
+          }
+        : null,
+      updatedAt: room.updatedAt.toISOString(),
+    };
+  });
 
   return (
     <div
@@ -68,7 +162,7 @@ export default async function ChatListPage() {
         </div>
 
         {/* Room list */}
-        <ChatRoomList rooms={rooms} />
+        <ChatRoomList rooms={roomItems} />
       </div>
     </div>
   );

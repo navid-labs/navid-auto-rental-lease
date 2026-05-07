@@ -29,6 +29,9 @@ export async function GET(_request: NextRequest) {
           },
         },
         messages: {
+          where: {
+            OR: [{ reviewStatus: "APPROVED" }, { senderId: auth.userId }],
+          },
           orderBy: { createdAt: "desc" },
           take: 1,
           select: {
@@ -80,17 +83,40 @@ export async function POST(request: NextRequest) {
     if (isAuthError(auth)) return auth;
 
     const body = await request.json();
-    const { listingId, sellerId } = body;
+    const { listingId } = body;
 
-    if (!listingId || !sellerId) {
+    if (!listingId || typeof listingId !== "string") {
       return NextResponse.json(
-        { error: "listingId, sellerId are required" },
+        { error: "listingId is required" },
         { status: 400 }
       );
     }
 
     // buyerId is always the authenticated user
     const buyerId = auth.userId;
+
+    const listing = await prisma.listing.findUnique({
+      where: { id: listingId },
+      select: { sellerId: true, status: true },
+    });
+
+    if (!listing) {
+      return NextResponse.json({ error: "매물을 찾을 수 없습니다." }, { status: 404 });
+    }
+
+    if (listing.status !== "ACTIVE") {
+      return NextResponse.json(
+        { error: "현재 상담할 수 없는 매물입니다." },
+        { status: 400 }
+      );
+    }
+
+    if (listing.sellerId === buyerId) {
+      return NextResponse.json(
+        { error: "본인 매물에는 채팅 문의를 시작할 수 없습니다." },
+        { status: 403 }
+      );
+    }
 
     const existing = await prisma.chatRoom.findUnique({
       where: { listingId_buyerId: { listingId, buyerId } },
@@ -101,7 +127,7 @@ export async function POST(request: NextRequest) {
     }
 
     const room = await prisma.chatRoom.create({
-      data: { listingId, buyerId, sellerId },
+      data: { listingId, buyerId, sellerId: listing.sellerId },
     });
 
     return NextResponse.json(room, { status: 201 });

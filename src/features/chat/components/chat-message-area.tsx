@@ -14,6 +14,8 @@ interface Message {
   content: string;
   imageUrl?: string | null;
   isRead: boolean;
+  reviewStatus?: string;
+  blockReason?: string | null;
   createdAt: string;
 }
 
@@ -92,9 +94,9 @@ export function ChatMessageArea({
     fetch("/api/chat/messages/read", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chatRoomId: roomId, userId: currentUserId }),
+      body: JSON.stringify({ chatRoomId: roomId }),
     });
-  }, [roomId, currentUserId]);
+  }, [roomId]);
 
   const handleSend = useCallback(async () => {
     const trimmed = inputText.trim();
@@ -131,7 +133,6 @@ export function ChatMessageArea({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chatRoomId: roomId,
-          senderId: currentUserId,
           content: trimmed,
           type: "TEXT",
         }),
@@ -147,6 +148,24 @@ export function ChatMessageArea({
       }
 
       const savedMessage: Message = await res.json();
+      if (savedMessage.reviewStatus === "BLOCKED") {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === optimisticId
+              ? {
+                  ...optimisticMessage,
+                  id: savedMessage.id,
+                  content: "[연락처 차단]",
+                  reviewStatus: savedMessage.reviewStatus,
+                  blockReason: savedMessage.blockReason,
+                }
+              : m
+          )
+        );
+        setWarning("외부 연락처 공유가 제한됩니다.");
+        return;
+      }
+
       // Replace optimistic entry with the server-persisted message
       setMessages((prev) =>
         prev.map((m) => (m.id === optimisticId ? savedMessage : m))

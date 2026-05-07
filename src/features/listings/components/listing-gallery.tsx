@@ -171,6 +171,7 @@ export function ListingGallery({ images, vehicleName }: ListingGalleryProps) {
   const current = images[activeIndex];
   const total = images.length;
   const altText = current.alt ?? (vehicleName ? `${vehicleName} ${activeIndex + 1}번째 이미지` : `이미지 ${activeIndex + 1}`);
+  const compactLabel = `${activeIndex + 1}/${total}`;
 
   return (
     <>
@@ -191,20 +192,48 @@ export function ListingGallery({ images, vehicleName }: ListingGalleryProps) {
             sizes="(max-width: 768px) 100vw, 50vw"
             priority={activeIndex === 0}
           />
-          {/* Counter overlay */}
-          <div
-            className="absolute bottom-2 right-2 rounded-full px-2.5 py-1 text-xs font-medium text-white tabular-nums"
-            style={{ backgroundColor: "rgba(0,0,0,0.55)" }}
-          >
-            {activeIndex + 1}/{total}
+          <div className="pointer-events-none absolute inset-x-3 top-3 flex items-start justify-between gap-2">
+            <div className="flex flex-wrap gap-2">
+              <div
+                className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-white shadow-sm backdrop-blur"
+                style={{ backgroundColor: "rgba(0,0,0,0.56)" }}
+              >
+                사진 {compactLabel}
+              </div>
+              <div
+                className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold shadow-sm backdrop-blur"
+                style={{
+                  backgroundColor: "rgba(0, 0, 0, 0.42)",
+                  borderColor: "var(--chayong-primary)",
+                  color: "var(--chayong-primary)",
+                }}
+              >
+                실매물 사진
+              </div>
+            </div>
+            <div
+              className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-white shadow-sm backdrop-blur"
+              style={{ backgroundColor: "rgba(0,0,0,0.56)" }}
+            >
+              확대 보기
+            </div>
           </div>
-          {/* Expand hint */}
-          <div
-            className="absolute left-2 top-2 rounded-full px-2.5 py-1 text-xs text-white"
-            style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
-            aria-hidden="true"
-          >
-            클릭하여 확대
+          <div className="pointer-events-none absolute inset-x-3 bottom-3 flex items-end justify-between gap-2">
+            <div
+              className="inline-flex max-w-[70%] items-center rounded-full border px-3 py-1 text-[11px] font-medium leading-none text-white shadow-sm backdrop-blur"
+              style={{
+                backgroundColor: "rgba(0,0,0,0.45)",
+                borderColor: "rgba(255, 255, 255, 0.16)",
+              }}
+            >
+              검수 이미지와 상세 컷을 눌러 확인
+            </div>
+            <div
+              className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium text-white tabular-nums shadow-sm backdrop-blur"
+              style={{ backgroundColor: "rgba(0,0,0,0.58)" }}
+            >
+              {compactLabel}
+            </div>
           </div>
         </button>
 
@@ -216,13 +245,13 @@ export function ListingGallery({ images, vehicleName }: ListingGalleryProps) {
                 key={img.id ?? img.url + i}
                 type="button"
                 onClick={() => setActiveIndex(i)}
-                className="relative h-16 w-20 shrink-0 overflow-hidden rounded-lg transition-opacity"
+                className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg transition-transform transition-opacity hover:-translate-y-0.5"
                 aria-label={`thumbnail ${i + 1}`}
                 aria-current={i === activeIndex}
                 style={{
-                  outline: i === activeIndex ? `2px solid var(--chayong-primary)` : "none",
+                  outline: i === activeIndex ? `2px solid var(--chayong-primary)` : "1px solid rgba(255,255,255,0.08)",
                   outlineOffset: "1px",
-                  opacity: i === activeIndex ? 1 : 0.6,
+                  opacity: i === activeIndex ? 1 : 0.68,
                 }}
               >
                 <Image
@@ -231,6 +260,19 @@ export function ListingGallery({ images, vehicleName }: ListingGalleryProps) {
                   fill
                   className="object-cover"
                   sizes="80px"
+                />
+                <div
+                  className="absolute left-1 top-1 rounded-full px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white shadow-sm"
+                  style={{
+                    backgroundColor: i === activeIndex ? "var(--chayong-primary)" : "rgba(0,0,0,0.62)",
+                  }}
+                  aria-hidden="true"
+                >
+                  {i + 1}
+                </div>
+                <div
+                  className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/45 to-transparent"
+                  aria-hidden="true"
                 />
               </button>
             ))}
